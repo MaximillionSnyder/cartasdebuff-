@@ -1,0 +1,12 @@
+{
+  "name": "cartasdebuff",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Skills de Uma Musume (GameTora), las cartas de las que se obtienen y app Android para explorarlas",
+  "scripts": {
+    "fetch": "node scripts/fetch-skills.mjs && node scripts/copy-assets.mjs",
+    "fetch:dry": "node scripts/fetch-skills.mjs --dry-run",
+    "assets": "node scripts/copy-assets.mjs"
+  }
+}

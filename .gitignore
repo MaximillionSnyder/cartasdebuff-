@@ -1,0 +1,17 @@
+.gradle/
+.kotlin/
+build/
+app/build/
+
+.idea/
+*.iml
+local.properties
+
+node_modules/
+
+*.keystore
+*.jks
+
+.DS_Store
+.codegraph/
+.opencode/
