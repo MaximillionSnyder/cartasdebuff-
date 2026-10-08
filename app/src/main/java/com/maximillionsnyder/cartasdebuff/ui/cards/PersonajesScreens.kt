@@ -128,7 +128,7 @@ fun PersonajeDetalleScreen(
         return
     }
 
-    val skills = modelo.skillsPorCarta[cardId].orEmpty()
+    val skills = modelo.skillsPorCarta[cardId].orEmpty().distinct()
 
     Column(Modifier.fillMaxSize()) {
         BarraDetalle(carta.nombre(idioma), onVolver)

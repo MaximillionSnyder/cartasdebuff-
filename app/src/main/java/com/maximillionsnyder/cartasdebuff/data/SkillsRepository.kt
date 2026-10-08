@@ -28,20 +28,20 @@ class SkillsRepository(private val context: Context) {
             .values.map { it.toDomain() }
             .sortedBy { it.id }
 
-        val porCarta = mutableMapOf<Int, MutableList<Skill>>()
-        val porApoyo = mutableMapOf<Int, MutableList<Skill>>()
+        val porCarta = mutableMapOf<Int, MutableSet<Skill>>()
+        val porApoyo = mutableMapOf<Int, MutableSet<Skill>>()
         for (skill in skills) {
             for (fuente in skill.sources.characterCards) {
-                porCarta.getOrPut(fuente.cardId) { mutableListOf() }.add(skill)
+                porCarta.getOrPut(fuente.cardId) { linkedSetOf() }.add(skill)
             }
             for (cardId in skill.sources.characterEvents) {
-                porCarta.getOrPut(cardId) { mutableListOf() }.add(skill)
+                porCarta.getOrPut(cardId) { linkedSetOf() }.add(skill)
             }
             for (supportId in skill.sources.supportHints) {
-                porApoyo.getOrPut(supportId) { mutableListOf() }.add(skill)
+                porApoyo.getOrPut(supportId) { linkedSetOf() }.add(skill)
             }
             for (supportId in skill.sources.supportEvents) {
-                porApoyo.getOrPut(supportId) { mutableListOf() }.add(skill)
+                porApoyo.getOrPut(supportId) { linkedSetOf() }.add(skill)
             }
         }
 
@@ -50,8 +50,8 @@ class SkillsRepository(private val context: Context) {
             cartasPersonaje = personajes,
             cartasApoyo = apoyos,
             escenarios = escenarios,
-            skillsPorCarta = porCarta,
-            skillsPorApoyo = porApoyo,
+            skillsPorCarta = porCarta.mapValues { it.value.toList() },
+            skillsPorApoyo = porApoyo.mapValues { it.value.toList() },
         )
     }
 

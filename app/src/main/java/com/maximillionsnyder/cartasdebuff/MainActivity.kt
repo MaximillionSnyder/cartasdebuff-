@@ -32,6 +32,7 @@ import com.maximillionsnyder.cartasdebuff.ui.cards.ApoyoDetalleScreen
 import com.maximillionsnyder.cartasdebuff.ui.cards.ApoyosScreen
 import com.maximillionsnyder.cartasdebuff.ui.cards.PersonajeDetalleScreen
 import com.maximillionsnyder.cartasdebuff.ui.cards.PersonajesScreen
+import com.maximillionsnyder.cartasdebuff.ui.settings.AjustesScreen
 import com.maximillionsnyder.cartasdebuff.ui.skills.SkillDetalleScreen
 import com.maximillionsnyder.cartasdebuff.ui.skills.SkillsScreen
 import com.maximillionsnyder.cartasdebuff.ui.theme.CartasDebuffTheme
@@ -63,6 +64,7 @@ sealed interface Pantalla {
     data object Skills : Pantalla
     data object Personajes : Pantalla
     data object Apoyos : Pantalla
+    data object Ajustes : Pantalla
     data class SkillDetalle(val skillId: Int) : Pantalla
     data class PersonajeDetalle(val cardId: Int) : Pantalla
     data class ApoyoDetalle(val supportId: Int) : Pantalla
@@ -111,6 +113,12 @@ private fun App(modelo: Modelo) {
                         icon = { Icon(painterResource(R.drawable.ic_tab_apoyos), contentDescription = null) },
                         label = { Text("Apoyos") },
                     )
+                    NavigationBarItem(
+                        selected = actual == Pantalla.Ajustes,
+                        onClick = { irATab(Pantalla.Ajustes) },
+                        icon = { Icon(painterResource(R.drawable.ic_tab_ajustes), contentDescription = null) },
+                        label = { Text("Ajustes") },
+                    )
                 }
             }
         },
@@ -134,6 +142,11 @@ private fun App(modelo: Modelo) {
                     idioma = idioma,
                     onIdioma = { idioma = it },
                     onAbrirCarta = { abrir(Pantalla.ApoyoDetalle(it)) },
+                )
+                Pantalla.Ajustes -> AjustesScreen(
+                    modelo = modelo,
+                    idioma = idioma,
+                    onIdioma = { idioma = it },
                 )
                 is Pantalla.SkillDetalle -> SkillDetalleScreen(
                     modelo = modelo,

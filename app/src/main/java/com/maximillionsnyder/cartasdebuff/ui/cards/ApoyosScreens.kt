@@ -136,7 +136,7 @@ fun ApoyoDetalleScreen(
         return
     }
 
-    val skills = modelo.skillsPorApoyo[supportId].orEmpty()
+    val skills = modelo.skillsPorApoyo[supportId].orEmpty().distinct()
     val hints = skills.filter { supportId in it.sources.supportHints }
     val eventos = skills.filter { supportId in it.sources.supportEvents }
 

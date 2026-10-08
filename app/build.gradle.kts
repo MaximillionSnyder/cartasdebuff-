@@ -35,6 +35,7 @@ android {
 
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 
     /* Los tests unitarios leen los mismos JSON del app (assets) sin duplicarlos. */
