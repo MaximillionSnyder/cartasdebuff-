@@ -16,7 +16,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -31,6 +30,11 @@ import androidx.compose.ui.unit.dp
 import com.maximillionsnyder.cartasdebuff.domain.CartaPersonaje
 import com.maximillionsnyder.cartasdebuff.domain.Modelo
 import com.maximillionsnyder.cartasdebuff.ui.components.BarraDetalle
+import com.maximillionsnyder.cartasdebuff.ui.components.ChipTextura
+import com.maximillionsnyder.cartasdebuff.ui.components.ColoresEstrella1
+import com.maximillionsnyder.cartasdebuff.ui.components.ColoresEstrella2
+import com.maximillionsnyder.cartasdebuff.ui.components.ColoresEstrella3
+import com.maximillionsnyder.cartasdebuff.ui.components.ColoresTodas
 import com.maximillionsnyder.cartasdebuff.ui.components.EstadoVacio
 import com.maximillionsnyder.cartasdebuff.ui.components.Estrellas
 import com.maximillionsnyder.cartasdebuff.ui.components.FilaPersonaje
@@ -81,11 +85,17 @@ fun PersonajesScreen(
                 .padding(horizontal = 16.dp, vertical = 4.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            listOf(0 to "Todas", 3 to "3★", 2 to "2★", 1 to "1★").forEach { (valor, etiqueta) ->
-                FilterChip(
-                    selected = estrellas == valor,
+            listOf(
+                Triple(0, "Todas", ColoresTodas),
+                Triple(3, "3★", ColoresEstrella3),
+                Triple(2, "2★", ColoresEstrella2),
+                Triple(1, "1★", ColoresEstrella1),
+            ).forEach { (valor, etiqueta, colores) ->
+                ChipTextura(
+                    texto = etiqueta,
+                    seleccionado = estrellas == valor,
+                    colores = colores,
                     onClick = { estrellas = valor },
-                    label = { Text(etiqueta) },
                 )
             }
         }

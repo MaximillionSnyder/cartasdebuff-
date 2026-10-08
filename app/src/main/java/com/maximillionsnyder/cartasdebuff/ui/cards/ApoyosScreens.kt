@@ -16,7 +16,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -31,6 +30,15 @@ import androidx.compose.ui.unit.dp
 import com.maximillionsnyder.cartasdebuff.domain.CartaApoyo
 import com.maximillionsnyder.cartasdebuff.domain.Modelo
 import com.maximillionsnyder.cartasdebuff.ui.components.BarraDetalle
+import com.maximillionsnyder.cartasdebuff.ui.components.ChipTextura
+import com.maximillionsnyder.cartasdebuff.ui.components.ColoresApoyoFriend
+import com.maximillionsnyder.cartasdebuff.ui.components.ColoresApoyoGroup
+import com.maximillionsnyder.cartasdebuff.ui.components.ColoresApoyoGuts
+import com.maximillionsnyder.cartasdebuff.ui.components.ColoresApoyoIntelligence
+import com.maximillionsnyder.cartasdebuff.ui.components.ColoresApoyoPower
+import com.maximillionsnyder.cartasdebuff.ui.components.ColoresApoyoSpeed
+import com.maximillionsnyder.cartasdebuff.ui.components.ColoresApoyoStamina
+import com.maximillionsnyder.cartasdebuff.ui.components.ColoresTodas
 import com.maximillionsnyder.cartasdebuff.ui.components.EstadoVacio
 import com.maximillionsnyder.cartasdebuff.ui.components.Estrellas
 import com.maximillionsnyder.cartasdebuff.ui.components.FilaApoyo
@@ -42,6 +50,16 @@ import com.maximillionsnyder.cartasdebuff.ui.components.etiquetaObtencion
 import com.maximillionsnyder.cartasdebuff.ui.components.etiquetaTipoApoyo
 
 private val TIPOS_APOYO = listOf("speed", "stamina", "power", "guts", "intelligence", "friend", "group")
+
+private val COLORES_TIPO_APOYO = mapOf(
+    "speed" to ColoresApoyoSpeed,
+    "stamina" to ColoresApoyoStamina,
+    "power" to ColoresApoyoPower,
+    "guts" to ColoresApoyoGuts,
+    "intelligence" to ColoresApoyoIntelligence,
+    "friend" to ColoresApoyoFriend,
+    "group" to ColoresApoyoGroup,
+)
 
 @Composable
 fun ApoyosScreen(
@@ -84,16 +102,18 @@ fun ApoyosScreen(
                 .padding(horizontal = 16.dp, vertical = 4.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            FilterChip(
-                selected = tipoFiltro == "todos",
+            ChipTextura(
+                texto = "Todas",
+                seleccionado = tipoFiltro == "todos",
+                colores = ColoresTodas,
                 onClick = { tipoFiltro = "todos" },
-                label = { Text("Todas") },
             )
             for (tipo in TIPOS_APOYO) {
-                FilterChip(
-                    selected = tipoFiltro == tipo,
+                ChipTextura(
+                    texto = etiquetaTipoApoyo(tipo),
+                    seleccionado = tipoFiltro == tipo,
+                    colores = COLORES_TIPO_APOYO.getValue(tipo),
                     onClick = { tipoFiltro = tipo },
-                    label = { Text(etiquetaTipoApoyo(tipo)) },
                 )
             }
         }

@@ -226,6 +226,30 @@ fun Etiqueta(texto: String, color: Color = MaterialTheme.colorScheme.secondaryCo
 
 val ColoresVelocidad = listOf(Color(0xFF1565C0), Color(0xFF00ACC1))
 val ColoresAceleracion = listOf(Color(0xFFE65100), Color(0xFFFFB300))
+val ColoresTodas = listOf(Color(0xFF37474F), Color(0xFF78909C))
+val ColoresNormal = listOf(Color(0xFF616161), Color(0xFFBDBDBD))
+val ColoresRara = listOf(Color(0xFFB8860B), Color(0xFFD4A017))
+val ColoresUnica = listOf(Color(0xFFAD1457), Color(0xFFEC4899))
+val ColoresEvolucion = listOf(Color(0xFF6A1B9A), Color(0xFF8B5CF6))
+val ColoresDebuff = listOf(Color(0xFFB71C1C), Color(0xFFEF5350))
+val ColoresPersonaje = listOf(Color(0xFF283593), Color(0xFF5C6BC0))
+val ColoresEventoPersonaje = listOf(Color(0xFF4527A0), Color(0xFF9575CD))
+val ColoresHint = listOf(Color(0xFF00838F), Color(0xFF4DD0E1))
+val ColoresEventoApoyo = listOf(Color(0xFF4E342E), Color(0xFFA1887F))
+val ColoresEscenario = listOf(Color(0xFF2E7D32), Color(0xFF81C784))
+val ColoresOcultar = listOf(Color(0xFF455A64), Color(0xFF90A4AE))
+
+val ColoresEstrella3 = listOf(Color(0xFFB8860B), Color(0xFFD4A017))
+val ColoresEstrella2 = listOf(Color(0xFF78909C), Color(0xFFB0BEC5))
+val ColoresEstrella1 = listOf(Color(0xFF8D6E63), Color(0xFFBCAAA4))
+
+val ColoresApoyoSpeed = listOf(Color(0xFF1565C0), Color(0xFF42A5F5))
+val ColoresApoyoStamina = listOf(Color(0xFFE65100), Color(0xFFFFA726))
+val ColoresApoyoPower = listOf(Color(0xFFC62828), Color(0xFFEF5350))
+val ColoresApoyoGuts = listOf(Color(0xFFAD1457), Color(0xFFF06292))
+val ColoresApoyoIntelligence = listOf(Color(0xFF2E7D32), Color(0xFF66BB6A))
+val ColoresApoyoFriend = listOf(Color(0xFFF9A825), Color(0xFFFFD54F))
+val ColoresApoyoGroup = listOf(Color(0xFF6A1B9A), Color(0xFFAB47BC))
 
 /* Rayas diagonales sutiles para dar textura al chip. */
 private fun Modifier.texturaDiagonal(color: Color, alpha: Float): Modifier = drawWithCache {

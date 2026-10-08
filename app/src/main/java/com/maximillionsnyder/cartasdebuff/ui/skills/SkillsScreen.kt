@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -30,17 +29,29 @@ import androidx.compose.ui.unit.dp
 import com.maximillionsnyder.cartasdebuff.domain.Modelo
 import com.maximillionsnyder.cartasdebuff.ui.components.ChipTextura
 import com.maximillionsnyder.cartasdebuff.ui.components.ColoresAceleracion
+import com.maximillionsnyder.cartasdebuff.ui.components.ColoresDebuff
+import com.maximillionsnyder.cartasdebuff.ui.components.ColoresEscenario
+import com.maximillionsnyder.cartasdebuff.ui.components.ColoresEventoApoyo
+import com.maximillionsnyder.cartasdebuff.ui.components.ColoresEventoPersonaje
+import com.maximillionsnyder.cartasdebuff.ui.components.ColoresEvolucion
+import com.maximillionsnyder.cartasdebuff.ui.components.ColoresHint
+import com.maximillionsnyder.cartasdebuff.ui.components.ColoresNormal
+import com.maximillionsnyder.cartasdebuff.ui.components.ColoresOcultar
+import com.maximillionsnyder.cartasdebuff.ui.components.ColoresPersonaje
+import com.maximillionsnyder.cartasdebuff.ui.components.ColoresRara
+import com.maximillionsnyder.cartasdebuff.ui.components.ColoresTodas
+import com.maximillionsnyder.cartasdebuff.ui.components.ColoresUnica
 import com.maximillionsnyder.cartasdebuff.ui.components.ColoresVelocidad
 import com.maximillionsnyder.cartasdebuff.ui.components.EstadoVacio
 import com.maximillionsnyder.cartasdebuff.ui.components.FilaSkill
 import com.maximillionsnyder.cartasdebuff.ui.components.SelectorIdioma
 
 private val FUENTES = listOf(
-    "char" to "Personaje",
-    "char_e" to "Evento personaje",
-    "sup_hint" to "Hint apoyo",
-    "sup_e" to "Evento apoyo",
-    "sce_e" to "Escenario",
+    Triple("char", "Personaje", ColoresPersonaje),
+    Triple("char_e", "Evento personaje", ColoresEventoPersonaje),
+    Triple("sup_hint", "Hint apoyo", ColoresHint),
+    Triple("sup_e", "Evento apoyo", ColoresEventoApoyo),
+    Triple("sce_e", "Escenario", ColoresEscenario),
 )
 
 @Composable
@@ -107,22 +118,24 @@ fun SkillsScreen(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 listOf(
-                    "todas" to "Todas",
-                    "normal" to "Normal",
-                    "rara" to "Rara",
-                    "unica" to "Única",
-                    "evolucion" to "Evolución",
-                ).forEach { (id, etiqueta) ->
-                    FilterChip(
-                        selected = rarezaFiltro == id,
+                    Triple("todas", "Todas", ColoresTodas),
+                    Triple("normal", "Normal", ColoresNormal),
+                    Triple("rara", "Rara", ColoresRara),
+                    Triple("unica", "Única", ColoresUnica),
+                    Triple("evolucion", "Evolución", ColoresEvolucion),
+                ).forEach { (id, etiqueta, colores) ->
+                    ChipTextura(
+                        texto = etiqueta,
+                        seleccionado = rarezaFiltro == id,
+                        colores = colores,
                         onClick = { rarezaFiltro = id },
-                        label = { Text(etiqueta) },
                     )
                 }
-                FilterChip(
-                    selected = soloDebuff,
+                ChipTextura(
+                    texto = "Debuff",
+                    seleccionado = soloDebuff,
+                    colores = ColoresDebuff,
                     onClick = { soloDebuff = !soloDebuff },
-                    label = { Text("Debuff") },
                 )
                 ChipTextura(
                     texto = "Velocidad",
@@ -142,17 +155,19 @@ fun SkillsScreen(
                 modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                FUENTES.forEach { (id, etiqueta) ->
-                    FilterChip(
-                        selected = id in fuentes,
+                for ((id, etiqueta, colores) in FUENTES) {
+                    ChipTextura(
+                        texto = etiqueta,
+                        seleccionado = id in fuentes,
+                        colores = colores,
                         onClick = { if (id in fuentes) fuentes.remove(id) else fuentes.add(id) },
-                        label = { Text(etiqueta) },
                     )
                 }
-                FilterChip(
-                    selected = ocultarSinEn,
+                ChipTextura(
+                    texto = "Ocultar sin EN",
+                    seleccionado = ocultarSinEn,
+                    colores = ColoresOcultar,
                     onClick = { ocultarSinEn = !ocultarSinEn },
-                    label = { Text("Ocultar sin EN") },
                 )
             }
         }
