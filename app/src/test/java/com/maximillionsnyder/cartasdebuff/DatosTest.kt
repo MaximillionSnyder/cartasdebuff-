@@ -5,6 +5,7 @@ import com.maximillionsnyder.cartasdebuff.data.ScenarioDto
 import com.maximillionsnyder.cartasdebuff.data.SkillDto
 import com.maximillionsnyder.cartasdebuff.data.SupportCardDto
 import com.maximillionsnyder.cartasdebuff.data.jsonParser
+import com.maximillionsnyder.cartasdebuff.data.toDomain
 import kotlinx.serialization.decodeFromString
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -61,6 +62,13 @@ class DatosTest {
             .filterNot { escenarios.containsKey(it.toString()) }
             .distinct()
         assertTrue("Escenarios sin metadata: $escenariosSinMetadata", escenariosSinMetadata.isEmpty())
+    }
+
+    @Test
+    fun efectosDeVelocidadYAceleracion() {
+        val dominio = skills.map { it.toDomain() }
+        assertEquals(1301, dominio.count { it.daVelocidad })
+        assertEquals(389, dominio.count { it.daAceleracion })
     }
 
     private fun leer(ruta: String): String =

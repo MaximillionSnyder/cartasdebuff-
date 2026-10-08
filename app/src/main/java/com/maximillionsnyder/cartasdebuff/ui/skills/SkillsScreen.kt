@@ -5,8 +5,10 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -26,6 +28,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.maximillionsnyder.cartasdebuff.domain.Modelo
+import com.maximillionsnyder.cartasdebuff.ui.components.ChipTextura
+import com.maximillionsnyder.cartasdebuff.ui.components.ColoresAceleracion
+import com.maximillionsnyder.cartasdebuff.ui.components.ColoresVelocidad
 import com.maximillionsnyder.cartasdebuff.ui.components.EstadoVacio
 import com.maximillionsnyder.cartasdebuff.ui.components.FilaSkill
 import com.maximillionsnyder.cartasdebuff.ui.components.SelectorIdioma
@@ -48,6 +53,8 @@ fun SkillsScreen(
     var busqueda by rememberSaveable { mutableStateOf("") }
     var rarezaFiltro by rememberSaveable { mutableStateOf("todas") }
     var soloDebuff by rememberSaveable { mutableStateOf(false) }
+    var soloVelocidad by rememberSaveable { mutableStateOf(false) }
+    var soloAceleracion by rememberSaveable { mutableStateOf(false) }
     var ocultarSinEn by rememberSaveable { mutableStateOf(false) }
     val fuentes = remember { mutableStateListOf<String>() }
 
@@ -64,6 +71,7 @@ fun SkillsScreen(
             else -> true
         }
         val coincideDebuff = !soloDebuff || "dbf" in skill.types
+        val coincideEfecto = (!soloVelocidad || skill.daVelocidad) && (!soloAceleracion || skill.daAceleracion)
         val coincideLanzamiento = !ocultarSinEn || "en" !in skill.unreleased
         val coincideFuente = fuentes.isEmpty() || fuentes.any { fuente ->
             when (fuente) {
@@ -75,7 +83,7 @@ fun SkillsScreen(
                 else -> true
             }
         }
-        coincideBusqueda && coincideRareza && coincideDebuff && coincideLanzamiento && coincideFuente
+        coincideBusqueda && coincideRareza && coincideDebuff && coincideEfecto && coincideLanzamiento && coincideFuente
     }
 
     Column(Modifier.fillMaxSize()) {
@@ -93,41 +101,58 @@ fun SkillsScreen(
             singleLine = true,
             modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
         )
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .horizontalScroll(rememberScrollState())
-                .padding(horizontal = 16.dp, vertical = 4.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-        ) {
-            listOf(
-                "todas" to "Todas",
-                "normal" to "Normal",
-                "rara" to "Rara",
-                "unica" to "Única",
-                "evolucion" to "Evolución",
-            ).forEach { (id, etiqueta) ->
+        Column(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp)) {
+            Row(
+                modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                listOf(
+                    "todas" to "Todas",
+                    "normal" to "Normal",
+                    "rara" to "Rara",
+                    "unica" to "Única",
+                    "evolucion" to "Evolución",
+                ).forEach { (id, etiqueta) ->
+                    FilterChip(
+                        selected = rarezaFiltro == id,
+                        onClick = { rarezaFiltro = id },
+                        label = { Text(etiqueta) },
+                    )
+                }
                 FilterChip(
-                    selected = rarezaFiltro == id,
-                    onClick = { rarezaFiltro = id },
-                    label = { Text(etiqueta) },
+                    selected = soloDebuff,
+                    onClick = { soloDebuff = !soloDebuff },
+                    label = { Text("Debuff") },
+                )
+                ChipTextura(
+                    texto = "Velocidad",
+                    seleccionado = soloVelocidad,
+                    colores = ColoresVelocidad,
+                    onClick = { soloVelocidad = !soloVelocidad },
+                )
+                ChipTextura(
+                    texto = "Aceleración",
+                    seleccionado = soloAceleracion,
+                    colores = ColoresAceleracion,
+                    onClick = { soloAceleracion = !soloAceleracion },
                 )
             }
-            FilterChip(
-                selected = soloDebuff,
-                onClick = { soloDebuff = !soloDebuff },
-                label = { Text("Debuff") },
-            )
-            FilterChip(
-                selected = ocultarSinEn,
-                onClick = { ocultarSinEn = !ocultarSinEn },
-                label = { Text("Ocultar sin EN") },
-            )
-            FUENTES.forEach { (id, etiqueta) ->
+            Spacer(Modifier.height(6.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                FUENTES.forEach { (id, etiqueta) ->
+                    FilterChip(
+                        selected = id in fuentes,
+                        onClick = { if (id in fuentes) fuentes.remove(id) else fuentes.add(id) },
+                        label = { Text(etiqueta) },
+                    )
+                }
                 FilterChip(
-                    selected = id in fuentes,
-                    onClick = { if (id in fuentes) fuentes.remove(id) else fuentes.add(id) },
-                    label = { Text(etiqueta) },
+                    selected = ocultarSinEn,
+                    onClick = { ocultarSinEn = !ocultarSinEn },
+                    label = { Text("Ocultar sin EN") },
                 )
             }
         }

@@ -70,6 +70,16 @@ data class Skill(
     fun descripcion(idioma: String): String = desc.texto(idioma).orEmpty()
 
     val urlIcono: String? = iconId?.let { "https://media.gametora.com/umamusume/skills/icon/$it.png" }
+
+    /* Mismo criterio que GameTora: velocidad actual (22) + velocidad objetivo (27),
+       aceleración (31) + aceleración zenkai (48); solo efectos positivos. */
+    val daVelocidad: Boolean = conditions.any { grupo ->
+        grupo.effects.any { it.value > 0 && (it.type == 22 || it.type == 27) }
+    }
+
+    val daAceleracion: Boolean = conditions.any { grupo ->
+        grupo.effects.any { it.value > 0 && (it.type == 31 || it.type == 48) }
+    }
 }
 
 data class CartaPersonaje(

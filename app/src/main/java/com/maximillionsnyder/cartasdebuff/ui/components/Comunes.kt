@@ -1,6 +1,8 @@
 package com.maximillionsnyder.cartasdebuff.ui.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -27,6 +29,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawWithCache
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
@@ -216,6 +222,65 @@ fun Etiqueta(texto: String, color: Color = MaterialTheme.colorScheme.secondaryCo
             .background(color, RoundedCornerShape(6.dp))
             .padding(horizontal = 6.dp, vertical = 2.dp),
     )
+}
+
+val ColoresVelocidad = listOf(Color(0xFF1565C0), Color(0xFF00ACC1))
+val ColoresAceleracion = listOf(Color(0xFFE65100), Color(0xFFFFB300))
+
+/* Rayas diagonales sutiles para dar textura al chip. */
+private fun Modifier.texturaDiagonal(color: Color, alpha: Float): Modifier = drawWithCache {
+    val ancho = 7.dp.toPx()
+    val paso = ancho * 2.4f
+    onDrawBehind {
+        var x = -size.height
+        while (x < size.width + size.height) {
+            drawLine(
+                color = color.copy(alpha = alpha),
+                start = Offset(x, size.height),
+                end = Offset(x + size.height, 0f),
+                strokeWidth = ancho / 3f,
+            )
+            x += paso
+        }
+    }
+}
+
+@Composable
+fun ChipTextura(
+    texto: String,
+    seleccionado: Boolean,
+    colores: List<Color>,
+    onClick: () -> Unit,
+) {
+    val forma = RoundedCornerShape(50)
+    Box(
+        modifier = Modifier
+            .clip(forma)
+            .background(
+                if (seleccionado) {
+                    Brush.linearGradient(colores)
+                } else {
+                    Brush.linearGradient(colores.map { it.copy(alpha = 0.14f) })
+                },
+            )
+            .border(
+                width = if (seleccionado) 2.dp else 1.dp,
+                color = colores.first(),
+                shape = forma,
+            )
+            .texturaDiagonal(
+                color = if (seleccionado) Color.White else colores.first(),
+                alpha = if (seleccionado) 0.14f else 0.12f,
+            )
+            .clickable(onClick = onClick)
+            .padding(horizontal = 14.dp, vertical = 8.dp),
+    ) {
+        Text(
+            texto,
+            color = if (seleccionado) Color.White else colores.first(),
+            style = MaterialTheme.typography.labelLarge,
+        )
+    }
 }
 
 @Composable
