@@ -1,5 +1,8 @@
 package com.maximillionsnyder.cartasdebuff.ui.skills
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -19,13 +22,17 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import com.maximillionsnyder.cartasdebuff.domain.EvoOrigen
-import com.maximillionsnyder.cartasdebuff.domain.IDIOMAS
 import com.maximillionsnyder.cartasdebuff.domain.Modelo
 import com.maximillionsnyder.cartasdebuff.domain.Skill
 import com.maximillionsnyder.cartasdebuff.domain.VersionGen
@@ -77,6 +84,18 @@ fun SkillDetalleScreen(
                     }
                 }
             }
+            val fuentes = skill.sources
+            if (fuentes.characterCards.isNotEmpty()) {
+                item { SeccionTitulo("Cartas de personaje", fuentes.characterCards.size) }
+                items(fuentes.characterCards, key = { "carta-${it.cardId}" }) { fuente ->
+                    val carta = modelo.cartaPersonaje(fuente.cardId)
+                    if (carta != null) {
+                        FilaPersonaje(carta, idioma, fuente.kinds) { onAbrirPersonaje(fuente.cardId) }
+                    } else {
+                        FilaReferencia("Carta de personaje ${fuente.cardId}")
+                    }
+                }
+            }
             item { SeccionTitulo("Descripciones") }
             item { TarjetaDescripciones(skill) }
             if (skill.conditions.isNotEmpty()) {
@@ -101,18 +120,6 @@ fun SkillDetalleScreen(
                 item { TarjetaEvolucion(evolucion.preEvo, evolucion.evo, modelo, idioma) }
             }
 
-            val fuentes = skill.sources
-            if (fuentes.characterCards.isNotEmpty()) {
-                item { SeccionTitulo("Cartas de personaje", fuentes.characterCards.size) }
-                items(fuentes.characterCards, key = { "carta-${it.cardId}" }) { fuente ->
-                    val carta = modelo.cartaPersonaje(fuente.cardId)
-                    if (carta != null) {
-                        FilaPersonaje(carta, idioma, fuente.kinds) { onAbrirPersonaje(fuente.cardId) }
-                    } else {
-                        FilaReferencia("Carta de personaje ${fuente.cardId}")
-                    }
-                }
-            }
             if (fuentes.characterEvents.isNotEmpty()) {
                 item { SeccionTitulo("Eventos de personaje", fuentes.characterEvents.size) }
                 items(fuentes.characterEvents, key = { "evento-$it" }) { cardId ->
@@ -192,24 +199,38 @@ private fun EncabezadoSkill(skill: Skill, idioma: String) {
 
 @Composable
 private fun TarjetaDescripciones(skill: Skill) {
+    var expandido by remember { mutableStateOf(false) }
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
     ) {
         Column(Modifier.fillMaxWidth().padding(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            IDIOMAS.forEachIndexed { indice, id ->
-                Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                    Text(etiquetaIdioma(id), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary)
-                    Text(skill.nombre(id), style = MaterialTheme.typography.titleSmall)
-                    Text(
-                        skill.descripcion(id).ifBlank { "—" },
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
+            BloqueIdioma(skill, "en")
+            AnimatedVisibility(visible = expandido, enter = expandVertically(), exit = shrinkVertically()) {
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    for (id in listOf("ja", "ko", "tw")) {
+                        HorizontalDivider()
+                        BloqueIdioma(skill, id)
+                    }
                 }
-                if (indice != IDIOMAS.lastIndex) HorizontalDivider()
+            }
+            TextButton(onClick = { expandido = !expandido }) {
+                Text(if (expandido) "Ocultar otros idiomas" else "Ver más idiomas (日本語 · 한국어 · 中文)")
             }
         }
+    }
+}
+
+@Composable
+private fun BloqueIdioma(skill: Skill, id: String) {
+    Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+        Text(etiquetaIdioma(id), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary)
+        Text(skill.nombre(id), style = MaterialTheme.typography.titleSmall)
+        Text(
+            skill.descripcion(id).ifBlank { "—" },
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
     }
 }
 
