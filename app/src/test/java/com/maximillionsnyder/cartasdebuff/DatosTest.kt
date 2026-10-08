@@ -6,6 +6,7 @@ import com.maximillionsnyder.cartasdebuff.data.SkillDto
 import com.maximillionsnyder.cartasdebuff.data.SupportCardDto
 import com.maximillionsnyder.cartasdebuff.data.jsonParser
 import com.maximillionsnyder.cartasdebuff.data.toDomain
+import com.maximillionsnyder.cartasdebuff.domain.texto
 import kotlinx.serialization.decodeFromString
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -69,6 +70,16 @@ class DatosTest {
         val dominio = skills.map { it.toDomain() }
         assertEquals(1301, dominio.count { it.daVelocidad })
         assertEquals(389, dominio.count { it.daAceleracion })
+    }
+
+    @Test
+    fun versionGenConTexto() {
+        val dominio = skills.map { it.toDomain() }
+        assertEquals(292, dominio.count { it.geneVersion != null })
+        assertEquals(
+            155,
+            dominio.count { it.geneVersion?.let { gen -> gen.name.texto("en") != null || gen.desc.texto("en") != null } == true },
+        )
     }
 
     private fun leer(ruta: String): String =

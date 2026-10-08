@@ -18,16 +18,14 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.maximillionsnyder.cartasdebuff.domain.Modelo
-import com.maximillionsnyder.cartasdebuff.ui.components.ChipTextura
+import com.maximillionsnyder.cartasdebuff.ui.components.ChipFiltro
 import com.maximillionsnyder.cartasdebuff.ui.components.ColoresAceleracion
 import com.maximillionsnyder.cartasdebuff.ui.components.ColoresDebuff
 import com.maximillionsnyder.cartasdebuff.ui.components.ColoresEscenario
@@ -67,7 +65,7 @@ fun SkillsScreen(
     var soloVelocidad by rememberSaveable { mutableStateOf(false) }
     var soloAceleracion by rememberSaveable { mutableStateOf(false) }
     var ocultarSinEn by rememberSaveable { mutableStateOf(false) }
-    val fuentes = remember { mutableStateListOf<String>() }
+    var fuentes by rememberSaveable { mutableStateOf(listOf<String>()) }
 
     val consulta = busqueda.trim()
     val filtradas = modelo.skills.filter { skill ->
@@ -124,26 +122,26 @@ fun SkillsScreen(
                     Triple("unica", "Única", ColoresUnica),
                     Triple("evolucion", "Evolución", ColoresEvolucion),
                 ).forEach { (id, etiqueta, colores) ->
-                    ChipTextura(
+                    ChipFiltro(
                         texto = etiqueta,
                         seleccionado = rarezaFiltro == id,
                         colores = colores,
                         onClick = { rarezaFiltro = id },
                     )
                 }
-                ChipTextura(
+                ChipFiltro(
                     texto = "Debuff",
                     seleccionado = soloDebuff,
                     colores = ColoresDebuff,
                     onClick = { soloDebuff = !soloDebuff },
                 )
-                ChipTextura(
+                ChipFiltro(
                     texto = "Velocidad",
                     seleccionado = soloVelocidad,
                     colores = ColoresVelocidad,
                     onClick = { soloVelocidad = !soloVelocidad },
                 )
-                ChipTextura(
+                ChipFiltro(
                     texto = "Aceleración",
                     seleccionado = soloAceleracion,
                     colores = ColoresAceleracion,
@@ -156,14 +154,14 @@ fun SkillsScreen(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 for ((id, etiqueta, colores) in FUENTES) {
-                    ChipTextura(
+                    ChipFiltro(
                         texto = etiqueta,
                         seleccionado = id in fuentes,
                         colores = colores,
-                        onClick = { if (id in fuentes) fuentes.remove(id) else fuentes.add(id) },
+                        onClick = { fuentes = if (id in fuentes) fuentes - id else fuentes + id },
                     )
                 }
-                ChipTextura(
+                ChipFiltro(
                     texto = "Ocultar sin EN",
                     seleccionado = ocultarSinEn,
                     colores = ColoresOcultar,

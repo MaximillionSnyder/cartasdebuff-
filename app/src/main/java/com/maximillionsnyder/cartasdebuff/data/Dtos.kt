@@ -48,8 +48,12 @@ internal data class GeneVersionDto(
     val id: Int? = null,
     val iconId: Int? = null,
     val cost: Int? = null,
-    val name: Map<String, String?> = emptyMap(),
-    val desc: Map<String, String?> = emptyMap(),
+    @SerialName("name_en") val nameEn: String? = null,
+    @SerialName("name_ko") val nameKo: String? = null,
+    @SerialName("name_tw") val nameTw: String? = null,
+    @SerialName("desc_en") val descEn: String? = null,
+    @SerialName("desc_ko") val descKo: String? = null,
+    @SerialName("desc_tw") val descTw: String? = null,
 )
 
 @Serializable
@@ -148,8 +152,8 @@ internal fun GeneVersionDto.toDomain() = VersionGen(
     id = id,
     iconId = iconId,
     cost = cost,
-    name = name,
-    desc = desc,
+    name = mapOf("en" to nameEn, "ko" to nameKo, "tw" to nameTw),
+    desc = mapOf("en" to descEn, "ko" to descKo, "tw" to descTw),
 )
 
 internal fun EvoOrigenDto.toDomain() = EvoOrigen(cardId, scenarioId, old, evos)

@@ -30,7 +30,7 @@ import androidx.compose.ui.unit.dp
 import com.maximillionsnyder.cartasdebuff.domain.CartaPersonaje
 import com.maximillionsnyder.cartasdebuff.domain.Modelo
 import com.maximillionsnyder.cartasdebuff.ui.components.BarraDetalle
-import com.maximillionsnyder.cartasdebuff.ui.components.ChipTextura
+import com.maximillionsnyder.cartasdebuff.ui.components.ChipFiltro
 import com.maximillionsnyder.cartasdebuff.ui.components.ColoresEstrella1
 import com.maximillionsnyder.cartasdebuff.ui.components.ColoresEstrella2
 import com.maximillionsnyder.cartasdebuff.ui.components.ColoresEstrella3
@@ -91,7 +91,7 @@ fun PersonajesScreen(
                 Triple(2, "2★", ColoresEstrella2),
                 Triple(1, "1★", ColoresEstrella1),
             ).forEach { (valor, etiqueta, colores) ->
-                ChipTextura(
+                ChipFiltro(
                     texto = etiqueta,
                     seleccionado = estrellas == valor,
                     colores = colores,

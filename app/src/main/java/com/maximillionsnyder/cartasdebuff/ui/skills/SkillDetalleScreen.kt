@@ -110,7 +110,7 @@ fun SkillDetalleScreen(
                 }
             }
             val gen = skill.geneVersion
-            if (gen != null) {
+            if (gen != null && (gen.name.texto(idioma) != null || gen.desc.texto(idioma) != null)) {
                 item { SeccionTitulo("Versión gen") }
                 item { TarjetaGen(gen, idioma) }
             }

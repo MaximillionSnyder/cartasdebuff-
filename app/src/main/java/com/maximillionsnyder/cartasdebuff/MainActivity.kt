@@ -22,6 +22,7 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -70,10 +71,22 @@ sealed interface Pantalla {
     data class ApoyoDetalle(val supportId: Int) : Pantalla
 }
 
+/* Clave estable por pantalla: permite restaurar scroll y filtros al volver. */
+private fun claveDePantalla(pantalla: Pantalla): String = when (pantalla) {
+    Pantalla.Skills -> "tab-skills"
+    Pantalla.Personajes -> "tab-personajes"
+    Pantalla.Apoyos -> "tab-apoyos"
+    Pantalla.Ajustes -> "tab-ajustes"
+    is Pantalla.SkillDetalle -> "skill-${pantalla.skillId}"
+    is Pantalla.PersonajeDetalle -> "personaje-${pantalla.cardId}"
+    is Pantalla.ApoyoDetalle -> "apoyo-${pantalla.supportId}"
+}
+
 @Composable
 private fun App(modelo: Modelo) {
     var idioma by rememberSaveable { mutableStateOf("en") }
     val pila = remember { mutableStateListOf<Pantalla>(Pantalla.Skills) }
+    val holder = rememberSaveableStateHolder()
     val actual = pila.last()
     val enDetalle = actual is Pantalla.SkillDetalle ||
         actual is Pantalla.PersonajeDetalle ||
@@ -124,7 +137,8 @@ private fun App(modelo: Modelo) {
         },
     ) { padding ->
         Box(Modifier.fillMaxSize().padding(padding)) {
-            when (val pantalla = actual) {
+            holder.SaveableStateProvider(claveDePantalla(actual)) {
+                when (val pantalla = actual) {
                 Pantalla.Skills -> SkillsScreen(
                     modelo = modelo,
                     idioma = idioma,
@@ -170,6 +184,7 @@ private fun App(modelo: Modelo) {
                     onVolver = { pila.removeAt(pila.lastIndex) },
                     onAbrirSkill = { abrir(Pantalla.SkillDetalle(it)) },
                 )
+                }
             }
         }
     }

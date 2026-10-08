@@ -30,7 +30,7 @@ import androidx.compose.ui.unit.dp
 import com.maximillionsnyder.cartasdebuff.domain.CartaApoyo
 import com.maximillionsnyder.cartasdebuff.domain.Modelo
 import com.maximillionsnyder.cartasdebuff.ui.components.BarraDetalle
-import com.maximillionsnyder.cartasdebuff.ui.components.ChipTextura
+import com.maximillionsnyder.cartasdebuff.ui.components.ChipFiltro
 import com.maximillionsnyder.cartasdebuff.ui.components.ColoresApoyoFriend
 import com.maximillionsnyder.cartasdebuff.ui.components.ColoresApoyoGroup
 import com.maximillionsnyder.cartasdebuff.ui.components.ColoresApoyoGuts
@@ -102,14 +102,14 @@ fun ApoyosScreen(
                 .padding(horizontal = 16.dp, vertical = 4.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            ChipTextura(
+            ChipFiltro(
                 texto = "Todas",
                 seleccionado = tipoFiltro == "todos",
                 colores = ColoresTodas,
                 onClick = { tipoFiltro = "todos" },
             )
             for (tipo in TIPOS_APOYO) {
-                ChipTextura(
+                ChipFiltro(
                     texto = etiquetaTipoApoyo(tipo),
                     seleccionado = tipoFiltro == tipo,
                     colores = COLORES_TIPO_APOYO.getValue(tipo),
