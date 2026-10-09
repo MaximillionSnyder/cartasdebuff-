@@ -6,6 +6,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -13,6 +14,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenu
@@ -33,7 +36,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.maximillionsnyder.cartasdebuff.R
@@ -189,9 +194,53 @@ fun SeccionTitulo(texto: String, contador: Int? = null) {
 }
 
 @Composable
-fun EstadoVacio(texto: String) {
-    Box(Modifier.fillMaxWidth().padding(32.dp), contentAlignment = Alignment.Center) {
-        Text(texto, color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.bodyMedium)
+fun EstadoVacio(texto: String, detalle: String? = null, icono: ImageVector? = null) {
+    Column(
+        modifier = Modifier.fillMaxWidth().padding(horizontal = 32.dp, vertical = 40.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        if (icono != null) {
+            Icon(
+                icono,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.size(36.dp),
+            )
+        }
+        Text(texto, color = MaterialTheme.colorScheme.onSurface, style = MaterialTheme.typography.titleSmall)
+        if (detalle != null) {
+            Text(
+                detalle,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                style = MaterialTheme.typography.bodySmall,
+                textAlign = TextAlign.Center,
+            )
+        }
+    }
+}
+
+/* Estado vacío de las listas cuando nada coincide con la búsqueda o los filtros. */
+@Composable
+fun EstadoVacioBusqueda(detalle: String = "Probá con otro nombre o quitá los filtros.") {
+    EstadoVacio("Sin resultados", detalle, Icons.Filled.Search)
+}
+
+/* Radio y borde comunes de las tarjetas: listas y fichas comparten el mismo estilo. */
+val FORMA_TARJETA = RoundedCornerShape(16.dp)
+
+@Composable
+fun TarjetaApp(
+    modifier: Modifier = Modifier,
+    onClick: (() -> Unit)? = null,
+    contenido: @Composable ColumnScope.() -> Unit,
+) {
+    val completo = modifier.border(1.dp, MaterialTheme.colorScheme.outlineVariant, FORMA_TARJETA)
+    val colores = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+    if (onClick == null) {
+        Card(modifier = completo, shape = FORMA_TARJETA, colors = colores, content = contenido)
+    } else {
+        Card(onClick = onClick, modifier = completo, shape = FORMA_TARJETA, colors = colores, content = contenido)
     }
 }
 
@@ -322,11 +371,7 @@ fun ChipFiltro(
 
 @Composable
 fun FilaSkill(skill: Skill, idioma: String, onClick: () -> Unit) {
-    Card(
-        onClick = onClick,
-        modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-    ) {
+    TarjetaApp(onClick = onClick, modifier = Modifier.fillMaxWidth()) {
         Row(
             modifier = Modifier.fillMaxWidth().padding(10.dp),
             verticalAlignment = Alignment.CenterVertically,
@@ -372,11 +417,7 @@ fun FilaSkill(skill: Skill, idioma: String, onClick: () -> Unit) {
 
 @Composable
 fun FilaPersonaje(carta: CartaPersonaje, idioma: String, kinds: List<String>?, onClick: () -> Unit) {
-    Card(
-        onClick = onClick,
-        modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-    ) {
+    TarjetaApp(onClick = onClick, modifier = Modifier.fillMaxWidth()) {
         Row(
             modifier = Modifier.fillMaxWidth().padding(10.dp),
             verticalAlignment = Alignment.CenterVertically,
@@ -416,11 +457,7 @@ fun FilaPersonaje(carta: CartaPersonaje, idioma: String, kinds: List<String>?, o
 
 @Composable
 fun FilaApoyo(carta: CartaApoyo, idioma: String, insignia: String? = null, onClick: () -> Unit) {
-    Card(
-        onClick = onClick,
-        modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-    ) {
+    TarjetaApp(onClick = onClick, modifier = Modifier.fillMaxWidth()) {
         Row(
             modifier = Modifier.fillMaxWidth().padding(10.dp),
             verticalAlignment = Alignment.CenterVertically,

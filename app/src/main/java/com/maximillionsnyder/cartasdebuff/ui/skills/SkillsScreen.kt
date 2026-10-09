@@ -40,7 +40,7 @@ import com.maximillionsnyder.cartasdebuff.ui.components.ColoresRara
 import com.maximillionsnyder.cartasdebuff.ui.components.ColoresTodas
 import com.maximillionsnyder.cartasdebuff.ui.components.ColoresUnica
 import com.maximillionsnyder.cartasdebuff.ui.components.ColoresVelocidad
-import com.maximillionsnyder.cartasdebuff.ui.components.EstadoVacio
+import com.maximillionsnyder.cartasdebuff.ui.components.EstadoVacioBusqueda
 import com.maximillionsnyder.cartasdebuff.ui.components.FilaSkill
 import com.maximillionsnyder.cartasdebuff.ui.components.SelectorIdioma
 
@@ -176,7 +176,7 @@ fun SkillsScreen(
             modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
         )
         if (filtradas.isEmpty()) {
-            EstadoVacio("Sin resultados")
+            EstadoVacioBusqueda()
         } else {
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),

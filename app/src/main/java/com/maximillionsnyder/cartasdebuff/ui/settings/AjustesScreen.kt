@@ -38,8 +38,6 @@ import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.HorizontalDivider
@@ -77,6 +75,7 @@ import com.maximillionsnyder.cartasdebuff.domain.etiquetaIdioma
 import com.maximillionsnyder.cartasdebuff.domain.etiquetaPantallaInicio
 import com.maximillionsnyder.cartasdebuff.domain.etiquetaTema
 import com.maximillionsnyder.cartasdebuff.ui.components.EstadoVacio
+import com.maximillionsnyder.cartasdebuff.ui.components.TarjetaApp
 import com.maximillionsnyder.cartasdebuff.ui.components.imagenesEnCache
 import com.maximillionsnyder.cartasdebuff.ui.components.limpiarCacheImagenes
 
@@ -325,11 +324,7 @@ private fun PestanaReportes() {
 
 @Composable
 private fun TarjetaSeccion(titulo: String, icono: ImageVector, contenido: @Composable () -> Unit) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-    ) {
+    TarjetaApp(modifier = Modifier.fillMaxWidth()) {
         Column(Modifier.fillMaxWidth().padding(vertical = 4.dp)) {
             Row(
                 modifier = Modifier
@@ -487,12 +482,7 @@ private fun TarjetaReporte(reporte: ReporteCrash, onAbrir: () -> Unit) {
         .firstOrNull { it.contains("Exception") || it.contains("Error") }
         ?: "Sin detalle"
 
-    Card(
-        onClick = onAbrir,
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-    ) {
+    TarjetaApp(onClick = onAbrir, modifier = Modifier.fillMaxWidth()) {
         Row(
             modifier = Modifier.fillMaxWidth().padding(12.dp),
             verticalAlignment = Alignment.CenterVertically,

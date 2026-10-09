@@ -14,8 +14,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -30,12 +28,14 @@ import androidx.compose.ui.unit.dp
 import com.maximillionsnyder.cartasdebuff.domain.CartaPersonaje
 import com.maximillionsnyder.cartasdebuff.domain.Modelo
 import com.maximillionsnyder.cartasdebuff.ui.components.BarraDetalle
+import com.maximillionsnyder.cartasdebuff.ui.components.TarjetaApp
 import com.maximillionsnyder.cartasdebuff.ui.components.ChipFiltro
 import com.maximillionsnyder.cartasdebuff.ui.components.ColoresEstrella1
 import com.maximillionsnyder.cartasdebuff.ui.components.ColoresEstrella2
 import com.maximillionsnyder.cartasdebuff.ui.components.ColoresEstrella3
 import com.maximillionsnyder.cartasdebuff.ui.components.ColoresTodas
 import com.maximillionsnyder.cartasdebuff.ui.components.EstadoVacio
+import com.maximillionsnyder.cartasdebuff.ui.components.EstadoVacioBusqueda
 import com.maximillionsnyder.cartasdebuff.ui.components.Estrellas
 import com.maximillionsnyder.cartasdebuff.ui.components.FilaPersonaje
 import com.maximillionsnyder.cartasdebuff.ui.components.FilaSkill
@@ -106,7 +106,7 @@ fun PersonajesScreen(
             modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
         )
         if (filtradas.isEmpty()) {
-            EstadoVacio("Sin resultados")
+            EstadoVacioBusqueda()
         } else {
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
@@ -181,10 +181,7 @@ fun PersonajeDetalleScreen(
 
 @Composable
 private fun EncabezadoCartaPersonaje(carta: CartaPersonaje, idioma: String) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-    ) {
+    TarjetaApp(modifier = Modifier.fillMaxWidth()) {
         Row(Modifier.fillMaxWidth().padding(12.dp)) {
             ImagenRemota(carta.image, null, Modifier.size(96.dp))
             Spacer(Modifier.width(12.dp))

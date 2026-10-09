@@ -17,8 +17,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -40,6 +38,7 @@ import com.maximillionsnyder.cartasdebuff.domain.duracionEnSegundos
 import com.maximillionsnyder.cartasdebuff.domain.etiquetaIdioma
 import com.maximillionsnyder.cartasdebuff.domain.texto
 import com.maximillionsnyder.cartasdebuff.ui.components.BarraDetalle
+import com.maximillionsnyder.cartasdebuff.ui.components.TarjetaApp
 import com.maximillionsnyder.cartasdebuff.ui.components.EstadoVacio
 import com.maximillionsnyder.cartasdebuff.ui.components.Etiqueta
 import com.maximillionsnyder.cartasdebuff.ui.components.EtiquetaRareza
@@ -166,10 +165,7 @@ fun SkillDetalleScreen(
 
 @Composable
 private fun EncabezadoSkill(skill: Skill, idioma: String) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-    ) {
+    TarjetaApp(modifier = Modifier.fillMaxWidth()) {
         Row(Modifier.fillMaxWidth().padding(12.dp)) {
             ImagenRemota(skill.urlIcono, null, Modifier.size(64.dp))
             Spacer(Modifier.width(12.dp))
@@ -200,10 +196,7 @@ private fun EncabezadoSkill(skill: Skill, idioma: String) {
 @Composable
 private fun TarjetaDescripciones(skill: Skill) {
     var expandido by remember { mutableStateOf(false) }
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-    ) {
+    TarjetaApp(modifier = Modifier.fillMaxWidth()) {
         Column(Modifier.fillMaxWidth().padding(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             BloqueIdioma(skill, "en")
             AnimatedVisibility(visible = expandido, enter = expandVertically(), exit = shrinkVertically()) {
@@ -241,10 +234,7 @@ private fun TarjetaCondicion(
     baseTime: Long?,
     efectos: List<String>,
 ) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-    ) {
+    TarjetaApp(modifier = Modifier.fillMaxWidth()) {
         Column(Modifier.fillMaxWidth().padding(12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
             if (precondition != null) {
                 Text("Requisito: $precondition", style = MaterialTheme.typography.bodySmall, fontFamily = FontFamily.Monospace)
@@ -269,10 +259,7 @@ private fun TarjetaCondicion(
 
 @Composable
 private fun TarjetaGen(gen: VersionGen, idioma: String) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-    ) {
+    TarjetaApp(modifier = Modifier.fillMaxWidth()) {
         Column(Modifier.fillMaxWidth().padding(12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
             Text(gen.name.texto(idioma) ?: "Versión gen", style = MaterialTheme.typography.titleSmall)
             Text(
@@ -291,10 +278,7 @@ private fun TarjetaGen(gen: VersionGen, idioma: String) {
 
 @Composable
 private fun TarjetaEvolucion(preEvo: EvoOrigen?, evos: List<EvoOrigen>, modelo: Modelo, idioma: String) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-    ) {
+    TarjetaApp(modifier = Modifier.fillMaxWidth()) {
         Column(Modifier.fillMaxWidth().padding(12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
             if (preEvo != null) {
                 Text("Evoluciona desde: ${nombreSkill(preEvo.old, modelo, idioma)}", style = MaterialTheme.typography.bodySmall)
@@ -322,10 +306,7 @@ private fun origen(evo: EvoOrigen, modelo: Modelo, idioma: String): String = whe
 
 @Composable
 private fun FilaReferencia(texto: String) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-    ) {
+    TarjetaApp(modifier = Modifier.fillMaxWidth()) {
         Text(
             texto,
             modifier = Modifier.padding(12.dp),
