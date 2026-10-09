@@ -50,6 +50,13 @@ kotlin {
     }
 }
 
+/* Deja en el log de CI el nombre de cada test que corre. */
+tasks.withType<Test>().configureEach {
+    testLogging {
+        events("passed", "skipped", "failed")
+    }
+}
+
 dependencies {
     implementation("androidx.core:core-ktx:1.19.0")
     implementation("androidx.activity:activity-compose:1.13.0")
