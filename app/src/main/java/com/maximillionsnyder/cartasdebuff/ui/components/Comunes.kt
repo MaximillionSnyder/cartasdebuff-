@@ -36,10 +36,14 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import com.maximillionsnyder.cartasdebuff.R
 import com.maximillionsnyder.cartasdebuff.domain.CartaApoyo
@@ -122,17 +126,48 @@ fun etiquetaObtencion(obtained: String?): String = when (obtained) {
     else -> obtained ?: "?"
 }
 
-fun resumenFuentes(skill: Skill): String {
+/* Fuentes de una skill con el color de cada tipo: los mismos colores que usan
+   los chips de filtro, así se ve de un vistazo de dónde sale la skill. */
+@Composable
+fun ResumenFuentes(skill: Skill, modifier: Modifier = Modifier) {
     val partes = buildList {
         val f = skill.sources
-        if (f.characterCards.isNotEmpty()) add("${f.characterCards.size} pers.")
-        if (f.characterEvents.isNotEmpty()) add("${f.characterEvents.size} ev. pers.")
-        if (f.supportHints.isNotEmpty()) add("${f.supportHints.size} hints")
-        if (f.supportEvents.isNotEmpty()) add("${f.supportEvents.size} ev. apoyo")
-        if (f.scenarioEvents.isNotEmpty()) add("${f.scenarioEvents.size} esc.")
+        if (f.characterCards.isNotEmpty()) add("${f.characterCards.size} pers." to ColoresPersonaje)
+        if (f.characterEvents.isNotEmpty()) add("${f.characterEvents.size} ev. pers." to ColoresEventoPersonaje)
+        if (f.supportHints.isNotEmpty()) add("${f.supportHints.size} hints" to ColoresHint)
+        if (f.supportEvents.isNotEmpty()) add("${f.supportEvents.size} ev. apoyo" to ColoresEventoApoyo)
+        if (f.scenarioEvents.isNotEmpty()) add("${f.scenarioEvents.size} esc." to ColoresEscenario)
     }
-    return if (partes.isEmpty()) "Sin fuentes" else partes.joinToString(" · ")
+    if (partes.isEmpty()) {
+        Text(
+            "Sin fuentes",
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = modifier,
+        )
+        return
+    }
+    val separador = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.55f)
+    val texto = buildAnnotatedString {
+        partes.forEachIndexed { indice, (etiqueta, colores) ->
+            if (indice > 0) withStyle(SpanStyle(color = separador)) { append(" · ") }
+            withStyle(SpanStyle(color = colorFuente(colores))) { append(etiqueta) }
+        }
+    }
+    Text(
+        texto,
+        style = MaterialTheme.typography.labelSmall,
+        maxLines = 1,
+        overflow = TextOverflow.Ellipsis,
+        modifier = modifier,
+    )
 }
+
+/* En tema oscuro conviene el tono claro de la paleta y en claro el oscuro,
+   para que el texto se lea sobre la tarjeta. */
+@Composable
+private fun colorFuente(colores: List<Color>): Color =
+    if (MaterialTheme.colorScheme.surface.luminance() < 0.5f) colores.last() else colores.first()
 
 @Composable
 fun SelectorIdioma(idioma: String, onCambia: (String) -> Unit) {
@@ -395,11 +430,7 @@ fun FilaSkill(skill: Skill, idioma: String, onClick: () -> Unit) {
                         overflow = TextOverflow.Ellipsis,
                     )
                 }
-                Text(
-                    resumenFuentes(skill),
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
+                ResumenFuentes(skill)
             }
             Spacer(Modifier.width(8.dp))
             Column(horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.spacedBy(2.dp)) {
