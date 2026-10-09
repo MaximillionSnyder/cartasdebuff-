@@ -27,6 +27,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import com.maximillionsnyder.cartasdebuff.data.Preferencias
+import com.maximillionsnyder.cartasdebuff.domain.INICIO_AJUSTES
+import com.maximillionsnyder.cartasdebuff.domain.INICIO_APOYOS
+import com.maximillionsnyder.cartasdebuff.domain.INICIO_PERSONAJES
 import com.maximillionsnyder.cartasdebuff.domain.Modelo
 import com.maximillionsnyder.cartasdebuff.ui.AppViewModel
 import com.maximillionsnyder.cartasdebuff.ui.cards.ApoyoDetalleScreen
@@ -46,7 +50,13 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            CartasDebuffTheme {
+            /* Tema, idioma y pantalla inicial viven acá y se guardan en el dispositivo. */
+            val prefs = remember { Preferencias(applicationContext) }
+            var tema by rememberSaveable { mutableStateOf(prefs.tema) }
+            var idioma by rememberSaveable { mutableStateOf(prefs.idioma) }
+            var inicio by rememberSaveable { mutableStateOf(prefs.pantallaInicial) }
+
+            CartasDebuffTheme(tema) {
                 val modelo by vm.modelo.collectAsState()
                 val actual = modelo
                 if (actual == null) {
@@ -54,7 +64,30 @@ class MainActivity : ComponentActivity() {
                         CircularProgressIndicator()
                     }
                 } else {
-                    App(actual)
+                    App(
+                        modelo = actual,
+                        idioma = idioma,
+                        onIdioma = {
+                            idioma = it
+                            prefs.idioma = it
+                        },
+                        tema = tema,
+                        onTema = {
+                            tema = it
+                            prefs.tema = it
+                        },
+                        pantallaInicial = inicio,
+                        onPantallaInicial = {
+                            inicio = it
+                            prefs.pantallaInicial = it
+                        },
+                        onRestablecerAjustes = {
+                            prefs.restablecer()
+                            tema = prefs.tema
+                            idioma = prefs.idioma
+                            inicio = prefs.pantallaInicial
+                        },
+                    )
                 }
             }
         }
@@ -82,10 +115,28 @@ private fun claveDePantalla(pantalla: Pantalla): String = when (pantalla) {
     is Pantalla.ApoyoDetalle -> "apoyo-${pantalla.supportId}"
 }
 
+/* Pestaña con la que abre la app; se elige en Ajustes. */
+private fun pantallaDeInicio(clave: String): Pantalla = when (clave) {
+    INICIO_PERSONAJES -> Pantalla.Personajes
+    INICIO_APOYOS -> Pantalla.Apoyos
+    INICIO_AJUSTES -> Pantalla.Ajustes
+    else -> Pantalla.Skills
+}
+
 @Composable
-private fun App(modelo: Modelo) {
-    var idioma by rememberSaveable { mutableStateOf("en") }
-    val pila = remember { mutableStateListOf<Pantalla>(Pantalla.Skills) }
+private fun App(
+    modelo: Modelo,
+    idioma: String,
+    onIdioma: (String) -> Unit,
+    tema: String,
+    onTema: (String) -> Unit,
+    pantallaInicial: String,
+    onPantallaInicial: (String) -> Unit,
+    onRestablecerAjustes: () -> Unit,
+) {
+    /* La pantalla inicial se lee una sola vez: cambiarla en Ajustes no salta de
+       pestaña, se aplica en el próximo arranque. */
+    val pila = remember { mutableStateListOf(pantallaDeInicio(pantallaInicial)) }
     val holder = rememberSaveableStateHolder()
     val actual = pila.last()
     val enDetalle = actual is Pantalla.SkillDetalle ||
@@ -142,25 +193,30 @@ private fun App(modelo: Modelo) {
                 Pantalla.Skills -> SkillsScreen(
                     modelo = modelo,
                     idioma = idioma,
-                    onIdioma = { idioma = it },
+                    onIdioma = onIdioma,
                     onAbrirSkill = { abrir(Pantalla.SkillDetalle(it)) },
                 )
                 Pantalla.Personajes -> PersonajesScreen(
                     modelo = modelo,
                     idioma = idioma,
-                    onIdioma = { idioma = it },
+                    onIdioma = onIdioma,
                     onAbrirCarta = { abrir(Pantalla.PersonajeDetalle(it)) },
                 )
                 Pantalla.Apoyos -> ApoyosScreen(
                     modelo = modelo,
                     idioma = idioma,
-                    onIdioma = { idioma = it },
+                    onIdioma = onIdioma,
                     onAbrirCarta = { abrir(Pantalla.ApoyoDetalle(it)) },
                 )
                 Pantalla.Ajustes -> AjustesScreen(
                     modelo = modelo,
                     idioma = idioma,
-                    onIdioma = { idioma = it },
+                    onIdioma = onIdioma,
+                    tema = tema,
+                    onTema = onTema,
+                    pantallaInicial = pantallaInicial,
+                    onPantallaInicial = onPantallaInicial,
+                    onRestablecer = onRestablecerAjustes,
                 )
                 is Pantalla.SkillDetalle -> SkillDetalleScreen(
                     modelo = modelo,

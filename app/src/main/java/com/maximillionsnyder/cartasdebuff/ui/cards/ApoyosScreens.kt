@@ -110,7 +110,7 @@ fun ApoyosScreen(
                     texto = etiquetaTipoApoyo(tipo),
                     seleccionado = tipoFiltro == tipo,
                     colores = coloresTipoApoyo(tipo),
-                    onClick = { tipoFiltro = tipo },
+                    onClick = { tipoFiltro = if (tipoFiltro == tipo) "todos" else tipo },
                 )
             }
         }
@@ -126,7 +126,7 @@ fun ApoyosScreen(
                     texto = etiqueta,
                     seleccionado = estrellas == valor,
                     colores = colores,
-                    onClick = { estrellas = valor },
+                    onClick = { estrellas = if (estrellas == valor) 0 else valor },
                 )
             }
             ChipFiltro(

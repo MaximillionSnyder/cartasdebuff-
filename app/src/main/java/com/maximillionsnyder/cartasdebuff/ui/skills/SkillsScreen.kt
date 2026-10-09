@@ -106,7 +106,7 @@ fun SkillsScreen(
         OutlinedTextField(
             value = busqueda,
             onValueChange = { busqueda = it },
-            placeholder = { Text("Buscar por nombre o ID") },
+            placeholder = { Text("Buscar por nombre") },
             singleLine = true,
             modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
         )
@@ -126,7 +126,7 @@ fun SkillsScreen(
                         texto = etiqueta,
                         seleccionado = rarezaFiltro == id,
                         colores = colores,
-                        onClick = { rarezaFiltro = id },
+                        onClick = { rarezaFiltro = if (rarezaFiltro == id) "todas" else id },
                     )
                 }
                 ChipFiltro(

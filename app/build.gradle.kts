@@ -62,6 +62,8 @@ dependencies {
     implementation("androidx.compose.animation:animation:$compose")
     implementation("androidx.compose.foundation:foundation:$compose")
     implementation("androidx.compose.material3:material3:1.4.0")
+    /* Iconos de la pantalla de Ajustes (el set "core" ya no viene con material3). */
+    implementation("androidx.compose.material:material-icons-core:1.7.8")
     debugImplementation("androidx.compose.ui:ui-tooling:$compose")
 
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.11.0")

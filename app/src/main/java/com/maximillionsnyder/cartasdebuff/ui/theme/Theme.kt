@@ -6,6 +6,9 @@ import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
+import com.maximillionsnyder.cartasdebuff.domain.TEMA_CLARO
+import com.maximillionsnyder.cartasdebuff.domain.TEMA_OSCURO
+import com.maximillionsnyder.cartasdebuff.domain.TEMA_SISTEMA
 
 private val EsquemaClaro = lightColorScheme(
     primary = Color(0xFFC2410C),
@@ -33,10 +36,16 @@ private val EsquemaOscuro = darkColorScheme(
     onSurfaceVariant = Color(0xFF9CA3AF),
 )
 
+/* El tema puede seguir al sistema (por defecto) o forzarse desde Ajustes. */
 @Composable
-fun CartasDebuffTheme(content: @Composable () -> Unit) {
+fun CartasDebuffTheme(modo: String = TEMA_SISTEMA, content: @Composable () -> Unit) {
+    val oscuro = when (modo) {
+        TEMA_CLARO -> false
+        TEMA_OSCURO -> true
+        else -> isSystemInDarkTheme()
+    }
     MaterialTheme(
-        colorScheme = if (isSystemInDarkTheme()) EsquemaOscuro else EsquemaClaro,
+        colorScheme = if (oscuro) EsquemaOscuro else EsquemaClaro,
         content = content,
     )
 }

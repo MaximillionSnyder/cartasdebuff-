@@ -36,6 +36,7 @@ import com.maximillionsnyder.cartasdebuff.domain.EvoOrigen
 import com.maximillionsnyder.cartasdebuff.domain.Modelo
 import com.maximillionsnyder.cartasdebuff.domain.Skill
 import com.maximillionsnyder.cartasdebuff.domain.VersionGen
+import com.maximillionsnyder.cartasdebuff.domain.duracionEnSegundos
 import com.maximillionsnyder.cartasdebuff.domain.etiquetaIdioma
 import com.maximillionsnyder.cartasdebuff.domain.texto
 import com.maximillionsnyder.cartasdebuff.ui.components.BarraDetalle
@@ -60,7 +61,7 @@ fun SkillDetalleScreen(
     val skill = modelo.skill(skillId)
     if (skill == null) {
         Column(Modifier.fillMaxSize()) {
-            BarraDetalle("Skill $skillId", onVolver)
+            BarraDetalle("Skill", onVolver)
             EstadoVacio("No se encontró la skill")
         }
         return
@@ -92,7 +93,7 @@ fun SkillDetalleScreen(
                     if (carta != null) {
                         FilaPersonaje(carta, idioma, fuente.kinds) { onAbrirPersonaje(fuente.cardId) }
                     } else {
-                        FilaReferencia("Carta de personaje ${fuente.cardId}")
+                        FilaReferencia("Carta de personaje sin datos")
                     }
                 }
             }
@@ -127,7 +128,7 @@ fun SkillDetalleScreen(
                     if (carta != null) {
                         FilaPersonaje(carta, idioma, null) { onAbrirPersonaje(cardId) }
                     } else {
-                        FilaReferencia("Carta de personaje $cardId")
+                        FilaReferencia("Carta de personaje sin datos")
                     }
                 }
             }
@@ -138,7 +139,7 @@ fun SkillDetalleScreen(
                     if (carta != null) {
                         FilaApoyo(carta, idioma, "Hint") { onAbrirApoyo(supportId) }
                     } else {
-                        FilaReferencia("Carta de apoyo $supportId")
+                        FilaReferencia("Carta de apoyo sin datos")
                     }
                 }
             }
@@ -149,14 +150,14 @@ fun SkillDetalleScreen(
                     if (carta != null) {
                         FilaApoyo(carta, idioma, "Evento") { onAbrirApoyo(supportId) }
                     } else {
-                        FilaReferencia("Carta de apoyo $supportId")
+                        FilaReferencia("Carta de apoyo sin datos")
                     }
                 }
             }
             if (fuentes.scenarioEvents.isNotEmpty()) {
                 item { SeccionTitulo("Eventos de escenario", fuentes.scenarioEvents.size) }
                 items(fuentes.scenarioEvents, key = { "escenario-$it" }) { escenarioId ->
-                    FilaReferencia(modelo.escenario(escenarioId)?.nombre(idioma) ?: "Escenario $escenarioId")
+                    FilaReferencia(modelo.escenario(escenarioId)?.nombre(idioma) ?: "Escenario sin datos")
                 }
             }
         }
@@ -180,7 +181,6 @@ private fun EncabezadoSkill(skill: Skill, idioma: String) {
                 }
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
                     EtiquetaRareza(skill.rarity)
-                    Text("ID ${skill.id}", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     if (skill.cost != null) {
                         Text("Coste ${skill.cost}", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
@@ -254,7 +254,7 @@ private fun TarjetaCondicion(
             }
             if (baseTime != null && baseTime > 0) {
                 Text(
-                    "Duración base: $baseTime ms",
+                    "Duración base: ${duracionEnSegundos(baseTime)}",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -281,9 +281,6 @@ private fun TarjetaGen(gen: VersionGen, idioma: String) {
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                if (gen.id != null) {
-                    Text("ID ${gen.id}", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                }
                 if (gen.cost != null) {
                     Text("Coste ${gen.cost}", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
@@ -300,20 +297,26 @@ private fun TarjetaEvolucion(preEvo: EvoOrigen?, evos: List<EvoOrigen>, modelo: 
     ) {
         Column(Modifier.fillMaxWidth().padding(12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
             if (preEvo != null) {
-                Text("Evoluciona desde la skill ${preEvo.old}", style = MaterialTheme.typography.bodySmall)
+                Text("Evoluciona desde: ${nombreSkill(preEvo.old, modelo, idioma)}", style = MaterialTheme.typography.bodySmall)
                 Text(origen(preEvo, modelo, idioma), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
             for (evo in evos) {
-                Text("→ ${evo.evos.joinToString(", ")}", style = MaterialTheme.typography.bodySmall)
+                Text("→ ${evo.evos.joinToString(", ") { nombreSkill(it, modelo, idioma) }}", style = MaterialTheme.typography.bodySmall)
                 Text(origen(evo, modelo, idioma), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
         }
     }
 }
 
+/* Las referencias a otras skills vienen por ID; se muestran por nombre. */
+private fun nombreSkill(id: Int?, modelo: Modelo, idioma: String): String {
+    if (id == null) return "—"
+    return modelo.skill(id)?.nombre(idioma) ?: "Skill sin datos"
+}
+
 private fun origen(evo: EvoOrigen, modelo: Modelo, idioma: String): String = when {
-    evo.cardId != null -> "Carta: ${modelo.cartaPersonaje(evo.cardId)?.nombre(idioma) ?: evo.cardId}"
-    evo.scenarioId != null -> "Escenario: ${modelo.escenario(evo.scenarioId)?.nombre(idioma) ?: evo.scenarioId}"
+    evo.cardId != null -> "Carta: ${modelo.cartaPersonaje(evo.cardId)?.nombre(idioma) ?: "sin datos"}"
+    evo.scenarioId != null -> "Escenario: ${modelo.escenario(evo.scenarioId)?.nombre(idioma) ?: "sin datos"}"
     else -> "—"
 }
 

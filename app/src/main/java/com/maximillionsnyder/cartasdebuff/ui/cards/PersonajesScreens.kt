@@ -95,7 +95,7 @@ fun PersonajesScreen(
                     texto = etiqueta,
                     seleccionado = estrellas == valor,
                     colores = colores,
-                    onClick = { estrellas = valor },
+                    onClick = { estrellas = if (estrellas == valor) 0 else valor },
                 )
             }
         }
@@ -132,7 +132,7 @@ fun PersonajeDetalleScreen(
     val carta = modelo.cartaPersonaje(cardId)
     if (carta == null) {
         Column(Modifier.fillMaxSize()) {
-            BarraDetalle("Carta $cardId", onVolver)
+            BarraDetalle("Carta de personaje", onVolver)
             EstadoVacio("No se encontró la carta")
         }
         return
@@ -200,7 +200,7 @@ private fun EncabezadoCartaPersonaje(carta: CartaPersonaje, idioma: String) {
                 }
                 Estrellas(carta.rarity)
                 Text(
-                    "ID ${carta.cardId} · char ${carta.charId} · ${etiquetaObtencion(carta.obtained)}",
+                    etiquetaObtencion(carta.obtained),
                     style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )

@@ -99,6 +99,15 @@ class DatosTest {
         )
     }
 
+    @Test
+    fun duracionesDeCondicionesEnMilesimasExactas() {
+        /* En la app las duraciones se muestran en segundos: el dataset usa
+           milisegundos exactos, así que no hace falta redondear. */
+        val tiempos = skills.flatMap { it.conditions }.mapNotNull { it.baseTime }.filter { it > 0 }
+        assertEquals(1958, tiempos.size)
+        assertEquals(emptyList<Long>(), tiempos.filter { it % 1000L != 0L }.distinct())
+    }
+
     private fun leer(ruta: String): String =
         checkNotNull(javaClass.classLoader?.getResourceAsStream(ruta)) { "Falta $ruta en el classpath" }
             .bufferedReader().use { it.readText() }

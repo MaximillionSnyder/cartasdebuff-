@@ -23,6 +23,16 @@ import java.net.URL
 /* Caché en memoria compartida por todos los íconos/retratos de la app. */
 private val cacheImagenes = LruCache<String, Bitmap>(160)
 
+/* Cantidad de imágenes guardadas en memoria (se muestra en Ajustes). */
+fun imagenesEnCache(): Int = cacheImagenes.size()
+
+/* Vacía la caché en memoria y devuelve cuántas imágenes se descartaron. */
+fun limpiarCacheImagenes(): Int {
+    val cantidad = cacheImagenes.size()
+    cacheImagenes.evictAll()
+    return cantidad
+}
+
 /* Imagen remota mínima (sin dependencias): descarga una vez y cachea. */
 @Composable
 fun ImagenRemota(url: String?, contentDescription: String?, modifier: Modifier = Modifier) {

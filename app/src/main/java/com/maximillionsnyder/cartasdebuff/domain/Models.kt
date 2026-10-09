@@ -116,7 +116,7 @@ data class Escenario(
     val name: Map<String, String?>,
     val urlName: String?,
 ) {
-    fun nombre(idioma: String): String = name.texto(idioma) ?: "Escenario $id"
+    fun nombre(idioma: String): String = name.texto(idioma) ?: "Escenario sin nombre"
 }
 
 class Modelo(
