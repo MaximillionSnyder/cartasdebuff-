@@ -82,6 +82,23 @@ class DatosTest {
         )
     }
 
+    @Test
+    fun estrellasDeApoyosFiltrables() {
+        /* Los chips de la pantalla de apoyos ofrecen 1★, 2★ y 3★: ninguna carta
+           debe quedar fuera de esas tres opciones. */
+        val rarities = apoyos.values.map { it.rarity }.distinct().sortedBy { it ?: 0 }
+        assertEquals(listOf(1, 2, 3), rarities)
+    }
+
+    @Test
+    fun tiposDeApoyosConocidos() {
+        val tipos = apoyos.values.map { it.type ?: "?" }.distinct().sorted()
+        assertEquals(
+            listOf("friend", "group", "guts", "intelligence", "power", "speed", "stamina"),
+            tipos,
+        )
+    }
+
     private fun leer(ruta: String): String =
         checkNotNull(javaClass.classLoader?.getResourceAsStream(ruta)) { "Falta $ruta en el classpath" }
             .bufferedReader().use { it.readText() }

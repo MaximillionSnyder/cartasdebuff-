@@ -104,6 +104,9 @@ fun etiquetaTipoApoyo(type: String?): String = when (type) {
     else -> type ?: "?"
 }
 
+val TIPOS_APOYO: List<String> =
+    listOf("speed", "stamina", "power", "guts", "intelligence", "friend", "group")
+
 fun etiquetaObtencion(obtained: String?): String = when (obtained) {
     "gacha" -> "Gacha"
     "main_story" -> "Historia principal"
@@ -223,6 +226,24 @@ fun Etiqueta(texto: String, color: Color = MaterialTheme.colorScheme.secondaryCo
     )
 }
 
+/* Muestra de qué tipo es una carta de apoyo (Velocidad, Aguante, Wit…) con la
+   paleta de ese tipo, para distinguirla de un vistazo en las listas. */
+@Composable
+fun EtiquetaTipoApoyo(type: String?) {
+    val colores = coloresTipoApoyo(type)
+    val forma = RoundedCornerShape(6.dp)
+    Text(
+        text = etiquetaTipoApoyo(type),
+        color = Color.White,
+        style = MaterialTheme.typography.labelSmall,
+        modifier = Modifier
+            .clip(forma)
+            .background(Brush.horizontalGradient(colores))
+            .border(1.dp, colores.first(), forma)
+            .padding(horizontal = 6.dp, vertical = 2.dp),
+    )
+}
+
 val ColoresVelocidad = listOf(Color(0xFF1565C0), Color(0xFF00ACC1))
 val ColoresAceleracion = listOf(Color(0xFFE65100), Color(0xFFFFB300))
 val ColoresTodas = listOf(Color(0xFF37474F), Color(0xFF78909C))
@@ -249,6 +270,20 @@ val ColoresApoyoGuts = listOf(Color(0xFFAD1457), Color(0xFFF06292))
 val ColoresApoyoIntelligence = listOf(Color(0xFF2E7D32), Color(0xFF66BB6A))
 val ColoresApoyoFriend = listOf(Color(0xFFF9A825), Color(0xFFFFD54F))
 val ColoresApoyoGroup = listOf(Color(0xFF6A1B9A), Color(0xFFAB47BC))
+
+/* Paleta por tipo de carta de apoyo. Debe declararse después de los colores
+   para que estén inicializados al construir el mapa. */
+val COLORES_TIPO_APOYO: Map<String, List<Color>> = mapOf(
+    "speed" to ColoresApoyoSpeed,
+    "stamina" to ColoresApoyoStamina,
+    "power" to ColoresApoyoPower,
+    "guts" to ColoresApoyoGuts,
+    "intelligence" to ColoresApoyoIntelligence,
+    "friend" to ColoresApoyoFriend,
+    "group" to ColoresApoyoGroup,
+)
+
+fun coloresTipoApoyo(type: String?): List<Color> = COLORES_TIPO_APOYO[type] ?: ColoresTodas
 
 @Composable
 fun ChipFiltro(
@@ -409,11 +444,13 @@ fun FilaApoyo(carta: CartaApoyo, idioma: String, insignia: String? = null, onCli
                         overflow = TextOverflow.Ellipsis,
                     )
                 }
-                Text(
-                    listOfNotNull(etiquetaTipoApoyo(carta.type), insignia).joinToString(" · "),
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                ) {
+                    EtiquetaTipoApoyo(carta.type)
+                    if (!insignia.isNullOrBlank()) Etiqueta(insignia)
+                }
             }
             Spacer(Modifier.width(8.dp))
             Estrellas(carta.rarity)

@@ -31,34 +31,28 @@ import com.maximillionsnyder.cartasdebuff.domain.CartaApoyo
 import com.maximillionsnyder.cartasdebuff.domain.Modelo
 import com.maximillionsnyder.cartasdebuff.ui.components.BarraDetalle
 import com.maximillionsnyder.cartasdebuff.ui.components.ChipFiltro
-import com.maximillionsnyder.cartasdebuff.ui.components.ColoresApoyoFriend
-import com.maximillionsnyder.cartasdebuff.ui.components.ColoresApoyoGroup
-import com.maximillionsnyder.cartasdebuff.ui.components.ColoresApoyoGuts
-import com.maximillionsnyder.cartasdebuff.ui.components.ColoresApoyoIntelligence
-import com.maximillionsnyder.cartasdebuff.ui.components.ColoresApoyoPower
-import com.maximillionsnyder.cartasdebuff.ui.components.ColoresApoyoSpeed
-import com.maximillionsnyder.cartasdebuff.ui.components.ColoresApoyoStamina
+import com.maximillionsnyder.cartasdebuff.ui.components.ColoresEstrella1
+import com.maximillionsnyder.cartasdebuff.ui.components.ColoresEstrella2
+import com.maximillionsnyder.cartasdebuff.ui.components.ColoresEstrella3
 import com.maximillionsnyder.cartasdebuff.ui.components.ColoresTodas
 import com.maximillionsnyder.cartasdebuff.ui.components.EstadoVacio
 import com.maximillionsnyder.cartasdebuff.ui.components.Estrellas
+import com.maximillionsnyder.cartasdebuff.ui.components.EtiquetaTipoApoyo
 import com.maximillionsnyder.cartasdebuff.ui.components.FilaApoyo
 import com.maximillionsnyder.cartasdebuff.ui.components.FilaSkill
 import com.maximillionsnyder.cartasdebuff.ui.components.ImagenRemota
 import com.maximillionsnyder.cartasdebuff.ui.components.SeccionTitulo
 import com.maximillionsnyder.cartasdebuff.ui.components.SelectorIdioma
+import com.maximillionsnyder.cartasdebuff.ui.components.TIPOS_APOYO
+import com.maximillionsnyder.cartasdebuff.ui.components.coloresTipoApoyo
 import com.maximillionsnyder.cartasdebuff.ui.components.etiquetaObtencion
 import com.maximillionsnyder.cartasdebuff.ui.components.etiquetaTipoApoyo
 
-private val TIPOS_APOYO = listOf("speed", "stamina", "power", "guts", "intelligence", "friend", "group")
-
-private val COLORES_TIPO_APOYO = mapOf(
-    "speed" to ColoresApoyoSpeed,
-    "stamina" to ColoresApoyoStamina,
-    "power" to ColoresApoyoPower,
-    "guts" to ColoresApoyoGuts,
-    "intelligence" to ColoresApoyoIntelligence,
-    "friend" to ColoresApoyoFriend,
-    "group" to ColoresApoyoGroup,
+private val CHIPS_ESTRELLAS = listOf(
+    Triple(0, "Todas", ColoresTodas),
+    Triple(3, "3★", ColoresEstrella3),
+    Triple(2, "2★", ColoresEstrella2),
+    Triple(1, "1★", ColoresEstrella1),
 )
 
 @Composable
@@ -70,15 +64,18 @@ fun ApoyosScreen(
 ) {
     var busqueda by rememberSaveable { mutableStateOf("") }
     var tipoFiltro by rememberSaveable { mutableStateOf("todos") }
+    var estrellas by rememberSaveable { mutableStateOf(0) }
+    var descendente by rememberSaveable { mutableStateOf(false) }
 
-    val consulta = busqueda.trim()
-    val filtradas = modelo.cartasApoyo.filter { carta ->
-        val coincideTipo = tipoFiltro == "todos" || carta.type == tipoFiltro
-        val coincideBusqueda = consulta.isBlank() ||
-            carta.name.values.any { it?.contains(consulta, ignoreCase = true) == true } ||
-            carta.title.values.any { it?.contains(consulta, ignoreCase = true) == true }
-        coincideTipo && coincideBusqueda
-    }
+    val filtradas = filtrarApoyos(
+        modelo.cartasApoyo,
+        FiltroApoyos(
+            consulta = busqueda,
+            tipo = tipoFiltro,
+            estrellas = estrellas,
+            descendente = descendente,
+        ),
+    )
 
     Column(Modifier.fillMaxSize()) {
         Row(
@@ -112,10 +109,32 @@ fun ApoyosScreen(
                 ChipFiltro(
                     texto = etiquetaTipoApoyo(tipo),
                     seleccionado = tipoFiltro == tipo,
-                    colores = COLORES_TIPO_APOYO.getValue(tipo),
+                    colores = coloresTipoApoyo(tipo),
                     onClick = { tipoFiltro = tipo },
                 )
             }
+        }
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .horizontalScroll(rememberScrollState())
+                .padding(horizontal = 16.dp, vertical = 4.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            for ((valor, etiqueta, colores) in CHIPS_ESTRELLAS) {
+                ChipFiltro(
+                    texto = etiqueta,
+                    seleccionado = estrellas == valor,
+                    colores = colores,
+                    onClick = { estrellas = valor },
+                )
+            }
+            ChipFiltro(
+                texto = if (descendente) "↓ 3★ → 1★" else "↑ 1★ → 3★",
+                seleccionado = true,
+                colores = ColoresTodas,
+                onClick = { descendente = !descendente },
+            )
         }
         Text(
             "${filtradas.size} de ${modelo.cartasApoyo.size} cartas",
@@ -150,7 +169,7 @@ fun ApoyoDetalleScreen(
     val carta = modelo.cartaApoyo(supportId)
     if (carta == null) {
         Column(Modifier.fillMaxSize()) {
-            BarraDetalle("Carta $supportId", onVolver)
+            BarraDetalle("Carta de apoyo", onVolver)
             EstadoVacio("No se encontró la carta")
         }
         return
@@ -206,9 +225,15 @@ private fun EncabezadoCartaApoyo(carta: CartaApoyo, idioma: String) {
                 if (titulo.isNotBlank()) {
                     Text(titulo, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
-                Estrellas(carta.rarity)
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                ) {
+                    Estrellas(carta.rarity)
+                    EtiquetaTipoApoyo(carta.type)
+                }
                 Text(
-                    "${etiquetaTipoApoyo(carta.type)} · ID ${carta.supportId} · ${etiquetaObtencion(carta.obtained)}",
+                    etiquetaObtencion(carta.obtained),
                     style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
