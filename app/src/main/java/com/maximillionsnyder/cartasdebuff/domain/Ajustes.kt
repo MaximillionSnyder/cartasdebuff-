@@ -16,6 +16,18 @@ fun etiquetaTema(tema: String): String = when (tema) {
     else -> "Sistema"
 }
 
+/* Cómo de apretadas se ven las listas: cómoda (por defecto) o compacta, para
+   ver más filas de un vistazo. */
+const val VISTA_COMODA = "comoda"
+const val VISTA_COMPACTA = "compacta"
+
+val VISTAS = listOf(VISTA_COMODA, VISTA_COMPACTA)
+
+fun etiquetaVista(vista: String): String = when (vista) {
+    VISTA_COMPACTA -> "Compacta"
+    else -> "Cómoda"
+}
+
 const val INICIO_SKILLS = "skills"
 const val INICIO_PERSONAJES = "personajes"
 const val INICIO_APOYOS = "apoyos"

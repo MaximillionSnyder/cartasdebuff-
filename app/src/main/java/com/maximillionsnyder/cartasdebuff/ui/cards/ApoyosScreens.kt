@@ -61,6 +61,7 @@ private val CHIPS_ESTRELLAS = listOf(
 fun ApoyosScreen(
     modelo: Modelo,
     idioma: String,
+    compacta: Boolean,
     onIdioma: (String) -> Unit,
     onAbrirCarta: (Int) -> Unit,
 ) {
@@ -144,7 +145,7 @@ fun ApoyosScreen(
                 contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 4.dp, bottom = 16.dp),
             ) {
                 items(filtradas, key = { it.supportId }) { carta ->
-                    FilaApoyo(carta, idioma) { onAbrirCarta(carta.supportId) }
+                    FilaApoyo(carta, idioma, compacta = compacta) { onAbrirCarta(carta.supportId) }
                 }
             }
         }

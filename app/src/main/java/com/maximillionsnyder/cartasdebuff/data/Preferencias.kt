@@ -5,6 +5,8 @@ import com.maximillionsnyder.cartasdebuff.domain.IDIOMAS
 import com.maximillionsnyder.cartasdebuff.domain.INICIO_SKILLS
 import com.maximillionsnyder.cartasdebuff.domain.PANTALLAS_INICIO
 import com.maximillionsnyder.cartasdebuff.domain.TEMAS
+import com.maximillionsnyder.cartasdebuff.domain.VISTAS
+import com.maximillionsnyder.cartasdebuff.domain.VISTA_COMODA
 import com.maximillionsnyder.cartasdebuff.domain.TEMA_SISTEMA
 
 /* Ajustes del usuario guardados en el dispositivo: tema, idioma de los datos y
@@ -22,6 +24,10 @@ class Preferencias(context: Context) {
         get() = prefs.getString(CLAVE_IDIOMA, null)?.takeIf { it in IDIOMAS } ?: IDIOMAS.first()
         set(valor) = prefs.edit().putString(CLAVE_IDIOMA, valor).apply()
 
+    var vista: String
+        get() = prefs.getString(CLAVE_VISTA, null)?.takeIf { it in VISTAS } ?: VISTA_COMODA
+        set(valor) = prefs.edit().putString(CLAVE_VISTA, valor).apply()
+
     var pantallaInicial: String
         get() = prefs.getString(CLAVE_INICIO, null)?.takeIf { it in PANTALLAS_INICIO } ?: INICIO_SKILLS
         set(valor) = prefs.edit().putString(CLAVE_INICIO, valor).apply()
@@ -34,5 +40,6 @@ class Preferencias(context: Context) {
         const val CLAVE_TEMA = "tema"
         const val CLAVE_IDIOMA = "idioma"
         const val CLAVE_INICIO = "pantallaInicial"
+        const val CLAVE_VISTA = "vistaLista"
     }
 }

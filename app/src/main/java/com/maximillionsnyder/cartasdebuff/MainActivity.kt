@@ -37,6 +37,7 @@ import com.maximillionsnyder.cartasdebuff.domain.INICIO_AJUSTES
 import com.maximillionsnyder.cartasdebuff.domain.INICIO_APOYOS
 import com.maximillionsnyder.cartasdebuff.domain.INICIO_PERSONAJES
 import com.maximillionsnyder.cartasdebuff.domain.Modelo
+import com.maximillionsnyder.cartasdebuff.domain.VISTA_COMPACTA
 import com.maximillionsnyder.cartasdebuff.ui.AppViewModel
 import com.maximillionsnyder.cartasdebuff.ui.cards.ApoyoDetalleScreen
 import com.maximillionsnyder.cartasdebuff.ui.cards.ApoyosScreen
@@ -60,6 +61,7 @@ class MainActivity : ComponentActivity() {
             var tema by rememberSaveable { mutableStateOf(prefs.tema) }
             var idioma by rememberSaveable { mutableStateOf(prefs.idioma) }
             var inicio by rememberSaveable { mutableStateOf(prefs.pantallaInicial) }
+            var vista by rememberSaveable { mutableStateOf(prefs.vista) }
 
             CartasDebuffTheme(tema) {
                 val modelo by vm.modelo.collectAsState()
@@ -101,11 +103,17 @@ class MainActivity : ComponentActivity() {
                             inicio = it
                             prefs.pantallaInicial = it
                         },
+                        vista = vista,
+                        onVista = {
+                            vista = it
+                            prefs.vista = it
+                        },
                         onRestablecerAjustes = {
                             prefs.restablecer()
                             tema = prefs.tema
                             idioma = prefs.idioma
                             inicio = prefs.pantallaInicial
+                            vista = prefs.vista
                         },
                     )
                 }
@@ -152,6 +160,8 @@ private fun App(
     onTema: (String) -> Unit,
     pantallaInicial: String,
     onPantallaInicial: (String) -> Unit,
+    vista: String,
+    onVista: (String) -> Unit,
     onRestablecerAjustes: () -> Unit,
 ) {
     /* La pantalla inicial se lee una sola vez: cambiarla en Ajustes no salta de
@@ -213,18 +223,21 @@ private fun App(
                 Pantalla.Skills -> SkillsScreen(
                     modelo = modelo,
                     idioma = idioma,
+                    compacta = vista == VISTA_COMPACTA,
                     onIdioma = onIdioma,
                     onAbrirSkill = { abrir(Pantalla.SkillDetalle(it)) },
                 )
                 Pantalla.Personajes -> PersonajesScreen(
                     modelo = modelo,
                     idioma = idioma,
+                    compacta = vista == VISTA_COMPACTA,
                     onIdioma = onIdioma,
                     onAbrirCarta = { abrir(Pantalla.PersonajeDetalle(it)) },
                 )
                 Pantalla.Apoyos -> ApoyosScreen(
                     modelo = modelo,
                     idioma = idioma,
+                    compacta = vista == VISTA_COMPACTA,
                     onIdioma = onIdioma,
                     onAbrirCarta = { abrir(Pantalla.ApoyoDetalle(it)) },
                 )
@@ -236,6 +249,8 @@ private fun App(
                     onTema = onTema,
                     pantallaInicial = pantallaInicial,
                     onPantallaInicial = onPantallaInicial,
+                    vista = vista,
+                    onVista = onVista,
                     onRestablecer = onRestablecerAjustes,
                 )
                 is Pantalla.SkillDetalle -> SkillDetalleScreen(

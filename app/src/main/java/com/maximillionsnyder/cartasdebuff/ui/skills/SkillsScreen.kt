@@ -54,6 +54,7 @@ private val FUENTES = listOf(
 fun SkillsScreen(
     modelo: Modelo,
     idioma: String,
+    compacta: Boolean,
     onIdioma: (String) -> Unit,
     onAbrirSkill: (Int) -> Unit,
 ) {
@@ -188,7 +189,7 @@ fun SkillsScreen(
                 contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 4.dp, bottom = 16.dp),
             ) {
                 items(filtradas, key = { it.id }) { skill ->
-                    FilaSkill(skill, idioma, onClick = { onAbrirSkill(skill.id) })
+                    FilaSkill(skill, idioma, compacta, onClick = { onAbrirSkill(skill.id) })
                 }
             }
         }

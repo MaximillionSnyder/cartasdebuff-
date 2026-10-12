@@ -50,6 +50,7 @@ import com.maximillionsnyder.cartasdebuff.ui.components.etiquetaObtencion
 fun PersonajesScreen(
     modelo: Modelo,
     idioma: String,
+    compacta: Boolean,
     onIdioma: (String) -> Unit,
     onAbrirCarta: (Int) -> Unit,
 ) {
@@ -110,7 +111,7 @@ fun PersonajesScreen(
                 contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 4.dp, bottom = 16.dp),
             ) {
                 items(filtradas, key = { it.cardId }) { carta ->
-                    FilaPersonaje(carta, idioma, null) { onAbrirCarta(carta.cardId) }
+                    FilaPersonaje(carta, idioma, null, compacta) { onAbrirCarta(carta.cardId) }
                 }
             }
         }

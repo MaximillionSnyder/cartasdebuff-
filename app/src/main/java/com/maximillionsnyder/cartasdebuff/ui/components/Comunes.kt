@@ -405,13 +405,16 @@ fun ChipFiltro(
 }
 
 @Composable
-fun FilaSkill(skill: Skill, idioma: String, onClick: () -> Unit) {
+fun FilaSkill(skill: Skill, idioma: String, compacta: Boolean = false, onClick: () -> Unit) {
+    /* En vista compacta el icono es más chico, hay menos relleno y se calla la
+       línea en japonés: caben bastantes más filas en la misma pantalla. */
+    val relleno = if (compacta) 6.dp else 10.dp
     TarjetaApp(onClick = onClick, modifier = Modifier.fillMaxWidth()) {
         Row(
-            modifier = Modifier.fillMaxWidth().padding(10.dp),
+            modifier = Modifier.fillMaxWidth().padding(relleno),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            ImagenRemota(skill.urlIcono, null, Modifier.size(44.dp))
+            ImagenRemota(skill.urlIcono, null, Modifier.size(if (compacta) 32.dp else 44.dp))
             Spacer(Modifier.width(10.dp))
             Column(Modifier.weight(1f)) {
                 Text(
@@ -421,7 +424,7 @@ fun FilaSkill(skill: Skill, idioma: String, onClick: () -> Unit) {
                     overflow = TextOverflow.Ellipsis,
                 )
                 val japones = skill.name["ja"]
-                if (idioma != "ja" && !japones.isNullOrBlank()) {
+                if (!compacta && idioma != "ja" && !japones.isNullOrBlank()) {
                     Text(
                         japones,
                         style = MaterialTheme.typography.bodySmall,
@@ -447,13 +450,14 @@ fun FilaSkill(skill: Skill, idioma: String, onClick: () -> Unit) {
 }
 
 @Composable
-fun FilaPersonaje(carta: CartaPersonaje, idioma: String, kinds: List<String>?, onClick: () -> Unit) {
+fun FilaPersonaje(carta: CartaPersonaje, idioma: String, kinds: List<String>?, compacta: Boolean = false, onClick: () -> Unit) {
+    val relleno = if (compacta) 6.dp else 10.dp
     TarjetaApp(onClick = onClick, modifier = Modifier.fillMaxWidth()) {
         Row(
-            modifier = Modifier.fillMaxWidth().padding(10.dp),
+            modifier = Modifier.fillMaxWidth().padding(relleno),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            ImagenRemota(carta.image, null, Modifier.size(48.dp))
+            ImagenRemota(carta.image, null, Modifier.size(if (compacta) 34.dp else 48.dp))
             Spacer(Modifier.width(10.dp))
             Column(Modifier.weight(1f)) {
                 Text(
@@ -463,7 +467,7 @@ fun FilaPersonaje(carta: CartaPersonaje, idioma: String, kinds: List<String>?, o
                     overflow = TextOverflow.Ellipsis,
                 )
                 val titulo = carta.titulo(idioma)
-                if (titulo.isNotBlank()) {
+                if (!compacta && titulo.isNotBlank()) {
                     Text(
                         titulo,
                         style = MaterialTheme.typography.bodySmall,
@@ -487,13 +491,14 @@ fun FilaPersonaje(carta: CartaPersonaje, idioma: String, kinds: List<String>?, o
 }
 
 @Composable
-fun FilaApoyo(carta: CartaApoyo, idioma: String, insignia: String? = null, onClick: () -> Unit) {
+fun FilaApoyo(carta: CartaApoyo, idioma: String, insignia: String? = null, compacta: Boolean = false, onClick: () -> Unit) {
+    val relleno = if (compacta) 6.dp else 10.dp
     TarjetaApp(onClick = onClick, modifier = Modifier.fillMaxWidth()) {
         Row(
-            modifier = Modifier.fillMaxWidth().padding(10.dp),
+            modifier = Modifier.fillMaxWidth().padding(relleno),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            ImagenRemota(carta.image, null, Modifier.size(48.dp))
+            ImagenRemota(carta.image, null, Modifier.size(if (compacta) 34.dp else 48.dp))
             Spacer(Modifier.width(10.dp))
             Column(Modifier.weight(1f)) {
                 Text(
@@ -503,7 +508,7 @@ fun FilaApoyo(carta: CartaApoyo, idioma: String, insignia: String? = null, onCli
                     overflow = TextOverflow.Ellipsis,
                 )
                 val titulo = carta.titulo(idioma)
-                if (titulo.isNotBlank()) {
+                if (!compacta && titulo.isNotBlank()) {
                     Text(
                         titulo,
                         style = MaterialTheme.typography.bodySmall,

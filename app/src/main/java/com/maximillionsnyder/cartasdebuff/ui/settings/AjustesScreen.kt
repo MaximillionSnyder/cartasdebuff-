@@ -71,6 +71,8 @@ import com.maximillionsnyder.cartasdebuff.domain.IDIOMAS
 import com.maximillionsnyder.cartasdebuff.domain.Modelo
 import com.maximillionsnyder.cartasdebuff.domain.PANTALLAS_INICIO
 import com.maximillionsnyder.cartasdebuff.domain.TEMAS
+import com.maximillionsnyder.cartasdebuff.domain.VISTAS
+import com.maximillionsnyder.cartasdebuff.domain.etiquetaVista
 import com.maximillionsnyder.cartasdebuff.domain.etiquetaIdioma
 import com.maximillionsnyder.cartasdebuff.domain.etiquetaPantallaInicio
 import com.maximillionsnyder.cartasdebuff.domain.etiquetaTema
@@ -91,6 +93,8 @@ fun AjustesScreen(
     onTema: (String) -> Unit,
     pantallaInicial: String,
     onPantallaInicial: (String) -> Unit,
+    vista: String,
+    onVista: (String) -> Unit,
     onRestablecer: () -> Unit,
 ) {
     var pestana by rememberSaveable { mutableStateOf(0) }
@@ -144,6 +148,8 @@ private fun PestanaPreferencias(
     onTema: (String) -> Unit,
     pantallaInicial: String,
     onPantallaInicial: (String) -> Unit,
+    vista: String,
+    onVista: (String) -> Unit,
     onRestablecer: () -> Unit,
 ) {
     val context = LocalContext.current
@@ -164,6 +170,20 @@ private fun PestanaPreferencias(
                 valor = tema,
                 etiqueta = ::etiquetaTema,
                 onValor = onTema,
+            )
+            HorizontalDivider(Modifier.padding(horizontal = 16.dp))
+            FilaSegmentada(
+                titulo = "Listas",
+                opciones = VISTAS,
+                valor = vista,
+                etiqueta = ::etiquetaVista,
+                onValor = onVista,
+            )
+            Text(
+                "Compacta muestra más filas por pantalla, con el icono más chico.",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 12.dp),
             )
             HorizontalDivider(Modifier.padding(horizontal = 16.dp))
             FilaDesplegable(
@@ -243,7 +263,7 @@ private fun PestanaPreferencias(
             Text("Restablecer ajustes")
         }
         Text(
-            "Vuelve al tema del sistema, los datos en inglés y la pantalla inicial Skills.",
+            "Vuelve al tema del sistema, los datos en inglés, las listas cómodas y la pantalla inicial Skills.",
             style = MaterialTheme.typography.labelSmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.padding(horizontal = 4.dp),
@@ -254,7 +274,7 @@ private fun PestanaPreferencias(
         AlertDialog(
             onDismissRequest = { confirmarRestablecer = false },
             title = { Text("¿Restablecer ajustes?") },
-            text = { Text("Se borrarán tus preferencias de tema, idioma y pantalla inicial.") },
+            text = { Text("Se borrarán tus preferencias de tema, idioma, listas y pantalla inicial.") },
             confirmButton = {
                 TextButton(
                     onClick = {
