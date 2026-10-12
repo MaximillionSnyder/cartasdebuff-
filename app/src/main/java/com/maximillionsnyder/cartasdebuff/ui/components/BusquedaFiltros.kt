@@ -239,8 +239,10 @@ fun ListaConArriba(
 ) {
     val estado = rememberLazyListState()
     val alcance = rememberCoroutineScope()
+    /* Aparece en cuanto la primera fila se va de la pantalla: si se exige bajar
+       más, el botón se esconde justo cuando hace falta. */
     val mostrar by remember {
-        derivedStateOf { estado.firstVisibleItemIndex > 3 || estado.firstVisibleItemScrollOffset > 600 }
+        derivedStateOf { estado.firstVisibleItemIndex > 0 || estado.firstVisibleItemScrollOffset > 200 }
     }
     Box(modifier.fillMaxSize()) {
         LazyColumn(
