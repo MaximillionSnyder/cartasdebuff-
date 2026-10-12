@@ -35,6 +35,8 @@ serial() {
 cmd_bajar() {
   command -v gh >/dev/null || die "falta gh"
   local sha info id num estado
+  # Sin APK viejo por medio: si el run falla, no queremos instalar el anterior.
+  rm -rf "$WORK/apk"
   sha="$(git -C "$REPO" rev-parse HEAD)"
   info="$(gh run list --branch main --limit 20 \
     --json databaseId,number,headSha,status,conclusion \

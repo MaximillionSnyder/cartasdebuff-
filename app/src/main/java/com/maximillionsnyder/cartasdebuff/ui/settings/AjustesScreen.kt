@@ -132,6 +132,8 @@ fun AjustesScreen(
                 onTema = onTema,
                 pantallaInicial = pantallaInicial,
                 onPantallaInicial = onPantallaInicial,
+                vista = vista,
+                onVista = onVista,
                 onRestablecer = onRestablecer,
             )
             else -> PestanaReportes()
