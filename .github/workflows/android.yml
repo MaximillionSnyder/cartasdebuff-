@@ -28,6 +28,28 @@ jobs:
 
       - uses: gradle/actions/setup-gradle@v4
 
+      # El keystore de firma vive en los secretos del repo. Con una firma fija
+      # `adb install -r` actualiza la app en vez de exigir desinstalarla.
+      - name: Preparar firma
+        env:
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+          CLAVE_ALMACEN: ${{ secrets.KEYSTORE_PASSWORD }}
+          CLAVE_ALIAS: ${{ secrets.KEY_ALIAS }}
+          CLAVE_CLAVE: ${{ secrets.KEY_PASSWORD }}
+        run: |
+          if [ -z "$KEYSTORE_BASE64" ]; then
+            echo "Sin KEYSTORE_BASE64: se firma con el keystore de depuración."
+            exit 0
+          fi
+          printf '%s' "$KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/cartasdebuff.jks"
+          {
+            echo "KEYSTORE_FILE=$RUNNER_TEMP/cartasdebuff.jks"
+            echo "KEYSTORE_PASSWORD=$CLAVE_ALMACEN"
+            echo "KEY_ALIAS=$CLAVE_ALIAS"
+            echo "KEY_PASSWORD=$CLAVE_CLAVE"
+          } >> "$GITHUB_ENV"
+          echo "Firma fija preparada."
+
       - name: Tests unitarios
         run: ./gradlew :app:testDebugUnitTest --stacktrace
 

@@ -17,6 +17,21 @@ android {
         versionName = System.getenv("VERSION_NAME") ?: "0.1.0"
     }
 
+    /* Firma fija para las releases: el keystore viaja en los secretos del repo y
+       CI lo deja en KEYSTORE_FILE. Sin ella cada runner firma con su propio
+       keystore de depuración y Android obliga a desinstalar en cada instalación. */
+    signingConfigs {
+        create("fija") {
+            val ruta = System.getenv("KEYSTORE_FILE")
+            if (!ruta.isNullOrBlank() && file(ruta).exists()) {
+                storeFile = file(ruta)
+                storePassword = System.getenv("KEYSTORE_PASSWORD")
+                keyAlias = System.getenv("KEY_ALIAS")
+                keyPassword = System.getenv("KEY_PASSWORD")
+            }
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = false
@@ -24,7 +39,11 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro",
             )
-            signingConfig = signingConfigs.getByName("debug")
+            signingConfig = if (System.getenv("KEYSTORE_FILE").isNullOrBlank()) {
+                signingConfigs.getByName("debug")
+            } else {
+                signingConfigs.getByName("fija")
+            }
         }
     }
 
