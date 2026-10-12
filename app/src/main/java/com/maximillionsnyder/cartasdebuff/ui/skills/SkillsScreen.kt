@@ -1,20 +1,15 @@
 package com.maximillionsnyder.cartasdebuff.ui.skills
 
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -25,6 +20,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.maximillionsnyder.cartasdebuff.domain.Modelo
+import com.maximillionsnyder.cartasdebuff.ui.components.CampoBusqueda
 import com.maximillionsnyder.cartasdebuff.ui.components.ChipFiltro
 import com.maximillionsnyder.cartasdebuff.ui.components.ColoresAceleracion
 import com.maximillionsnyder.cartasdebuff.ui.components.ColoresDebuff
@@ -40,8 +36,11 @@ import com.maximillionsnyder.cartasdebuff.ui.components.ColoresRara
 import com.maximillionsnyder.cartasdebuff.ui.components.ColoresTodas
 import com.maximillionsnyder.cartasdebuff.ui.components.ColoresUnica
 import com.maximillionsnyder.cartasdebuff.ui.components.ColoresVelocidad
+import com.maximillionsnyder.cartasdebuff.ui.components.ContadorResultados
 import com.maximillionsnyder.cartasdebuff.ui.components.EstadoVacioBusqueda
+import com.maximillionsnyder.cartasdebuff.ui.components.FilaChips
 import com.maximillionsnyder.cartasdebuff.ui.components.FilaSkill
+import com.maximillionsnyder.cartasdebuff.ui.components.PanelFiltros
 import com.maximillionsnyder.cartasdebuff.ui.components.SelectorIdioma
 
 private val FUENTES = listOf(
@@ -66,6 +65,7 @@ fun SkillsScreen(
     var soloAceleracion by rememberSaveable { mutableStateOf(false) }
     var ocultarSinEn by rememberSaveable { mutableStateOf(false) }
     var fuentes by rememberSaveable { mutableStateOf(listOf<String>()) }
+    var filtrosAbiertos by rememberSaveable { mutableStateOf(true) }
 
     val consulta = busqueda.trim()
     val filtradas = modelo.skills.filter { skill ->
@@ -95,6 +95,14 @@ fun SkillsScreen(
         coincideBusqueda && coincideRareza && coincideDebuff && coincideEfecto && coincideLanzamiento && coincideFuente
     }
 
+    /* Cuántos filtros hay puestos: lo que muestra la pastilla del panel. */
+    val filtrosActivos = (if (rarezaFiltro != "todas") 1 else 0) +
+        (if (soloDebuff) 1 else 0) +
+        (if (soloVelocidad) 1 else 0) +
+        (if (soloAceleracion) 1 else 0) +
+        (if (ocultarSinEn) 1 else 0) +
+        fuentes.size
+
     Column(Modifier.fillMaxSize()) {
         Row(
             modifier = Modifier.fillMaxWidth().padding(start = 16.dp, end = 8.dp, top = 8.dp),
@@ -103,18 +111,26 @@ fun SkillsScreen(
             Text("Skills", style = MaterialTheme.typography.headlineSmall, modifier = Modifier.weight(1f))
             SelectorIdioma(idioma, onIdioma)
         }
-        OutlinedTextField(
-            value = busqueda,
-            onValueChange = { busqueda = it },
-            placeholder = { Text("Buscar por nombre") },
-            singleLine = true,
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+        CampoBusqueda(
+            valor = busqueda,
+            onValor = { busqueda = it },
+            placeholder = "Buscar por nombre",
+            modifier = Modifier.padding(horizontal = 16.dp),
         )
-        Column(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp)) {
-            Row(
-                modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-            ) {
+        PanelFiltros(
+            activos = filtrosActivos,
+            abierto = filtrosAbiertos,
+            onAlternar = { filtrosAbiertos = !filtrosAbiertos },
+            onLimpiar = {
+                rarezaFiltro = "todas"
+                soloDebuff = false
+                soloVelocidad = false
+                soloAceleracion = false
+                ocultarSinEn = false
+                fuentes = emptyList()
+            },
+        ) {
+            FilaChips {
                 listOf(
                     Triple("todas", "Todas", ColoresTodas),
                     Triple("normal", "Normal", ColoresNormal),
@@ -148,11 +164,7 @@ fun SkillsScreen(
                     onClick = { soloAceleracion = !soloAceleracion },
                 )
             }
-            Spacer(Modifier.height(6.dp))
-            Row(
-                modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-            ) {
+            FilaChips {
                 for ((id, etiqueta, colores) in FUENTES) {
                     ChipFiltro(
                         texto = etiqueta,
@@ -169,18 +181,13 @@ fun SkillsScreen(
                 )
             }
         }
-        Text(
-            "${filtradas.size} de ${modelo.skills.size} skills",
-            style = MaterialTheme.typography.labelMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
-        )
+        ContadorResultados("${filtradas.size} de ${modelo.skills.size} skills")
         if (filtradas.isEmpty()) {
             EstadoVacioBusqueda()
         } else {
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(start = 16.dp, end = 16.dp, bottom = 16.dp),
+                contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 4.dp, bottom = 16.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 items(filtradas, key = { it.id }) { skill ->

@@ -1,0 +1,193 @@
+package com.maximillionsnyder.cartasdebuff.ui.components
+
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.dp
+import com.maximillionsnyder.cartasdebuff.R
+
+/* Formas compartidas de la zona de búsqueda y filtros. */
+val FORMA_CAMPO = RoundedCornerShape(14.dp)
+val FORMA_PANEL = RoundedCornerShape(16.dp)
+
+/* Campo de búsqueda común a las tres listas: lupa a la izquierda y una "x" para
+   vaciarlo de un toque, sin borrar letra a letra. */
+@Composable
+fun CampoBusqueda(
+    valor: String,
+    onValor: (String) -> Unit,
+    placeholder: String,
+    modifier: Modifier = Modifier,
+) {
+    OutlinedTextField(
+        value = valor,
+        onValueChange = onValor,
+        placeholder = { Text(placeholder) },
+        singleLine = true,
+        shape = FORMA_CAMPO,
+        leadingIcon = {
+            Icon(
+                painterResource(R.drawable.ic_buscar),
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.size(20.dp),
+            )
+        },
+        trailingIcon = {
+            if (valor.isNotEmpty()) {
+                IconButton(onClick = { onValor("") }) {
+                    Icon(
+                        painterResource(R.drawable.ic_cerrar),
+                        contentDescription = "Borrar búsqueda",
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.size(18.dp),
+                    )
+                }
+            }
+        },
+        colors = OutlinedTextFieldDefaults.colors(
+            unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+            focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+        ),
+        modifier = modifier.fillMaxWidth(),
+    )
+}
+
+/* Fila de chips que se desplaza en horizontal cuando no entran en la pantalla. */
+@Composable
+fun FilaChips(contenido: @Composable RowScope.() -> Unit) {
+    Row(
+        modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        content = contenido,
+    )
+}
+
+/* Panel plegable de filtros: recoge los chips en una tarjeta para que la lista
+   tenga más sitio, y avisa cuántos filtros hay puestos sin abrirlo. */
+@Composable
+fun PanelFiltros(
+    activos: Int,
+    abierto: Boolean,
+    onAlternar: () -> Unit,
+    onLimpiar: () -> Unit,
+    modifier: Modifier = Modifier,
+    contenido: @Composable ColumnScope.() -> Unit,
+) {
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 6.dp)
+            .clip(FORMA_PANEL)
+            .background(MaterialTheme.colorScheme.surfaceContainerLow)
+            .border(1.dp, MaterialTheme.colorScheme.outlineVariant, FORMA_PANEL),
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable(onClick = onAlternar)
+                .padding(start = 12.dp, end = 6.dp, top = 2.dp, bottom = 2.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Icon(
+                painterResource(R.drawable.ic_filtros),
+                contentDescription = null,
+                tint = if (activos > 0) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.size(20.dp),
+            )
+            Spacer(Modifier.width(8.dp))
+            Text("Filtros", style = MaterialTheme.typography.titleSmall)
+            if (activos > 0) {
+                Spacer(Modifier.width(8.dp))
+                ContadorFiltros(activos)
+            }
+            Spacer(Modifier.weight(1f))
+            if (activos > 0) {
+                TextButton(
+                    onClick = onLimpiar,
+                    contentPadding = PaddingValues(horizontal = 10.dp, vertical = 4.dp),
+                ) {
+                    Text("Limpiar", style = MaterialTheme.typography.labelLarge)
+                }
+            }
+            Icon(
+                painterResource(R.drawable.ic_desplegar),
+                contentDescription = if (abierto) "Ocultar filtros" else "Mostrar filtros",
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier
+                    .size(22.dp)
+                    .rotate(if (abierto) 180f else 0f),
+            )
+        }
+        AnimatedVisibility(
+            visible = abierto,
+            enter = expandVertically() + fadeIn(),
+            exit = shrinkVertically() + fadeOut(),
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 12.dp, end = 12.dp, top = 2.dp, bottom = 12.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+                content = contenido,
+            )
+        }
+    }
+}
+
+/* Pastilla con cuántos filtros están puestos. */
+@Composable
+fun ContadorFiltros(activos: Int) {
+    Text(
+        if (activos == 1) "1 activo" else "$activos activos",
+        style = MaterialTheme.typography.labelSmall,
+        color = MaterialTheme.colorScheme.onPrimaryContainer,
+        modifier = Modifier
+            .background(MaterialTheme.colorScheme.primaryContainer, RoundedCornerShape(50))
+            .padding(horizontal = 8.dp, vertical = 2.dp),
+    )
+}
+
+/* Contador de resultados: "N de M", en una pastilla discreta bajo los filtros. */
+@Composable
+fun ContadorResultados(texto: String, modifier: Modifier = Modifier) {
+    Text(
+        texto,
+        style = MaterialTheme.typography.labelMedium,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        modifier = modifier.padding(horizontal = 16.dp, vertical = 2.dp),
+    )
+}

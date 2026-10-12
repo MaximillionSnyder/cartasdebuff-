@@ -1,6 +1,5 @@
 package com.maximillionsnyder.cartasdebuff.ui.cards
 
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -13,9 +12,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -29,17 +26,21 @@ import com.maximillionsnyder.cartasdebuff.domain.CartaPersonaje
 import com.maximillionsnyder.cartasdebuff.domain.Modelo
 import com.maximillionsnyder.cartasdebuff.ui.components.BarraDetalle
 import com.maximillionsnyder.cartasdebuff.ui.components.TarjetaApp
+import com.maximillionsnyder.cartasdebuff.ui.components.CampoBusqueda
 import com.maximillionsnyder.cartasdebuff.ui.components.ChipFiltro
 import com.maximillionsnyder.cartasdebuff.ui.components.ColoresEstrella1
 import com.maximillionsnyder.cartasdebuff.ui.components.ColoresEstrella2
 import com.maximillionsnyder.cartasdebuff.ui.components.ColoresEstrella3
 import com.maximillionsnyder.cartasdebuff.ui.components.ColoresTodas
+import com.maximillionsnyder.cartasdebuff.ui.components.ContadorResultados
 import com.maximillionsnyder.cartasdebuff.ui.components.EstadoVacio
 import com.maximillionsnyder.cartasdebuff.ui.components.EstadoVacioBusqueda
 import com.maximillionsnyder.cartasdebuff.ui.components.Estrellas
+import com.maximillionsnyder.cartasdebuff.ui.components.FilaChips
 import com.maximillionsnyder.cartasdebuff.ui.components.FilaPersonaje
 import com.maximillionsnyder.cartasdebuff.ui.components.FilaSkill
 import com.maximillionsnyder.cartasdebuff.ui.components.ImagenRemota
+import com.maximillionsnyder.cartasdebuff.ui.components.PanelFiltros
 import com.maximillionsnyder.cartasdebuff.ui.components.SeccionTitulo
 import com.maximillionsnyder.cartasdebuff.ui.components.SelectorIdioma
 import com.maximillionsnyder.cartasdebuff.ui.components.etiquetaObtencion
@@ -53,6 +54,7 @@ fun PersonajesScreen(
 ) {
     var busqueda by rememberSaveable { mutableStateOf("") }
     var estrellas by rememberSaveable { mutableStateOf(0) }
+    var filtrosAbiertos by rememberSaveable { mutableStateOf(true) }
 
     val consulta = busqueda.trim()
     val filtradas = modelo.cartasPersonaje.filter { carta ->
@@ -71,46 +73,41 @@ fun PersonajesScreen(
             Text("Cartas de personaje", style = MaterialTheme.typography.headlineSmall, modifier = Modifier.weight(1f))
             SelectorIdioma(idioma, onIdioma)
         }
-        OutlinedTextField(
-            value = busqueda,
-            onValueChange = { busqueda = it },
-            placeholder = { Text("Buscar por nombre o título") },
-            singleLine = true,
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+        CampoBusqueda(
+            valor = busqueda,
+            onValor = { busqueda = it },
+            placeholder = "Buscar por nombre o título",
+            modifier = Modifier.padding(horizontal = 16.dp),
         )
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .horizontalScroll(rememberScrollState())
-                .padding(horizontal = 16.dp, vertical = 4.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
+        PanelFiltros(
+            activos = if (estrellas != 0) 1 else 0,
+            abierto = filtrosAbiertos,
+            onAlternar = { filtrosAbiertos = !filtrosAbiertos },
+            onLimpiar = { estrellas = 0 },
         ) {
-            listOf(
-                Triple(0, "Todas", ColoresTodas),
-                Triple(3, "3★", ColoresEstrella3),
-                Triple(2, "2★", ColoresEstrella2),
-                Triple(1, "1★", ColoresEstrella1),
-            ).forEach { (valor, etiqueta, colores) ->
-                ChipFiltro(
-                    texto = etiqueta,
-                    seleccionado = estrellas == valor,
-                    colores = colores,
-                    onClick = { estrellas = if (estrellas == valor) 0 else valor },
-                )
+            FilaChips {
+                listOf(
+                    Triple(0, "Todas", ColoresTodas),
+                    Triple(3, "3★", ColoresEstrella3),
+                    Triple(2, "2★", ColoresEstrella2),
+                    Triple(1, "1★", ColoresEstrella1),
+                ).forEach { (valor, etiqueta, colores) ->
+                    ChipFiltro(
+                        texto = etiqueta,
+                        seleccionado = estrellas == valor,
+                        colores = colores,
+                        onClick = { estrellas = if (estrellas == valor) 0 else valor },
+                    )
+                }
             }
         }
-        Text(
-            "${filtradas.size} de ${modelo.cartasPersonaje.size} cartas",
-            style = MaterialTheme.typography.labelMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
-        )
+        ContadorResultados("${filtradas.size} de ${modelo.cartasPersonaje.size} cartas")
         if (filtradas.isEmpty()) {
             EstadoVacioBusqueda()
         } else {
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(start = 16.dp, end = 16.dp, bottom = 16.dp),
+                contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 4.dp, bottom = 16.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 items(filtradas, key = { it.cardId }) { carta ->
