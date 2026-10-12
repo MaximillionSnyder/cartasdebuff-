@@ -1,13 +1,11 @@
 package com.maximillionsnyder.cartasdebuff.ui.skills
 
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -40,6 +38,7 @@ import com.maximillionsnyder.cartasdebuff.ui.components.ContadorResultados
 import com.maximillionsnyder.cartasdebuff.ui.components.EstadoVacioBusqueda
 import com.maximillionsnyder.cartasdebuff.ui.components.FilaChips
 import com.maximillionsnyder.cartasdebuff.ui.components.FilaSkill
+import com.maximillionsnyder.cartasdebuff.ui.components.ListaConArriba
 import com.maximillionsnyder.cartasdebuff.ui.components.PanelFiltros
 import com.maximillionsnyder.cartasdebuff.ui.components.SelectorIdioma
 
@@ -185,10 +184,8 @@ fun SkillsScreen(
         if (filtradas.isEmpty()) {
             EstadoVacioBusqueda()
         } else {
-            LazyColumn(
-                modifier = Modifier.fillMaxSize(),
+            ListaConArriba(
                 contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 4.dp, bottom = 16.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 items(filtradas, key = { it.id }) { skill ->
                     FilaSkill(skill, idioma, onClick = { onAbrirSkill(skill.id) })

@@ -41,6 +41,7 @@ import com.maximillionsnyder.cartasdebuff.ui.components.FilaApoyo
 import com.maximillionsnyder.cartasdebuff.ui.components.FilaChips
 import com.maximillionsnyder.cartasdebuff.ui.components.FilaSkill
 import com.maximillionsnyder.cartasdebuff.ui.components.ImagenRemota
+import com.maximillionsnyder.cartasdebuff.ui.components.ListaConArriba
 import com.maximillionsnyder.cartasdebuff.ui.components.PanelFiltros
 import com.maximillionsnyder.cartasdebuff.ui.components.SeccionTitulo
 import com.maximillionsnyder.cartasdebuff.ui.components.SelectorIdioma
@@ -139,10 +140,8 @@ fun ApoyosScreen(
         if (filtradas.isEmpty()) {
             EstadoVacioBusqueda()
         } else {
-            LazyColumn(
-                modifier = Modifier.fillMaxSize(),
+            ListaConArriba(
                 contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 4.dp, bottom = 16.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 items(filtradas, key = { it.supportId }) { carta ->
                     FilaApoyo(carta, idioma) { onAbrirCarta(carta.supportId) }
