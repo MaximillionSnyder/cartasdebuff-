@@ -25,11 +25,13 @@ import com.maximillionsnyder.cartasdebuff.domain.CartaPersonaje
 import com.maximillionsnyder.cartasdebuff.domain.Modelo
 import com.maximillionsnyder.cartasdebuff.ui.components.BarraDetalle
 import com.maximillionsnyder.cartasdebuff.ui.components.TarjetaApp
+import com.maximillionsnyder.cartasdebuff.ui.components.COLADOR_ES
 import com.maximillionsnyder.cartasdebuff.ui.components.CampoBusqueda
 import com.maximillionsnyder.cartasdebuff.ui.components.ChipFiltro
 import com.maximillionsnyder.cartasdebuff.ui.components.ColoresEstrella1
 import com.maximillionsnyder.cartasdebuff.ui.components.ColoresEstrella2
 import com.maximillionsnyder.cartasdebuff.ui.components.ColoresEstrella3
+import com.maximillionsnyder.cartasdebuff.ui.components.ColoresOrden
 import com.maximillionsnyder.cartasdebuff.ui.components.ColoresTodas
 import com.maximillionsnyder.cartasdebuff.ui.components.ContadorResultados
 import com.maximillionsnyder.cartasdebuff.ui.components.EstadoVacio
@@ -55,6 +57,7 @@ fun PersonajesScreen(
 ) {
     var busqueda by rememberSaveable { mutableStateOf("") }
     var estrellas by rememberSaveable { mutableStateOf(0) }
+    var alfabetico by rememberSaveable { mutableStateOf(false) }
     var filtrosAbiertos by rememberSaveable { mutableStateOf(true) }
 
     val consulta = busqueda.trim()
@@ -64,6 +67,12 @@ fun PersonajesScreen(
             carta.name.values.any { it?.contains(consulta, ignoreCase = true) == true } ||
             carta.title.values.any { it?.contains(consulta, ignoreCase = true) == true }
         coincideEstrellas && coincideBusqueda
+    }
+
+    val ordenadas = if (alfabetico) {
+        filtradas.sortedWith(compareBy(COLADOR_ES, { it.nombre(idioma) }))
+    } else {
+        filtradas
     }
 
     Column(Modifier.fillMaxSize()) {
@@ -101,15 +110,23 @@ fun PersonajesScreen(
                     )
                 }
             }
+            FilaChips {
+                ChipFiltro(
+                    texto = "Orden A-Z",
+                    seleccionado = alfabetico,
+                    colores = ColoresOrden,
+                    onClick = { alfabetico = !alfabetico },
+                )
+            }
         }
-        ContadorResultados("${filtradas.size} de ${modelo.cartasPersonaje.size} cartas")
-        if (filtradas.isEmpty()) {
+        ContadorResultados("${ordenadas.size} de ${modelo.cartasPersonaje.size} cartas")
+        if (ordenadas.isEmpty()) {
             EstadoVacioBusqueda()
         } else {
             ListaConArriba(
                 contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 4.dp, bottom = 16.dp),
             ) {
-                items(filtradas, key = { it.cardId }) { carta ->
+                items(ordenadas, key = { it.cardId }) { carta ->
                     FilaPersonaje(carta, idioma, null, compacta) { onAbrirCarta(carta.cardId) }
                 }
             }

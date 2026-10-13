@@ -51,6 +51,8 @@ import com.maximillionsnyder.cartasdebuff.domain.CartaPersonaje
 import com.maximillionsnyder.cartasdebuff.domain.IDIOMAS
 import com.maximillionsnyder.cartasdebuff.domain.Skill
 import com.maximillionsnyder.cartasdebuff.domain.etiquetaIdioma
+import java.text.Collator
+import java.util.Locale
 
 val ETIQUETAS_TIPO: Map<String, String> = mapOf(
     "nac" to "Sin condición",
@@ -303,6 +305,10 @@ fun EstadoVacioBusqueda(detalle: String = "Probá con otro nombre o quitá los f
     EstadoVacio("Sin resultados", detalle, Icons.Filled.Search)
 }
 
+/* Colador en español para ordenar por nombre: "Á" va con la A y la "ñ" después
+   de la "n", como espera cualquiera que lea en español. */
+val COLADOR_ES: Collator = Collator.getInstance(Locale("es", "ES"))
+
 /* Radio y borde comunes de las tarjetas: listas y fichas comparten el mismo estilo. */
 val FORMA_TARJETA = RoundedCornerShape(16.dp)
 
@@ -385,6 +391,10 @@ val ColoresEventoApoyo = listOf(Color(0xFF4E342E), Color(0xFFA1887F))
 val ColoresEscenario = listOf(Color(0xFF2E7D32), Color(0xFF81C784))
 val ColoresOcultar = listOf(Color(0xFF455A64), Color(0xFF90A4AE))
 val ColoresOrden = listOf(Color(0xFF00695C), Color(0xFF4DB6AC))
+
+/* Efectos de una condición: verde cuando suma, rojo cuando resta. */
+val ColoresEfectoSube = listOf(Color(0xFF2E7D32), Color(0xFF81C784))
+val ColoresEfectoBaja = listOf(Color(0xFFC62828), Color(0xFFEF9A9A))
 
 val ColoresEstrella3 = listOf(Color(0xFFB8860B), Color(0xFFD4A017))
 val ColoresEstrella2 = listOf(Color(0xFF78909C), Color(0xFFB0BEC5))

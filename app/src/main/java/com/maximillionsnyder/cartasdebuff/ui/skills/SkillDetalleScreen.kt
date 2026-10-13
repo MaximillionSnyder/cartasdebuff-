@@ -5,9 +5,11 @@ import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -34,6 +36,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import com.maximillionsnyder.cartasdebuff.domain.EvoOrigen
+import com.maximillionsnyder.cartasdebuff.domain.Efecto
 import com.maximillionsnyder.cartasdebuff.domain.Modelo
 import com.maximillionsnyder.cartasdebuff.domain.Skill
 import com.maximillionsnyder.cartasdebuff.domain.VersionGen
@@ -42,6 +45,8 @@ import com.maximillionsnyder.cartasdebuff.domain.etiquetaIdioma
 import com.maximillionsnyder.cartasdebuff.domain.texto
 import com.maximillionsnyder.cartasdebuff.domain.leerCondiciones
 import com.maximillionsnyder.cartasdebuff.ui.components.BarraDetalle
+import com.maximillionsnyder.cartasdebuff.ui.components.ColoresEfectoBaja
+import com.maximillionsnyder.cartasdebuff.ui.components.ColoresEfectoSube
 import com.maximillionsnyder.cartasdebuff.ui.components.TarjetaApp
 import com.maximillionsnyder.cartasdebuff.ui.components.EstadoVacio
 import com.maximillionsnyder.cartasdebuff.ui.components.Etiqueta
@@ -110,7 +115,7 @@ fun SkillDetalleScreen(
                         skill.conditions[indice].precondition,
                         skill.conditions[indice].condition,
                         skill.conditions[indice].baseTime,
-                        skill.conditions[indice].effects.map { "Efecto ${it.type}: ${if (it.value >= 0) "+" else ""}${it.value}" },
+                        skill.conditions[indice].effects,
                     )
                 }
             }
@@ -273,12 +278,41 @@ private fun FilaCondicion(titulo: String, expresion: String) {
     }
 }
 
+/* El valor del efecto es lo que se lee de un vistazo; el código de tipo se deja
+   al lado en pequeño porque sin una tabla fiable no se puede traducir. El color
+   sólo dice si suma o resta, que es un dato del propio valor. */
+@Composable
+private fun FichaEfecto(efecto: Efecto) {
+    val sube = efecto.value >= 0
+    val colores = if (sube) ColoresEfectoSube else ColoresEfectoBaja
+    Row(
+        modifier = Modifier
+            .clip(RoundedCornerShape(8.dp))
+            .background(colores.first().copy(alpha = 0.14f))
+            .border(1.dp, colores.first().copy(alpha = 0.5f), RoundedCornerShape(8.dp))
+            .padding(horizontal = 8.dp, vertical = 4.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(6.dp),
+    ) {
+        Text(
+            (if (sube) "+" else "") + efecto.value.toString(),
+            style = MaterialTheme.typography.titleSmall,
+            color = colores.last(),
+        )
+        Text(
+            "tipo ${efecto.type}",
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+    }
+}
+
 @Composable
 private fun TarjetaCondicion(
     precondition: String?,
     condition: String?,
     baseTime: Long?,
-    efectos: List<String>,
+    efectos: List<Efecto>,
 ) {
     TarjetaApp(modifier = Modifier.fillMaxWidth()) {
         Column(Modifier.fillMaxWidth().padding(12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
@@ -291,7 +325,16 @@ private fun TarjetaCondicion(
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
-            for (efecto in efectos) Text(efecto, style = MaterialTheme.typography.bodySmall)
+            if (efectos.isNotEmpty()) {
+                Text(
+                    "Efectos",
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+                Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                    for (efecto in efectos) FichaEfecto(efecto)
+                }
+            }
             if (precondition == null && condition == null && efectos.isEmpty()) {
                 Text("—", style = MaterialTheme.typography.bodySmall)
             }

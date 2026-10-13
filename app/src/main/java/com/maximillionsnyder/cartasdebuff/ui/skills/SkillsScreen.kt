@@ -18,8 +18,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.maximillionsnyder.cartasdebuff.domain.Modelo
-import java.text.Collator
-import java.util.Locale
+import com.maximillionsnyder.cartasdebuff.ui.components.COLADOR_ES
 import com.maximillionsnyder.cartasdebuff.ui.components.CampoBusqueda
 import com.maximillionsnyder.cartasdebuff.ui.components.ChipFiltro
 import com.maximillionsnyder.cartasdebuff.ui.components.ColoresAceleracion
@@ -44,9 +43,6 @@ import com.maximillionsnyder.cartasdebuff.ui.components.FilaSkill
 import com.maximillionsnyder.cartasdebuff.ui.components.ListaConArriba
 import com.maximillionsnyder.cartasdebuff.ui.components.PanelFiltros
 import com.maximillionsnyder.cartasdebuff.ui.components.SelectorIdioma
-
-/* Colador en español: "Á" va con la A y la "ñ" después de la "n". */
-private val COLADOR: Collator = Collator.getInstance(Locale("es", "ES"))
 
 private val FUENTES = listOf(
     Triple("char", "Personaje", ColoresPersonaje),
@@ -105,7 +101,7 @@ fun SkillsScreen(
     /* El orden de los datos originales no dice nada al usuario: poder ponerlo
        alfabético (respetando acentos y ñ) ayuda a encontrar una skill. */
     val ordenadas = if (alfabetico) {
-        filtradas.sortedWith(compareBy(COLADOR, { it.nombre(idioma) }))
+        filtradas.sortedWith(compareBy(COLADOR_ES, { it.nombre(idioma) }))
     } else {
         filtradas
     }
