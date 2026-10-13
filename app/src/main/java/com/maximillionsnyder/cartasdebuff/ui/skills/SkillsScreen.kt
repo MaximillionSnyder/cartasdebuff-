@@ -18,6 +18,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.maximillionsnyder.cartasdebuff.domain.Modelo
+import java.text.Collator
+import java.util.Locale
 import com.maximillionsnyder.cartasdebuff.ui.components.CampoBusqueda
 import com.maximillionsnyder.cartasdebuff.ui.components.ChipFiltro
 import com.maximillionsnyder.cartasdebuff.ui.components.ColoresAceleracion
@@ -29,6 +31,7 @@ import com.maximillionsnyder.cartasdebuff.ui.components.ColoresEvolucion
 import com.maximillionsnyder.cartasdebuff.ui.components.ColoresHint
 import com.maximillionsnyder.cartasdebuff.ui.components.ColoresNormal
 import com.maximillionsnyder.cartasdebuff.ui.components.ColoresOcultar
+import com.maximillionsnyder.cartasdebuff.ui.components.ColoresOrden
 import com.maximillionsnyder.cartasdebuff.ui.components.ColoresPersonaje
 import com.maximillionsnyder.cartasdebuff.ui.components.ColoresRara
 import com.maximillionsnyder.cartasdebuff.ui.components.ColoresTodas
@@ -41,6 +44,9 @@ import com.maximillionsnyder.cartasdebuff.ui.components.FilaSkill
 import com.maximillionsnyder.cartasdebuff.ui.components.ListaConArriba
 import com.maximillionsnyder.cartasdebuff.ui.components.PanelFiltros
 import com.maximillionsnyder.cartasdebuff.ui.components.SelectorIdioma
+
+/* Colador en español: "Á" va con la A y la "ñ" después de la "n". */
+private val COLADOR: Collator = Collator.getInstance(Locale("es", "ES"))
 
 private val FUENTES = listOf(
     Triple("char", "Personaje", ColoresPersonaje),
@@ -65,6 +71,7 @@ fun SkillsScreen(
     var soloAceleracion by rememberSaveable { mutableStateOf(false) }
     var ocultarSinEn by rememberSaveable { mutableStateOf(false) }
     var fuentes by rememberSaveable { mutableStateOf(listOf<String>()) }
+    var alfabetico by rememberSaveable { mutableStateOf(false) }
     var filtrosAbiertos by rememberSaveable { mutableStateOf(true) }
 
     val consulta = busqueda.trim()
@@ -93,6 +100,14 @@ fun SkillsScreen(
             }
         }
         coincideBusqueda && coincideRareza && coincideDebuff && coincideEfecto && coincideLanzamiento && coincideFuente
+    }
+
+    /* El orden de los datos originales no dice nada al usuario: poder ponerlo
+       alfabético (respetando acentos y ñ) ayuda a encontrar una skill. */
+    val ordenadas = if (alfabetico) {
+        filtradas.sortedWith(compareBy(COLADOR, { it.nombre(idioma) }))
+    } else {
+        filtradas
     }
 
     /* Cuántos filtros hay puestos: lo que muestra la pastilla del panel. */
@@ -180,15 +195,23 @@ fun SkillsScreen(
                     onClick = { ocultarSinEn = !ocultarSinEn },
                 )
             }
+            FilaChips {
+                ChipFiltro(
+                    texto = "Orden A-Z",
+                    seleccionado = alfabetico,
+                    colores = ColoresOrden,
+                    onClick = { alfabetico = !alfabetico },
+                )
+            }
         }
-        ContadorResultados("${filtradas.size} de ${modelo.skills.size} skills")
-        if (filtradas.isEmpty()) {
+        ContadorResultados("${ordenadas.size} de ${modelo.skills.size} skills")
+        if (ordenadas.isEmpty()) {
             EstadoVacioBusqueda()
         } else {
             ListaConArriba(
                 contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 4.dp, bottom = 16.dp),
             ) {
-                items(filtradas, key = { it.id }) { skill ->
+                items(ordenadas, key = { it.id }) { skill ->
                     FilaSkill(skill, idioma, compacta, onClick = { onAbrirSkill(skill.id) })
                 }
             }

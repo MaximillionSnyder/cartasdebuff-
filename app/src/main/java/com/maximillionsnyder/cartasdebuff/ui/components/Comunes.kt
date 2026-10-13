@@ -384,6 +384,7 @@ val ColoresHint = listOf(Color(0xFF00838F), Color(0xFF4DD0E1))
 val ColoresEventoApoyo = listOf(Color(0xFF4E342E), Color(0xFFA1887F))
 val ColoresEscenario = listOf(Color(0xFF2E7D32), Color(0xFF81C784))
 val ColoresOcultar = listOf(Color(0xFF455A64), Color(0xFF90A4AE))
+val ColoresOrden = listOf(Color(0xFF00695C), Color(0xFF4DB6AC))
 
 val ColoresEstrella3 = listOf(Color(0xFFB8860B), Color(0xFFD4A017))
 val ColoresEstrella2 = listOf(Color(0xFF78909C), Color(0xFFB0BEC5))
