@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -35,9 +36,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import com.maximillionsnyder.cartasdebuff.domain.EvoOrigen
 import com.maximillionsnyder.cartasdebuff.domain.IDIOMAS
 import com.maximillionsnyder.cartasdebuff.domain.Efecto
+import com.maximillionsnyder.cartasdebuff.R
 import com.maximillionsnyder.cartasdebuff.domain.Modelo
 import com.maximillionsnyder.cartasdebuff.domain.Skill
 import com.maximillionsnyder.cartasdebuff.domain.VersionGen
@@ -64,6 +68,8 @@ fun SkillDetalleScreen(
     modelo: Modelo,
     skillId: Int,
     idioma: String,
+    favorito: Boolean,
+    onFavorito: (Int) -> Unit,
     onVolver: () -> Unit,
     onAbrirPersonaje: (Int) -> Unit,
     onAbrirApoyo: (Int) -> Unit,
@@ -78,7 +84,15 @@ fun SkillDetalleScreen(
     }
 
     Column(Modifier.fillMaxSize()) {
-        BarraDetalle(skill.nombre(idioma), onVolver)
+        BarraDetalle(skill.nombre(idioma), onVolver) {
+            IconButton(onClick = { onFavorito(skill.id) }) {
+                Icon(
+                    painterResource(if (favorito) R.drawable.ic_estrella else R.drawable.ic_estrella_borde),
+                    contentDescription = if (favorito) "Quitar de favoritas" else "Marcar como favorita",
+                    tint = if (favorito) Color(0xFFD4A017) else MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+        }
         /* Mismo botón de volver arriba que en las listas: las fichas también
            se hacen largas (fuentes, condiciones, evoluciones). */
         ListaConArriba(

@@ -127,7 +127,14 @@ fun PersonajesScreen(
                 contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 4.dp, bottom = 16.dp),
             ) {
                 items(ordenadas, key = { it.cardId }) { carta ->
-                    FilaPersonaje(carta, idioma, null, compacta) { onAbrirCarta(carta.cardId) }
+                    /* Cuántas skills salen de esta carta: ayuda a elegir cuál abrir. */
+                    FilaPersonaje(
+                        carta = carta,
+                        idioma = idioma,
+                        kinds = null,
+                        compacta = compacta,
+                        numeroSkills = modelo.skillsPorCarta[carta.cardId]?.distinct()?.size,
+                    ) { onAbrirCarta(carta.cardId) }
                 }
             }
         }

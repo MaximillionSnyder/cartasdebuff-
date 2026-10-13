@@ -24,6 +24,7 @@ import com.maximillionsnyder.cartasdebuff.ui.components.ChipFiltro
 import com.maximillionsnyder.cartasdebuff.ui.components.ColoresAceleracion
 import com.maximillionsnyder.cartasdebuff.ui.components.ColoresDebuff
 import com.maximillionsnyder.cartasdebuff.ui.components.ColoresEscenario
+import com.maximillionsnyder.cartasdebuff.ui.components.ColoresFavorito
 import com.maximillionsnyder.cartasdebuff.ui.components.ColoresEventoApoyo
 import com.maximillionsnyder.cartasdebuff.ui.components.ColoresEventoPersonaje
 import com.maximillionsnyder.cartasdebuff.ui.components.ColoresEvolucion
@@ -57,6 +58,7 @@ fun SkillsScreen(
     modelo: Modelo,
     idioma: String,
     compacta: Boolean,
+    favoritos: Set<String>,
     onIdioma: (String) -> Unit,
     onAbrirSkill: (Int) -> Unit,
 ) {
@@ -68,6 +70,7 @@ fun SkillsScreen(
     var ocultarSinEn by rememberSaveable { mutableStateOf(false) }
     var fuentes by rememberSaveable { mutableStateOf(listOf<String>()) }
     var alfabetico by rememberSaveable { mutableStateOf(false) }
+    var soloFavoritos by rememberSaveable { mutableStateOf(false) }
     var filtrosAbiertos by rememberSaveable { mutableStateOf(true) }
 
     val consulta = busqueda.trim()
@@ -95,7 +98,9 @@ fun SkillsScreen(
                 else -> true
             }
         }
-        coincideBusqueda && coincideRareza && coincideDebuff && coincideEfecto && coincideLanzamiento && coincideFuente
+        val coincideFavorito = !soloFavoritos || skill.id.toString() in favoritos
+        coincideBusqueda && coincideRareza && coincideDebuff && coincideEfecto &&
+            coincideLanzamiento && coincideFuente && coincideFavorito
     }
 
     /* El orden de los datos originales no dice nada al usuario: poder ponerlo
@@ -193,6 +198,12 @@ fun SkillsScreen(
             }
             FilaChips {
                 ChipFiltro(
+                    texto = "Favoritas",
+                    seleccionado = soloFavoritos,
+                    colores = ColoresFavorito,
+                    onClick = { soloFavoritos = !soloFavoritos },
+                )
+                ChipFiltro(
                     texto = "Orden A-Z",
                     seleccionado = alfabetico,
                     colores = ColoresOrden,
@@ -208,7 +219,13 @@ fun SkillsScreen(
                 contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 4.dp, bottom = 16.dp),
             ) {
                 items(ordenadas, key = { it.id }) { skill ->
-                    FilaSkill(skill, idioma, compacta, onClick = { onAbrirSkill(skill.id) })
+                    FilaSkill(
+                        skill = skill,
+                        idioma = idioma,
+                        compacta = compacta,
+                        favorito = skill.id.toString() in favoritos,
+                        onClick = { onAbrirSkill(skill.id) },
+                    )
                 }
             }
         }

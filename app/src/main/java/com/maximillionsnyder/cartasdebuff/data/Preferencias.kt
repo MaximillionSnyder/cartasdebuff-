@@ -32,6 +32,12 @@ class Preferencias(context: Context) {
         get() = prefs.getString(CLAVE_INICIO, null)?.takeIf { it in PANTALLAS_INICIO } ?: INICIO_SKILLS
         set(valor) = prefs.edit().putString(CLAVE_INICIO, valor).apply()
 
+    /* Skills marcadas como favoritas. Se guardan como texto porque
+       SharedPreferences no admite conjuntos de enteros. */
+    var favoritos: Set<String>
+        get() = prefs.getStringSet(CLAVE_FAVORITOS, emptySet()) ?: emptySet()
+        set(valor) = prefs.edit().putStringSet(CLAVE_FAVORITOS, valor).apply()
+
     fun restablecer() {
         prefs.edit().clear().apply()
     }
@@ -41,5 +47,6 @@ class Preferencias(context: Context) {
         const val CLAVE_IDIOMA = "idioma"
         const val CLAVE_INICIO = "pantallaInicial"
         const val CLAVE_VISTA = "vistaLista"
+        const val CLAVE_FAVORITOS = "favoritos"
     }
 }

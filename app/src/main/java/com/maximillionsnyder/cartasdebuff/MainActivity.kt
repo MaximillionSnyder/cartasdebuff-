@@ -65,6 +65,8 @@ class MainActivity : ComponentActivity() {
             var idioma by rememberSaveable { mutableStateOf(prefs.idioma) }
             var inicio by rememberSaveable { mutableStateOf(prefs.pantallaInicial) }
             var vista by rememberSaveable { mutableStateOf(prefs.vista) }
+            /* Las favoritas se leen de preferencias y se reescriben al marcarlas. */
+            var favoritos by remember { mutableStateOf(prefs.favoritos) }
 
             CartasDebuffTheme(tema) {
                 val modelo by vm.modelo.collectAsState()
@@ -124,12 +126,19 @@ class MainActivity : ComponentActivity() {
                             vista = it
                             prefs.vista = it
                         },
+                        favoritos = favoritos,
+                        onFavorito = { id ->
+                            val clave = id.toString()
+                            favoritos = if (clave in favoritos) favoritos - clave else favoritos + clave
+                            prefs.favoritos = favoritos
+                        },
                         onRestablecerAjustes = {
                             prefs.restablecer()
                             tema = prefs.tema
                             idioma = prefs.idioma
                             inicio = prefs.pantallaInicial
                             vista = prefs.vista
+                            favoritos = prefs.favoritos
                         },
                     )
                 }
@@ -178,6 +187,8 @@ private fun App(
     onPantallaInicial: (String) -> Unit,
     vista: String,
     onVista: (String) -> Unit,
+    favoritos: Set<String>,
+    onFavorito: (Int) -> Unit,
     onRestablecerAjustes: () -> Unit,
 ) {
     /* La pantalla inicial se lee una sola vez: cambiarla en Ajustes no salta de
@@ -240,6 +251,7 @@ private fun App(
                     modelo = modelo,
                     idioma = idioma,
                     compacta = vista == VISTA_COMPACTA,
+                    favoritos = favoritos,
                     onIdioma = onIdioma,
                     onAbrirSkill = { abrir(Pantalla.SkillDetalle(it)) },
                 )
@@ -273,6 +285,8 @@ private fun App(
                     modelo = modelo,
                     skillId = pantalla.skillId,
                     idioma = idioma,
+                    favorito = pantalla.skillId.toString() in favoritos,
+                    onFavorito = onFavorito,
                     onVolver = { pila.removeAt(pila.lastIndex) },
                     onAbrirPersonaje = { abrir(Pantalla.PersonajeDetalle(it)) },
                     onAbrirApoyo = { abrir(Pantalla.ApoyoDetalle(it)) },

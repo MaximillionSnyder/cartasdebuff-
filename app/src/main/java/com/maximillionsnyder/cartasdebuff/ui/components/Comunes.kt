@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -328,7 +329,11 @@ fun TarjetaApp(
 }
 
 @Composable
-fun BarraDetalle(titulo: String, onVolver: () -> Unit) {
+fun BarraDetalle(
+    titulo: String,
+    onVolver: () -> Unit,
+    acciones: @Composable RowScope.() -> Unit = {},
+) {
     Row(
         modifier = Modifier.fillMaxWidth().padding(start = 4.dp, end = 12.dp, top = 4.dp, bottom = 4.dp),
         verticalAlignment = Alignment.CenterVertically,
@@ -343,6 +348,7 @@ fun BarraDetalle(titulo: String, onVolver: () -> Unit) {
             overflow = TextOverflow.Ellipsis,
             modifier = Modifier.weight(1f),
         )
+        acciones()
     }
 }
 
@@ -391,6 +397,7 @@ val ColoresEventoApoyo = listOf(Color(0xFF4E342E), Color(0xFFA1887F))
 val ColoresEscenario = listOf(Color(0xFF2E7D32), Color(0xFF81C784))
 val ColoresOcultar = listOf(Color(0xFF455A64), Color(0xFF90A4AE))
 val ColoresOrden = listOf(Color(0xFF00695C), Color(0xFF4DB6AC))
+val ColoresFavorito = listOf(Color(0xFF8D6E00), Color(0xFFE0B400))
 val ColoresGacha = listOf(Color(0xFF4527A0), Color(0xFF7E57C2))
 
 /* Efectos de una condición: verde cuando suma, rojo cuando resta. */
@@ -459,7 +466,13 @@ fun ChipFiltro(
 }
 
 @Composable
-fun FilaSkill(skill: Skill, idioma: String, compacta: Boolean = false, onClick: () -> Unit) {
+fun FilaSkill(
+    skill: Skill,
+    idioma: String,
+    compacta: Boolean = false,
+    favorito: Boolean = false,
+    onClick: () -> Unit,
+) {
     /* En vista compacta el icono es más chico, hay menos relleno y se calla la
        línea en japonés: caben bastantes más filas en la misma pantalla. */
     val relleno = if (compacta) 6.dp else 10.dp
@@ -491,6 +504,14 @@ fun FilaSkill(skill: Skill, idioma: String, compacta: Boolean = false, onClick: 
             }
             Spacer(Modifier.width(8.dp))
             Column(horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                if (favorito) {
+                    Icon(
+                        painterResource(R.drawable.ic_estrella),
+                        contentDescription = "Favorita",
+                        tint = Color(0xFFD4A017),
+                        modifier = Modifier.size(16.dp),
+                    )
+                }
                 EtiquetaRareza(skill.rarity)
                 if ("dbf" in skill.types) {
                     Etiqueta("debuff", ColoresDebuff.first(), Color.White)
@@ -508,7 +529,14 @@ fun FilaSkill(skill: Skill, idioma: String, compacta: Boolean = false, onClick: 
 }
 
 @Composable
-fun FilaPersonaje(carta: CartaPersonaje, idioma: String, kinds: List<String>?, compacta: Boolean = false, onClick: () -> Unit) {
+fun FilaPersonaje(
+    carta: CartaPersonaje,
+    idioma: String,
+    kinds: List<String>?,
+    compacta: Boolean = false,
+    numeroSkills: Int? = null,
+    onClick: () -> Unit,
+) {
     val relleno = if (compacta) 6.dp else 10.dp
     TarjetaApp(onClick = onClick, modifier = Modifier.fillMaxWidth()) {
         Row(
@@ -539,6 +567,13 @@ fun FilaPersonaje(carta: CartaPersonaje, idioma: String, kinds: List<String>?, c
                         kinds.joinToString(" · ") { etiquetaKind(it) },
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.primary,
+                    )
+                }
+                if (numeroSkills != null) {
+                    Text(
+                        if (numeroSkills == 1) "1 skill" else "$numeroSkills skills",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
             }
