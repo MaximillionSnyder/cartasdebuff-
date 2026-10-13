@@ -79,6 +79,7 @@ import com.maximillionsnyder.cartasdebuff.domain.etiquetaTema
 import com.maximillionsnyder.cartasdebuff.ui.components.EstadoVacio
 import com.maximillionsnyder.cartasdebuff.ui.components.TarjetaApp
 import com.maximillionsnyder.cartasdebuff.ui.components.imagenesEnCache
+import com.maximillionsnyder.cartasdebuff.ui.components.imagenesEnDisco
 import com.maximillionsnyder.cartasdebuff.ui.components.limpiarCacheImagenes
 
 private const val URL_RELEASES = "https://github.com/MaximillionSnyder/cartasdebuff-/releases/latest"
@@ -156,6 +157,7 @@ private fun PestanaPreferencias(
 ) {
     val context = LocalContext.current
     var cache by remember { mutableStateOf(imagenesEnCache()) }
+    var enDisco by remember { mutableStateOf(imagenesEnDisco(context)) }
     var confirmarRestablecer by remember { mutableStateOf(false) }
 
     Column(
@@ -227,11 +229,12 @@ private fun PestanaPreferencias(
             HorizontalDivider(Modifier.padding(horizontal = 16.dp))
             FilaAccion(
                 titulo = "Caché de imágenes",
-                subtitulo = if (cache == 1) "1 imagen en memoria" else "$cache imágenes en memoria",
+                subtitulo = "$cache en memoria · $enDisco en disco",
                 icono = Icons.Filled.Delete,
             ) {
-                val borradas = limpiarCacheImagenes()
+                val borradas = limpiarCacheImagenes(context)
                 cache = imagenesEnCache()
+                enDisco = imagenesEnDisco(context)
                 Toast.makeText(
                     context,
                     if (borradas == 1) "1 imagen borrada" else "$borradas imágenes borradas",
