@@ -167,7 +167,7 @@ fun PersonajeDetalleScreen(
         ListaConArriba(
             contentPadding = PaddingValues(start = 16.dp, end = 16.dp, bottom = 24.dp),
         ) {
-            item { EncabezadoCartaPersonaje(carta, idioma) }
+            item { EncabezadoCartaPersonaje(carta, idioma, skills.size) }
             val grupos = listOf(
                 "unique" to "Única",
                 "innate" to "Innata",
@@ -200,7 +200,7 @@ fun PersonajeDetalleScreen(
 }
 
 @Composable
-private fun EncabezadoCartaPersonaje(carta: CartaPersonaje, idioma: String) {
+private fun EncabezadoCartaPersonaje(carta: CartaPersonaje, idioma: String, numeroSkills: Int) {
     TarjetaApp(modifier = Modifier.fillMaxWidth()) {
         Row(Modifier.fillMaxWidth().padding(12.dp)) {
             ImagenRemota(carta.image, null, Modifier.size(96.dp))
@@ -215,7 +215,17 @@ private fun EncabezadoCartaPersonaje(carta: CartaPersonaje, idioma: String) {
                 if (titulo.isNotBlank()) {
                     Text(titulo, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
-                Estrellas(carta.rarity)
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    Estrellas(carta.rarity)
+                    Text(
+                        if (numeroSkills == 1) "1 skill" else "$numeroSkills skills",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
                 Text(
                     etiquetaObtencion(carta.obtained),
                     style = MaterialTheme.typography.labelMedium,

@@ -7,6 +7,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -39,6 +41,7 @@ import com.maximillionsnyder.cartasdebuff.ui.components.ColoresUnica
 import com.maximillionsnyder.cartasdebuff.ui.components.ColoresVelocidad
 import com.maximillionsnyder.cartasdebuff.ui.components.ContadorResultados
 import com.maximillionsnyder.cartasdebuff.ui.components.EstadoVacioBusqueda
+import com.maximillionsnyder.cartasdebuff.ui.components.EstadoVacio
 import com.maximillionsnyder.cartasdebuff.ui.components.FilaChips
 import com.maximillionsnyder.cartasdebuff.ui.components.FilaSkill
 import com.maximillionsnyder.cartasdebuff.ui.components.ListaConArriba
@@ -213,7 +216,17 @@ fun SkillsScreen(
         }
         ContadorResultados("${ordenadas.size} de ${modelo.skills.size} skills")
         if (ordenadas.isEmpty()) {
-            EstadoVacioBusqueda()
+            /* Si el filtro que deja la lista vacía es el de favoritas, el mensaje
+               genérico no ayuda: hay que explicar cómo marcar una. */
+            if (soloFavoritos && favoritos.isEmpty()) {
+                EstadoVacio(
+                    "Todavía no hay favoritas",
+                    "Abrí una skill y tocá la estrella de arriba para guardarla acá.",
+                    Icons.Filled.Star,
+                )
+            } else {
+                EstadoVacioBusqueda()
+            }
         } else {
             ListaConArriba(
                 contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 4.dp, bottom = 16.dp),

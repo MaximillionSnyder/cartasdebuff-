@@ -208,11 +208,17 @@ private fun EncabezadoSkill(skill: Skill, idioma: String) {
                     }
                 }
                 if (skill.unreleased.isNotEmpty()) {
-                    Text(
-                        "Sin lanzar en: ${skill.unreleased.joinToString(", ")}",
-                        style = MaterialTheme.typography.labelMedium,
-                        color = MaterialTheme.colorScheme.error,
-                    )
+                    /* Mismas pastillas que en la lista: "sin EN", y una por idioma
+                       si le faltan varios. */
+                    Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                        for (id in skill.unreleased) {
+                            Etiqueta(
+                                "sin ${etiquetaIdioma(id)}",
+                                MaterialTheme.colorScheme.surfaceVariant,
+                                MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        }
+                    }
                 }
             }
         }
@@ -252,14 +258,23 @@ private fun TarjetaDescripciones(skill: Skill, idioma: String) {
 
 @Composable
 private fun BloqueIdioma(skill: Skill, id: String) {
+    val descripcion = skill.descripcion(id)
     Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
         Text(etiquetaIdioma(id), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary)
         Text(skill.nombre(id), style = MaterialTheme.typography.titleSmall)
-        Text(
-            skill.descripcion(id).ifBlank { "—" },
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
+        if (descripcion.isBlank()) {
+            Text(
+                "Sin descripción en ${etiquetaIdioma(id)}.",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        } else {
+            Text(
+                descripcion,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
     }
 }
 

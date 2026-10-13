@@ -196,7 +196,7 @@ fun ApoyoDetalleScreen(
         ListaConArriba(
             contentPadding = PaddingValues(start = 16.dp, end = 16.dp, bottom = 24.dp),
         ) {
-            item { EncabezadoCartaApoyo(carta, idioma) }
+            item { EncabezadoCartaApoyo(carta, idioma, skills.size) }
             if (hints.isNotEmpty()) {
                 item(key = "titulo-hints") { SeccionTitulo("Skills por hint", hints.size) }
                 items(hints, key = { "hint-${it.id}" }) { skill ->
@@ -217,7 +217,7 @@ fun ApoyoDetalleScreen(
 }
 
 @Composable
-private fun EncabezadoCartaApoyo(carta: CartaApoyo, idioma: String) {
+private fun EncabezadoCartaApoyo(carta: CartaApoyo, idioma: String, numeroSkills: Int) {
     TarjetaApp(modifier = Modifier.fillMaxWidth()) {
         Row(Modifier.fillMaxWidth().padding(12.dp)) {
             ImagenRemota(carta.image, null, Modifier.size(96.dp))
@@ -238,6 +238,11 @@ private fun EncabezadoCartaApoyo(carta: CartaApoyo, idioma: String) {
                 ) {
                     Estrellas(carta.rarity)
                     EtiquetaTipoApoyo(carta.type)
+                    Text(
+                        if (numeroSkills == 1) "1 skill" else "$numeroSkills skills",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
                 }
                 Text(
                     etiquetaObtencion(carta.obtained),
