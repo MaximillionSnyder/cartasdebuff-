@@ -169,17 +169,51 @@ fun ResumenFuentes(skill: Skill, modifier: Modifier = Modifier) {
 private fun colorFuente(colores: List<Color>): Color =
     if (MaterialTheme.colorScheme.surface.luminance() < 0.5f) colores.last() else colores.first()
 
+/* Selector de idioma de los datos: una pastilla con el idioma actual y un menú
+   donde queda marcado el que está puesto. */
 @Composable
 fun SelectorIdioma(idioma: String, onCambia: (String) -> Unit) {
     var abierto by remember { mutableStateOf(false) }
+    val forma = RoundedCornerShape(50)
     Box {
-        TextButton(onClick = { abierto = true }) {
+        Row(
+            modifier = Modifier
+                .clip(forma)
+                .background(MaterialTheme.colorScheme.surface)
+                .border(1.dp, MaterialTheme.colorScheme.outlineVariant, forma)
+                .clickable { abierto = true }
+                .padding(start = 10.dp, end = 8.dp, top = 6.dp, bottom = 6.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(4.dp),
+        ) {
+            Icon(
+                painterResource(R.drawable.ic_idioma),
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(18.dp),
+            )
             Text(etiquetaIdioma(idioma), style = MaterialTheme.typography.labelLarge)
+            Icon(
+                painterResource(R.drawable.ic_desplegar),
+                contentDescription = "Cambiar idioma",
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.size(18.dp),
+            )
         }
         DropdownMenu(expanded = abierto, onDismissRequest = { abierto = false }) {
             for (id in IDIOMAS) {
                 DropdownMenuItem(
                     text = { Text(etiquetaIdioma(id)) },
+                    leadingIcon = {
+                        if (id == idioma) {
+                            Icon(
+                                painterResource(R.drawable.ic_check),
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.size(18.dp),
+                            )
+                        }
+                    },
                     onClick = {
                         onCambia(id)
                         abierto = false

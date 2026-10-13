@@ -231,9 +231,14 @@ fun BotonVolverArriba(
 }
 
 /* Lista larga con el botón "volver arriba" ya resuelto: con 1900 skills, bajar
-   y tener que subir a mano era lo más molesto de la pantalla. */
+   y tener que subir a mano era lo más molesto de la pantalla.
+
+   Es extensión de ColumnScope a propósito: con `weight(1f)` la lista ocupa
+   exactamente el alto que sobra bajo el encabezado. Con `fillMaxSize()` se
+   quedaba con el alto entero de la columna, así que en las fichas se comía el
+   final del contenido y el botón caía fuera de la pantalla. */
 @Composable
-fun ListaConArriba(
+fun ColumnScope.ListaConArriba(
     modifier: Modifier = Modifier,
     contentPadding: PaddingValues = PaddingValues(0.dp),
     verticalArrangement: Arrangement.Vertical = Arrangement.spacedBy(8.dp),
@@ -246,7 +251,7 @@ fun ListaConArriba(
     val mostrar by remember {
         derivedStateOf { estado.firstVisibleItemIndex > 0 || estado.firstVisibleItemScrollOffset > 200 }
     }
-    Box(modifier.fillMaxSize()) {
+    Box(modifier.fillMaxWidth().weight(1f)) {
         LazyColumn(
             state = estado,
             modifier = Modifier.fillMaxSize(),
