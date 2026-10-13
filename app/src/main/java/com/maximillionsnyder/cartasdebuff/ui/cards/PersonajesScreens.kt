@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -139,10 +138,10 @@ fun PersonajeDetalleScreen(
 
     Column(Modifier.fillMaxSize()) {
         BarraDetalle(carta.nombre(idioma), onVolver)
-        LazyColumn(
-            modifier = Modifier.fillMaxSize(),
+        /* Mismo botón de volver arriba que en las listas: las fichas también
+           se hacen largas (fuentes, condiciones, evoluciones). */
+        ListaConArriba(
             contentPadding = PaddingValues(start = 16.dp, end = 16.dp, bottom = 24.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             item { EncabezadoCartaPersonaje(carta, idioma) }
             val grupos = listOf(

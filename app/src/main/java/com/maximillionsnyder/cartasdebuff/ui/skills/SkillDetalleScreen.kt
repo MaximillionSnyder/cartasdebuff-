@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.HorizontalDivider
@@ -45,6 +44,7 @@ import com.maximillionsnyder.cartasdebuff.ui.components.EtiquetaRareza
 import com.maximillionsnyder.cartasdebuff.ui.components.FilaApoyo
 import com.maximillionsnyder.cartasdebuff.ui.components.FilaPersonaje
 import com.maximillionsnyder.cartasdebuff.ui.components.ImagenRemota
+import com.maximillionsnyder.cartasdebuff.ui.components.ListaConArriba
 import com.maximillionsnyder.cartasdebuff.ui.components.SeccionTitulo
 import com.maximillionsnyder.cartasdebuff.ui.components.etiquetaTipo
 
@@ -68,10 +68,10 @@ fun SkillDetalleScreen(
 
     Column(Modifier.fillMaxSize()) {
         BarraDetalle(skill.nombre(idioma), onVolver)
-        LazyColumn(
-            modifier = Modifier.fillMaxSize(),
+        /* Mismo botón de volver arriba que en las listas: las fichas también
+           se hacen largas (fuentes, condiciones, evoluciones). */
+        ListaConArriba(
             contentPadding = PaddingValues(start = 16.dp, end = 16.dp, bottom = 24.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             item { EncabezadoSkill(skill, idioma) }
             if (skill.types.isNotEmpty()) {
