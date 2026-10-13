@@ -38,6 +38,12 @@ import androidx.compose.material3.SmallFloatingActionButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.runtime.snapshotFlow
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.LaunchedEffect
+import android.util.Log
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -251,7 +257,22 @@ fun ColumnScope.ListaConArriba(
     val mostrar by remember {
         derivedStateOf { estado.firstVisibleItemIndex > 0 || estado.firstVisibleItemScrollOffset > 200 }
     }
-    Box(modifier.fillMaxWidth().weight(1f)) {
+    /* TEMPORAL: medidas de la lista en logcat para diagnosticar el scroll. */
+    var altoCaja by remember { mutableStateOf(0) }
+    LaunchedEffect(estado) {
+        snapshotFlow {
+            listOf(estado.firstVisibleItemIndex, estado.firstVisibleItemScrollOffset)
+        }.collect {
+            Log.d(TAG_UI, "scroll idx=${it[0]} off=${it[1]} caja=$altoCaja viewport=${estado.layoutInfo.viewportSize.height}")
+        }
+    }
+    Box(
+        modifier.fillMaxWidth().weight(1f)
+            .onSizeChanged {
+                altoCaja = it.height
+                Log.d(TAG_UI, "caja=${it.height} viewport=${estado.layoutInfo.viewportSize.height} items=${estado.layoutInfo.totalItemsCount}")
+            },
+    ) {
         LazyColumn(
             state = estado,
             modifier = Modifier.fillMaxSize(),
@@ -266,3 +287,5 @@ fun ColumnScope.ListaConArriba(
         )
     }
 }
+
+private const val TAG_UI = "CDBUI"
