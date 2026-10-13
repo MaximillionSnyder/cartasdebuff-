@@ -47,6 +47,10 @@ scripts/prueba-ui.sh probar NOMBRE ~/vtest/acc.txt   # sesión grabada
   una de verdad.
 - Una lista solo se desplaza si su contenido es más alto que el hueco: una ficha
   corta no se mueve y no muestra el botón de volver arriba, y eso es correcto.
+- Con la inyección de toques, los controles de dentro de las tarjetas de
+  Ajustes (segmentados de Tema y Listas) no siempre responden, aunque en el
+  móvil funcionen: para ver el tema claro, cambia el modo noche del sistema
+  (`adb shell cmd uimode night no` y luego `yes`) y la app lo sigue.
 - La depuración inalámbrica cambia de puerto al reactivarse: `adb-ui.sh connect`
   lo busca solo, y `prueba-ui.sh` le pasa el puerto conectado a `vtest.sh`.
   MIUI exige además «Instalar vía USB» activado para instalar APKs nuevos.
