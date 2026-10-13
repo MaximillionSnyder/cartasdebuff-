@@ -125,7 +125,9 @@ fun PanelFiltros(
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 6.dp)
             .clip(FORMA_PANEL)
-            .background(MaterialTheme.colorScheme.surfaceContainerHigh)
+            /* `surface` es el mismo color que las tarjetas de la lista: contrasta
+               con el fondo tanto en tema claro como en oscuro. */
+            .background(MaterialTheme.colorScheme.surface)
             .border(1.dp, MaterialTheme.colorScheme.outlineVariant, FORMA_PANEL),
     ) {
         Row(
