@@ -391,6 +391,7 @@ val ColoresEventoApoyo = listOf(Color(0xFF4E342E), Color(0xFFA1887F))
 val ColoresEscenario = listOf(Color(0xFF2E7D32), Color(0xFF81C784))
 val ColoresOcultar = listOf(Color(0xFF455A64), Color(0xFF90A4AE))
 val ColoresOrden = listOf(Color(0xFF00695C), Color(0xFF4DB6AC))
+val ColoresGacha = listOf(Color(0xFF4527A0), Color(0xFF7E57C2))
 
 /* Efectos de una condición: verde cuando suma, rojo cuando resta. */
 val ColoresEfectoSube = listOf(Color(0xFF2E7D32), Color(0xFF81C784))

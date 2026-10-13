@@ -14,12 +14,13 @@ class FiltroApoyosTest {
         rarity: Int,
         nombre: String,
         titulo: String = "",
+        obtained: String = "gacha",
     ) = CartaApoyo(
         supportId = supportId,
         charId = supportId / 10,
         type = type,
         rarity = rarity,
-        obtained = "gacha",
+        obtained = obtained,
         urlName = "$supportId-x",
         name = mapOf("en" to nombre, "ja" to "$nombre-jp"),
         title = mapOf("en" to titulo),
@@ -97,5 +98,19 @@ class FiltroApoyosTest {
     fun sinCoincidenciasDevuelveListaVacia() {
         val filtro = FiltroApoyos(consulta = "no existe", tipo = "friend", estrellas = 2)
         assertEquals(emptyList<Int>(), filtrarApoyos(cartas, filtro).map { it.supportId })
+    }
+
+    @Test
+    fun elFiltroSinGachaEscondeSoloLasDeGacha() {
+        val lista = listOf(
+            carta(1, "speed", 3, "De gacha", obtained = "gacha"),
+            carta(2, "speed", 3, "De evento", obtained = "story_event"),
+            carta(3, "stamina", 1, "De promoción", obtained = "promo"),
+        )
+        assertEquals(listOf(1, 2, 3), filtrarApoyos(lista, FiltroApoyos()).map { it.supportId })
+        assertEquals(
+            listOf(2, 3),
+            filtrarApoyos(lista, FiltroApoyos(sinGacha = true)).map { it.supportId },
+        )
     }
 }

@@ -9,6 +9,9 @@ data class FiltroApoyos(
     val tipo: String = "todos",
     val estrellas: Int = 0,
     val descendente: Boolean = false,
+    /* Las cartas de gacha son la mayoría (464 de 563): poder esconderlas deja a
+       la vista las de evento, promoción y tienda, que son las escasas. */
+    val sinGacha: Boolean = false,
 )
 
 /* Orden por estrellas (1★→3★ o 3★→1★); el desempate por ID siempre es ascendente
@@ -26,11 +29,12 @@ fun filtrarApoyos(cartas: List<CartaApoyo>, filtro: FiltroApoyos): List<CartaApo
     val consulta = filtro.consulta.trim()
     val filtradas = cartas.filter { carta ->
         val coincideTipo = filtro.tipo == "todos" || carta.type == filtro.tipo
+        val coincideGacha = !filtro.sinGacha || carta.obtained != "gacha"
         val coincideEstrellas = filtro.estrellas == 0 || carta.rarity == filtro.estrellas
         val coincideBusqueda = consulta.isBlank() ||
             carta.name.values.any { it?.contains(consulta, ignoreCase = true) == true } ||
             carta.title.values.any { it?.contains(consulta, ignoreCase = true) == true }
-        coincideTipo && coincideEstrellas && coincideBusqueda
+        coincideTipo && coincideEstrellas && coincideGacha && coincideBusqueda
     }
     return filtradas.sortedWith(ordenApoyos(filtro.descendente))
 }

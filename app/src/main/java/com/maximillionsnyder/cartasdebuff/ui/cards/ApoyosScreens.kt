@@ -28,6 +28,7 @@ import com.maximillionsnyder.cartasdebuff.ui.components.TarjetaApp
 import com.maximillionsnyder.cartasdebuff.ui.components.CampoBusqueda
 import com.maximillionsnyder.cartasdebuff.ui.components.ChipFiltro
 import com.maximillionsnyder.cartasdebuff.ui.components.ColoresEstrella1
+import com.maximillionsnyder.cartasdebuff.ui.components.ColoresGacha
 import com.maximillionsnyder.cartasdebuff.ui.components.ColoresEstrella2
 import com.maximillionsnyder.cartasdebuff.ui.components.ColoresEstrella3
 import com.maximillionsnyder.cartasdebuff.ui.components.ColoresTodas
@@ -68,6 +69,7 @@ fun ApoyosScreen(
     var tipoFiltro by rememberSaveable { mutableStateOf("todos") }
     var estrellas by rememberSaveable { mutableStateOf(0) }
     var descendente by rememberSaveable { mutableStateOf(false) }
+    var sinGacha by rememberSaveable { mutableStateOf(false) }
     var filtrosAbiertos by rememberSaveable { mutableStateOf(true) }
 
     val filtradas = filtrarApoyos(
@@ -77,6 +79,7 @@ fun ApoyosScreen(
             tipo = tipoFiltro,
             estrellas = estrellas,
             descendente = descendente,
+            sinGacha = sinGacha,
         ),
     )
 
@@ -95,12 +98,15 @@ fun ApoyosScreen(
             modifier = Modifier.padding(horizontal = 16.dp),
         )
         PanelFiltros(
-            activos = (if (tipoFiltro != "todos") 1 else 0) + (if (estrellas != 0) 1 else 0),
+            activos = (if (tipoFiltro != "todos") 1 else 0) +
+                (if (estrellas != 0) 1 else 0) +
+                (if (sinGacha) 1 else 0),
             abierto = filtrosAbiertos,
             onAlternar = { filtrosAbiertos = !filtrosAbiertos },
             onLimpiar = {
                 tipoFiltro = "todos"
                 estrellas = 0
+                sinGacha = false
             },
         ) {
             FilaChips {
@@ -128,6 +134,12 @@ fun ApoyosScreen(
                         onClick = { estrellas = if (estrellas == valor) 0 else valor },
                     )
                 }
+                ChipFiltro(
+                    texto = "Sin gacha",
+                    seleccionado = sinGacha,
+                    colores = ColoresGacha,
+                    onClick = { sinGacha = !sinGacha },
+                )
                 ChipFiltro(
                     texto = if (descendente) "↓ 3★ → 1★" else "↑ 1★ → 3★",
                     seleccionado = true,
