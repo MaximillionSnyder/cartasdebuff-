@@ -70,13 +70,23 @@ cmd_instalar() {
   [ -n "$apk" ] || apk="$(find "$WORK/apk" -name 'app-release.apk' | head -1)"
   [ -f "$apk" ] || die "no encontré el APK. Ejecuta antes: $0 bajar"
   say "instalando $apk en $s"
-  # Las versiones van con el hash del commit: -d permite bajar de versionCode.
-  # Cada runner de Actions firma con su propio keystore de depuración, así que a
-  # veces hay que desinstalar antes (se pierden los ajustes de la app, da igual).
-  if ! adb -s "$s" install -r -d "$apk" >/dev/null 2>&1; then
-    say "la firma cambió: desinstalando y reinstalando"
+  # `-r` actualiza sin tocar los datos; `-d` permite bajar de versionCode.
+  # Solo se desinstala si el fallo es de firma (build antiguo firmado por otro
+  # runner): desinstalar por cualquier otro motivo deja el teléfono sin app.
+  local salida
+  if salida="$(adb -s "$s" install -r -d "$apk" 2>&1)"; then
+    :
+  elif printf '%s' "$salida" | grep -q 'INSTALL_FAILED_UPDATE_INCOMPATIBLE'; then
+    say "la firma del APK instalado es de otro keystore: desinstalando y reinstalando"
     adb -s "$s" uninstall com.maximillionsnyder.cartasdebuff >/dev/null 2>&1
     adb -s "$s" install -r -d "$apk" >/dev/null || die "adb install falló"
+  else
+    printf '%s\n' "$salida" >&2
+    case "$salida" in
+    *INSTALL_FAILED_USER_RESTRICTED*)
+      die "MIUI bloqueó la instalación: activa «Instalar vía USB» en Opciones de desarrollador" ;;
+    esac
+    die "adb install falló"
   fi
   adb -s "$s" shell dumpsys package com.maximillionsnyder.cartasdebuff |
     grep -m1 versionName | sed 's/^ */instalada: /' >&2
