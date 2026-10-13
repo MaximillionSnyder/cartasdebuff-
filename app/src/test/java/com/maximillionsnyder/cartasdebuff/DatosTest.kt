@@ -111,4 +111,12 @@ class DatosTest {
     private fun leer(ruta: String): String =
         checkNotNull(javaClass.classLoader?.getResourceAsStream(ruta)) { "Falta $ruta en el classpath" }
             .bufferedReader().use { it.readText() }
+
+    @Test
+    fun lasSkillsQueSoloEstanEnJaponLlevanElAvisoSinEn() {
+        /* 200014 (右回りの鬼 / Right-Handed Demon) no está en el servidor global
+           aunque GameTora no lo marque: la lista a mano del volcado lo corrige. */
+        assertEquals(listOf("en"), skills.first { it.id == 200014 }.unreleased)
+        assertTrue("en" in skills.first { it.id == 200024 }.unreleased)
+    }
 }

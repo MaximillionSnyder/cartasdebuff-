@@ -146,6 +146,21 @@ function namesFor(skill) {
   return { name, desc };
 }
 
+/* Idiomas en los que la skill todavía no ha salido, con los añadidos a mano. */
+function sinEn(skill) {
+  const lista = new Set(skill.unreleased ?? []);
+  if (SIN_EN_A_MANO.has(Number(skill.id))) lista.add('en');
+  return [...lista];
+}
+
+/* Skills que GameTora todavía no marca como no publicadas fuera de Japón. Su
+   propia tabla de cartas sí sabe que la carta de origen no ha salido del
+   servidor global, pero el campo `unreleased` de la skill va por detrás. Se
+   mantiene aquí la lista, con el motivo, y se aplica al generar el volcado. */
+const SIN_EN_A_MANO = new Map([
+  [200014, '右回りの鬼 (Right-Handed Demon): solo está en el servidor japonés'],
+]);
+
 function outputSkill(skill, sources) {
   const { name, desc } = namesFor(skill);
   return {
@@ -157,7 +172,7 @@ function outputSkill(skill, sources) {
     activation: skill.activation ?? null,
     name,
     desc,
-    unreleased: skill.unreleased ?? [],
+    unreleased: sinEn(skill),
     conditions: skill.condition_groups ?? [],
     geneVersion: skill.gene_version ?? null,
     evolution: {
