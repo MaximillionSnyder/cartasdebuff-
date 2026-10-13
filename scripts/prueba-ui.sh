@@ -97,12 +97,15 @@ cmd_probar() {
   local nombre="${1:-prueba}" acciones="${2:-}"
   [ -x "$VTEST" ] || die "falta $VTEST (grabador de pantalla virtual)"
   pkill -x scrcpy 2>/dev/null
-  local arg=()
+  local arg=() s
   [ -n "$acciones" ] && arg+=(--actions "$acciones")
-  "$VTEST" com.maximillionsnyder.cartasdebuff \
+  # vtest.sh tiene su propio puerto por defecto: hay que pasarle el conectado,
+  # porque la depuración inalámbrica cambia de puerto cada vez que se activa.
+  s="$(serial)"
+  [ -n "$s" ] || die "sin dispositivo adb"
+  VTEST_SERIAL="$s" "$VTEST" com.maximillionsnyder.cartasdebuff \
     --secs "$SECS" --size "$SIZE" --dpi "$DPI" --out "$nombre" "${arg[@]}" || return 1
 
-  local s; s="$(serial)"
   mkdir -p "$DEST"
   local f base
   for f in "$WORK/$nombre".mp4 "$WORK/$nombre"-final.png "$WORK/$nombre"-seq*.png \

@@ -25,7 +25,7 @@ pantalla física del teléfono**:
 ```bash
 git commit -am "feat(ui): …" && git push origin main
 scripts/prueba-ui.sh bajar          # espera el run verde y baja el APK
-scripts/prueba-ui.sh instalar       # adb install (desinstala si cambia la firma)
+scripts/prueba-ui.sh instalar       # adb install -r (actualiza en sitio)
 scripts/prueba-ui.sh probar NOMBRE ~/vtest/acc.txt   # sesión grabada
 ```
 
@@ -33,9 +33,14 @@ scripts/prueba-ui.sh probar NOMBRE ~/vtest/acc.txt   # sesión grabada
 - El fichero de acciones son líneas `<segundo> tap|swipe|text|key …`.
 - `prueba-ui.sh probar` copia vídeo y fotogramas a `/sdcard/Movies/dsh` y avisa
   a MediaStore, así que se ven en la galería del teléfono.
-- Cada runner de Actions firma con su propio keystore de depuración: la primera
-  instalación tras un push suele exigir desinstalar antes (el script lo hace).
+- Las releases se firman con un keystore fijo guardado en los secretos del repo
+  (`KEYSTORE_BASE64`, `KEYSTORE_PASSWORD`, `KEY_ALIAS`, `KEY_PASSWORD`): así
+  `adb install -r` **actualiza** la app conservando sus ajustes. Si algún día
+  falta el secreto, CI cae al keystore de depuración y toca desinstalar.
 - El input sobre una pantalla virtual (`input -d N`) a veces tarda: deja varios
   segundos entre acciones y mira `-timeline.txt` para saber cuándo ocurrió cada
   una de verdad.
+- La depuración inalámbrica cambia de puerto al reactivarse: `adb-ui.sh connect`
+  lo busca solo, y `prueba-ui.sh` le pasa el puerto conectado a `vtest.sh`.
+  MIUI exige además «Instalar vía USB» activado para instalar APKs nuevos.
 
