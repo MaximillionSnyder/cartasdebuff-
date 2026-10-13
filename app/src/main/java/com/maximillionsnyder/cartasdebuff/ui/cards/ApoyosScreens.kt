@@ -156,7 +156,12 @@ fun ApoyosScreen(
                 contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 4.dp, bottom = 16.dp),
             ) {
                 items(filtradas, key = { it.supportId }) { carta ->
-                    FilaApoyo(carta, idioma, compacta = compacta) { onAbrirCarta(carta.supportId) }
+                    FilaApoyo(
+                        carta = carta,
+                        idioma = idioma,
+                        compacta = compacta,
+                        numeroSkills = modelo.skillsPorApoyo[carta.supportId]?.distinct()?.size,
+                    ) { onAbrirCarta(carta.supportId) }
                 }
             }
         }

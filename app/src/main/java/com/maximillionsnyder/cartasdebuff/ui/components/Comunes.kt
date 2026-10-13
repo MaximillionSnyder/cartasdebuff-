@@ -584,7 +584,14 @@ fun FilaPersonaje(
 }
 
 @Composable
-fun FilaApoyo(carta: CartaApoyo, idioma: String, insignia: String? = null, compacta: Boolean = false, onClick: () -> Unit) {
+fun FilaApoyo(
+    carta: CartaApoyo,
+    idioma: String,
+    insignia: String? = null,
+    compacta: Boolean = false,
+    numeroSkills: Int? = null,
+    onClick: () -> Unit,
+) {
     val relleno = if (compacta) 6.dp else 10.dp
     TarjetaApp(onClick = onClick, modifier = Modifier.fillMaxWidth()) {
         Row(
@@ -616,6 +623,13 @@ fun FilaApoyo(carta: CartaApoyo, idioma: String, insignia: String? = null, compa
                 ) {
                     EtiquetaTipoApoyo(carta.type)
                     if (!insignia.isNullOrBlank()) Etiqueta(insignia)
+                    if (numeroSkills != null) {
+                        Text(
+                            if (numeroSkills == 1) "1 skill" else "$numeroSkills skills",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
                 }
             }
             Spacer(Modifier.width(8.dp))
