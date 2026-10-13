@@ -36,6 +36,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import com.maximillionsnyder.cartasdebuff.domain.EvoOrigen
+import com.maximillionsnyder.cartasdebuff.domain.IDIOMAS
 import com.maximillionsnyder.cartasdebuff.domain.Efecto
 import com.maximillionsnyder.cartasdebuff.domain.Modelo
 import com.maximillionsnyder.cartasdebuff.domain.Skill
@@ -107,7 +108,7 @@ fun SkillDetalleScreen(
                 }
             }
             item { SeccionTitulo("Descripciones") }
-            item { TarjetaDescripciones(skill) }
+            item { TarjetaDescripciones(skill, idioma) }
             if (skill.conditions.isNotEmpty()) {
                 item { SeccionTitulo("Condiciones", skill.conditions.size) }
                 items(skill.conditions.size) { indice ->
@@ -204,21 +205,31 @@ private fun EncabezadoSkill(skill: Skill, idioma: String) {
 }
 
 @Composable
-private fun TarjetaDescripciones(skill: Skill) {
+private fun TarjetaDescripciones(skill: Skill, idioma: String) {
     var expandido by remember { mutableStateOf(false) }
+    /* Primero el idioma elegido en la app; los demás, detrás del botón. Antes
+       empezaba siempre por inglés, así que quien leía en japonés veía su idioma
+       escondido en "ver más idiomas". */
+    val otros = IDIOMAS.filter { it != idioma }
     TarjetaApp(modifier = Modifier.fillMaxWidth()) {
         Column(Modifier.fillMaxWidth().padding(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            BloqueIdioma(skill, "en")
+            BloqueIdioma(skill, idioma)
             AnimatedVisibility(visible = expandido, enter = expandVertically(), exit = shrinkVertically()) {
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    for (id in listOf("ja", "ko", "tw")) {
+                    for (id in otros) {
                         HorizontalDivider()
                         BloqueIdioma(skill, id)
                     }
                 }
             }
             TextButton(onClick = { expandido = !expandido }) {
-                Text(if (expandido) "Ocultar otros idiomas" else "Ver más idiomas (日本語 · 한국어 · 中文)")
+                Text(
+                    if (expandido) {
+                        "Ocultar otros idiomas"
+                    } else {
+                        "Ver más idiomas (" + otros.joinToString(" · ") { etiquetaIdioma(it) } + ")"
+                    },
+                )
             }
         }
     }

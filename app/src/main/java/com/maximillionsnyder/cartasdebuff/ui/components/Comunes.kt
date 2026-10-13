@@ -492,10 +492,14 @@ fun FilaSkill(skill: Skill, idioma: String, compacta: Boolean = false, onClick: 
             Column(horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.spacedBy(2.dp)) {
                 EtiquetaRareza(skill.rarity)
                 if ("dbf" in skill.types) {
-                    Text("debuff", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary)
+                    Etiqueta("debuff", ColoresDebuff.first(), Color.White)
                 }
                 if ("en" in skill.unreleased) {
-                    Text("sin EN", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.error)
+                    Etiqueta(
+                        "sin EN",
+                        MaterialTheme.colorScheme.surfaceVariant,
+                        MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
                 }
             }
         }
