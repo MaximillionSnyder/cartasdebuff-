@@ -4,8 +4,11 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -27,6 +30,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import com.maximillionsnyder.cartasdebuff.domain.EvoOrigen
@@ -36,6 +40,7 @@ import com.maximillionsnyder.cartasdebuff.domain.VersionGen
 import com.maximillionsnyder.cartasdebuff.domain.duracionEnSegundos
 import com.maximillionsnyder.cartasdebuff.domain.etiquetaIdioma
 import com.maximillionsnyder.cartasdebuff.domain.texto
+import com.maximillionsnyder.cartasdebuff.domain.leerCondiciones
 import com.maximillionsnyder.cartasdebuff.ui.components.BarraDetalle
 import com.maximillionsnyder.cartasdebuff.ui.components.TarjetaApp
 import com.maximillionsnyder.cartasdebuff.ui.components.EstadoVacio
@@ -227,6 +232,47 @@ private fun BloqueIdioma(skill: Skill, id: String) {
     }
 }
 
+/* Condición legible: un punto por término ("recorrido (%) ≥ 50"). Si alguna
+   clave no está en la tabla se enseña además la expresión original, en pequeño,
+   para no perder el dato. */
+@Composable
+private fun FilaCondicion(titulo: String, expresion: String) {
+    val terminos = leerCondiciones(expresion)
+    Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+        Text(
+            titulo,
+            style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+        if (terminos.isEmpty()) {
+            Text(expresion, style = MaterialTheme.typography.bodySmall, fontFamily = FontFamily.Monospace)
+            return@Column
+        }
+        for (termino in terminos) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(6.dp),
+            ) {
+                Box(
+                    Modifier
+                        .size(5.dp)
+                        .clip(CircleShape)
+                        .background(MaterialTheme.colorScheme.primary),
+                )
+                Text(termino.texto, style = MaterialTheme.typography.bodyMedium)
+            }
+        }
+        if (terminos.any { !it.traducido }) {
+            Text(
+                expresion,
+                style = MaterialTheme.typography.labelSmall,
+                fontFamily = FontFamily.Monospace,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+    }
+}
+
 @Composable
 private fun TarjetaCondicion(
     precondition: String?,
@@ -236,12 +282,8 @@ private fun TarjetaCondicion(
 ) {
     TarjetaApp(modifier = Modifier.fillMaxWidth()) {
         Column(Modifier.fillMaxWidth().padding(12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-            if (precondition != null) {
-                Text("Requisito: $precondition", style = MaterialTheme.typography.bodySmall, fontFamily = FontFamily.Monospace)
-            }
-            if (condition != null) {
-                Text("Condición: $condition", style = MaterialTheme.typography.bodySmall, fontFamily = FontFamily.Monospace)
-            }
+            if (precondition != null) FilaCondicion("Requisito", precondition)
+            if (condition != null) FilaCondicion("Condición", condition)
             if (baseTime != null && baseTime > 0) {
                 Text(
                     "Duración base: ${duracionEnSegundos(baseTime)}",
