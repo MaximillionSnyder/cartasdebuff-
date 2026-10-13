@@ -37,9 +37,16 @@ scripts/prueba-ui.sh probar NOMBRE ~/vtest/acc.txt   # sesión grabada
   (`KEYSTORE_BASE64`, `KEYSTORE_PASSWORD`, `KEY_ALIAS`, `KEY_PASSWORD`): así
   `adb install -r` **actualiza** la app conservando sus ajustes. Si algún día
   falta el secreto, CI cae al keystore de depuración y toca desinstalar.
+- **Si el teléfono entra en reposo, la pantalla virtual se apaga y los toques
+  inyectados no llegan a la app**: la sesión se graba igual y parece que la
+  interfaz está rota. `prueba-ui.sh` ya despierta el móvil y lo mantiene
+  despierto durante la grabación; si una prueba sale "sin reacción", mira
+  primero `dumpsys power | grep mWakefulness`.
 - El input sobre una pantalla virtual (`input -d N`) a veces tarda: deja varios
   segundos entre acciones y mira `-timeline.txt` para saber cuándo ocurrió cada
   una de verdad.
+- Una lista solo se desplaza si su contenido es más alto que el hueco: una ficha
+  corta no se mueve y no muestra el botón de volver arriba, y eso es correcto.
 - La depuración inalámbrica cambia de puerto al reactivarse: `adb-ui.sh connect`
   lo busca solo, y `prueba-ui.sh` le pasa el puerto conectado a `vtest.sh`.
   MIUI exige además «Instalar vía USB» activado para instalar APKs nuevos.
