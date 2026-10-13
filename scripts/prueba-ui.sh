@@ -103,34 +103,8 @@ cmd_probar() {
   # porque la depuración inalámbrica cambia de puerto cada vez que se activa.
   s="$(serial)"
   [ -n "$s" ] || die "sin dispositivo adb"
-
-  # La pantalla virtual se apaga con el teléfono. Si el móvil está en reposo (o
-  # se bloquea a mitad de sesión) los toques inyectados NO llegan a la app: la
-  # sesión se graba entera pero la app no reacciona. Se despierta al principio,
-  # se alarga el tiempo de espera de pantalla y un vigilante la despierta cada
-  # pocos segundos; al terminar todo queda como estaba.
-  local dormir dormilon
-  dormir="$(adb -s "$s" shell settings get system screen_off_timeout 2>/dev/null | tr -d '\r')"
-  adb -s "$s" shell settings put system screen_off_timeout 1800000 >/dev/null 2>&1
-  adb -s "$s" shell input keyevent KEYCODE_WAKEUP >/dev/null 2>&1
-  (
-    while sleep 10; do
-      adb -s "$s" shell input keyevent KEYCODE_WAKEUP >/dev/null 2>&1 || exit 0
-    done
-  ) &
-  dormilon=$!
-
   VTEST_SERIAL="$s" "$VTEST" com.maximillionsnyder.cartasdebuff \
-    --secs "$SECS" --size "$SIZE" --dpi "$DPI" --out "$nombre" "${arg[@]}"
-  local rc=$?
-
-  kill "$dormilon" 2>/dev/null
-  wait "$dormilon" 2>/dev/null
-  case "$dormir" in
-  '' | *[!0-9]*) ;;
-  *) adb -s "$s" shell settings put system screen_off_timeout "$dormir" >/dev/null 2>&1 ;;
-  esac
-  [ "$rc" -eq 0 ] || return 1
+    --secs "$SECS" --size "$SIZE" --dpi "$DPI" --out "$nombre" "${arg[@]}" || return 1
 
   mkdir -p "$DEST"
   local f base
