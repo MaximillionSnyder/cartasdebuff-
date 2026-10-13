@@ -102,10 +102,12 @@ class FiltroApoyosTest {
 
     @Test
     fun elFiltroSinGachaEscondeSoloLasDeGacha() {
+        /* Misma rareza a propósito: así el orden es por id y el test no depende
+           del orden por estrellas. */
         val lista = listOf(
             carta(1, "speed", 3, "De gacha", obtained = "gacha"),
             carta(2, "speed", 3, "De evento", obtained = "story_event"),
-            carta(3, "stamina", 1, "De promoción", obtained = "promo"),
+            carta(3, "speed", 3, "De promoción", obtained = "promo"),
         )
         assertEquals(listOf(1, 2, 3), filtrarApoyos(lista, FiltroApoyos()).map { it.supportId })
         assertEquals(
