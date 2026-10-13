@@ -7,10 +7,12 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -32,6 +34,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.text.style.TextAlign
 import com.maximillionsnyder.cartasdebuff.data.Preferencias
 import com.maximillionsnyder.cartasdebuff.domain.INICIO_AJUSTES
 import com.maximillionsnyder.cartasdebuff.domain.INICIO_APOYOS
@@ -67,21 +70,34 @@ class MainActivity : ComponentActivity() {
                 val modelo by vm.modelo.collectAsState()
                 val actual = modelo
                 if (actual == null) {
-                    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    /* Pantalla de carga: mientras se leen los JSON de assets. */
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(MaterialTheme.colorScheme.background),
+                        contentAlignment = Alignment.Center,
+                    ) {
                         Column(
                             horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.spacedBy(14.dp),
+                            verticalArrangement = Arrangement.spacedBy(16.dp),
+                            modifier = Modifier.padding(horizontal = 40.dp),
                         ) {
+                            Icon(
+                                painterResource(R.drawable.ic_logo),
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.size(84.dp),
+                            )
                             Text(
                                 stringResource(R.string.app_name),
                                 style = MaterialTheme.typography.headlineSmall,
-                                color = MaterialTheme.colorScheme.primary,
                             )
                             CircularProgressIndicator()
                             Text(
-                                "Cargando skills y cartas…",
+                                "Leyendo las tablas de skills, cartas y escenarios…",
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                textAlign = TextAlign.Center,
                             )
                         }
                     }

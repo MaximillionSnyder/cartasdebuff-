@@ -1,0 +1,13 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="96dp"
+    android:height="96dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- Misma estrella del icono de la app, sin el fondo, para la pantalla de carga. -->
+    <path
+        android:fillColor="#FF8C42"
+        android:pathData="M54,20l8.2,16.6 18.3,2.7 -13.2,12.9 3.1,18.2 -16.4,-8.6 -16.4,8.6 3.1,-18.2 -13.2,-12.9 18.3,-2.7z" />
+    <path
+        android:fillColor="#FF8C42"
+        android:pathData="M34,84h40v6h-40z" />
+</vector>

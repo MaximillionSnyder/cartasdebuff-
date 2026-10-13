@@ -250,6 +250,14 @@ fun SeccionTitulo(texto: String, contador: Int? = null) {
         modifier = Modifier.fillMaxWidth().padding(top = 8.dp, bottom = 4.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
+        /* Barrita de color: separa las secciones de la ficha sin llenarlas de cajas. */
+        Box(
+            Modifier
+                .padding(end = 8.dp)
+                .size(width = 3.dp, height = 16.dp)
+                .clip(RoundedCornerShape(50))
+                .background(MaterialTheme.colorScheme.primary),
+        )
         Text(texto, style = MaterialTheme.typography.titleMedium)
         if (contador != null) {
             Spacer(Modifier.width(6.dp))
