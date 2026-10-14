@@ -1,5 +1,31 @@
 # AGENTS.md — cartasdebuff
 
+## Reglas fijas (preferencias del dueño del repo)
+
+Estas dos no se negocian; el resto del documento solo explica cómo cumplirlas.
+
+1. **La app se prueba SIEMPRE en una pantalla virtual en background.** Nunca se
+   abre en la pantalla física del teléfono, nunca se le inyectan toques
+   (`input` sin `-d N`) y el móvil se queda como está: el usuario sigue usando
+   su pantalla mientras la prueba corre. Lo hace `~/vtest.sh` con scrcpy
+   (`--new-display --no-window`), que crea un display privado que no se ve.
+   - **No usar la pantalla simulada** (`adb-ui.sh display overlay`, que toca
+     `settings put global overlay_display_devices`): en esta ROM puede acabar
+     dibujándose encima de la pantalla física (ya pasó una vez) y además
+     `screencap -d N` no funciona con ella. Si alguna vez se crea una, se quita
+     con `adb-ui.sh display clear` y se comprueba que solo queda el display 0.
+   - De la pantalla virtual **no se pueden sacar capturas** (`screencap -d N`
+     da Status -2: el display es privado de scrcpy). Los fotogramas se sacan
+     del vídeo de la sesión: `<nombre>-final.png` es el estado final y
+     `<nombre>-seqNN.png` son muestras. Para encontrar el fotograma bueno entre
+     decenas, primero OCR sobre todos (barato, sin gastar contexto en imágenes)
+     y luego se mira ese con la vista.
+2. **No compilar en local.** Ni gradle ni kotlinc: compila GitHub Actions. El
+   ciclo es commit → push a `main` → esperar el run → bajar el APK → instalar.
+   Si el run falla, `gh run view <id> --log-failed` (no hace falta reproducirlo
+   en local). El `versionName` del APK instalado lleva el SHA, así se sabe
+   siempre qué build se está probando.
+
 ## Build y releases (GitHub Actions)
 
 No compilar localmente: lo hace `.github/workflows/android.yml`.
@@ -45,6 +71,14 @@ scripts/prueba-ui.sh probar NOMBRE ~/vtest/acc.txt   # sesión grabada
 - El input sobre una pantalla virtual (`input -d N`) a veces tarda: deja varios
   segundos entre acciones y mira `-timeline.txt` para saber cuándo ocurrió cada
   una de verdad.
+- Para tocar una fila concreta de una lista larga: haz primero una sesión
+  **sonda** que solo baje (sin tocar), mide en `<nombre>-final.png` dónde quedó
+  la fila que buscas y calcula el toque; repitiendo el mismo gesto, la lista se
+  queda donde la mediste. Y ojo: un toque de 0 ms a veces no dispara los
+  `clickable` de Compose, así que usa una pulsación de 120 ms
+  (`swipe x y x y 120`).
+- Las listas muy largas (1921 skills) no se recorren a swipes hasta el final:
+  elige un objetivo cercano o un filtro que acorte la lista antes de bajar.
 - Una lista solo se desplaza si su contenido es más alto que el hueco: una ficha
   corta no se mueve y no muestra el botón de volver arriba, y eso es correcto.
 - Con la inyección de toques, los controles de dentro de las tarjetas de
