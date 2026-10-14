@@ -278,9 +278,11 @@ private fun BloqueIdioma(skill: Skill, id: String) {
     }
 }
 
-/* Condición legible: un punto por término ("recorrido (%) ≥ 50"). Si alguna
-   clave no está en la tabla se enseña además la expresión original, en pequeño,
-   para no perder el dato. */
+/* La condición va tal cual viene de GameTora: primero la expresión original
+   ("is_last_straight==1"), que es el dato exacto con el que se contrasta, y
+   debajo su lectura en español, un punto por término ("en la recta final").
+   Si alguna clave no está en la tabla, la lectura se queda corta pero el
+   original sigue ahí, así que no se pierde nada. */
 @Composable
 private fun FilaCondicion(titulo: String, expresion: String) {
     val terminos = leerCondiciones(expresion)
@@ -290,10 +292,11 @@ private fun FilaCondicion(titulo: String, expresion: String) {
             style = MaterialTheme.typography.labelMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
-        if (terminos.isEmpty()) {
-            Text(expresion, style = MaterialTheme.typography.bodySmall, fontFamily = FontFamily.Monospace)
-            return@Column
-        }
+        Text(
+            expresion,
+            style = MaterialTheme.typography.bodyMedium,
+            fontFamily = FontFamily.Monospace,
+        )
         for (termino in terminos) {
             /* El "o" que separa dos alternativas de la condición no es un
                término: va sin punto y en su propia línea. */
@@ -317,14 +320,6 @@ private fun FilaCondicion(titulo: String, expresion: String) {
                 )
                 Text(termino.texto, style = MaterialTheme.typography.bodyMedium)
             }
-        }
-        if (terminos.any { !it.traducido }) {
-            Text(
-                expresion,
-                style = MaterialTheme.typography.labelSmall,
-                fontFamily = FontFamily.Monospace,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
         }
     }
 }

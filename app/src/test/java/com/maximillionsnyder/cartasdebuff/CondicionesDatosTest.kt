@@ -10,8 +10,10 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 import java.io.File
 
-/* Guardián de las condiciones: recorre TODAS las condiciones del asset real y
-   comprueba que ninguna se enseña en crudo. Si GameTora añade una clave nueva,
+/* Guardián de la lectura en español: recorre TODAS las condiciones del asset real
+   y comprueba que ninguna se queda sin traducir. La ficha enseña igualmente la
+   expresión original de GameTora, así que esto no va de no perder el dato: va de
+   que la lectura no se quede a medias. Si GameTora añade una clave nueva,
    "npm run fetch" la mete en el dato y este test cae en CI: hay que traducirla
    contrastando la descripción oficial de las skills que la usan, no a ojo.
    (Antes de esto, 265 términos de 87 claves salían tal cual.) */
@@ -65,7 +67,7 @@ class CondicionesDatosTest {
         // Si el asset se leyera a medias, el test pasaría por vacío.
         assertTrue("sólo se leyeron $terminos términos: ¿asset incompleto?", terminos > 5000)
         assertTrue(
-            "hay ${crudos.size} condiciones que la ficha enseña en crudo:\n" +
+            "hay ${crudos.size} condiciones sin lectura en español:\n" +
                 crudos.entries.joinToString("\n") { "  ${it.key}   (p.ej. ${it.value})" },
             crudos.isEmpty(),
         )
