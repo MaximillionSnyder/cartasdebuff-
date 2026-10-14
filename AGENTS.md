@@ -51,6 +51,13 @@ scripts/prueba-ui.sh probar NOMBRE ~/vtest/acc.txt   # sesión grabada
   Ajustes (segmentados de Tema y Listas) no siempre responden, aunque en el
   móvil funcionen: para ver el tema claro, cambia el modo noche del sistema
   (`adb shell cmd uimode night no` y luego `yes`) y la app lo sigue.
+- **El buscador no sirve para las pruebas con toques inyectados**: en cuanto el
+  campo «Buscar por nombre» se queda con el foco (basta con que la pantalla lo
+  enfoque sola), ni los toques ni `BACK` llegan como se espera —el campo sigue
+  enfocado, la lista no se mueve y el BACK se lleva por delante la app en vez
+  del teclado, porque el IME no vive en el display virtual—. Para probar una
+  ficha concreta, ve por la tarjeta del personaje: pestaña Personajes → tarjeta
+  → fila de la skill. Esa ruta sí responde.
 - La depuración inalámbrica cambia de puerto al reactivarse: `adb-ui.sh connect`
   lo busca solo, y `prueba-ui.sh` le pasa el puerto conectado a `vtest.sh`.
   MIUI exige además «Instalar vía USB» activado para instalar APKs nuevos.
