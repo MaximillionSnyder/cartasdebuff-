@@ -18,6 +18,22 @@ package com.maximillionsnyder.cartasdebuff.domain
 private val NUMERICAS: Set<String> = setOf(
     "order", "order_rate", "distance_rate", "distance_rate_after_random",
     "remain_distance", "course_distance", "accumulatetime", "blocked_side_continuetime",
+    "blocked_front_continuetime", "corner_count", "near_infront_count", "fan_count",
+    "visiblehorse",
+    /* Contadores de skills activadas y de rivales. */
+    "activate_count_all_team", "activate_count_end_after", "activate_count_heal",
+    "activate_count_later_half", "activate_count_middle", "activate_count_param_skill",
+    "activate_count_start", "same_skill_horse_count", "succession_skill_count",
+    "temptation_opponent_count_behind", "temptation_opponent_count_infront",
+    "running_style_count_nige_otherself", "running_style_count_senko_otherself",
+    "running_style_count_sashi_otherself", "running_style_count_oikomi_otherself",
+    "running_style_count_same", "running_style_count_same_rate",
+    "running_style_temptation_opponent_count_nige", "running_style_temptation_opponent_count_senko",
+    "running_style_temptation_opponent_count_sashi", "running_style_temptation_opponent_count_oikomi",
+    /* Números sueltos. */
+    "base_guts", "overtake_target_no_order_up_time", "post_number", "random_lot",
+    "random_lot_shared", "remain_distance_viewer_id", "behind_near_lane_time_set1",
+    "change_order_up_finalcorner_after", "distance_diff_top_float",
     "distance_diff_top", "distance_diff_rate", "bashin_diff_behind", "bashin_diff_infront",
     "slope", "base_power", "base_wiz", "base_speed", "base_stamina", "temptation_count",
     "popularity", "track_id", "near_count", "compete_fight_count", "infront_near_lane_time",
@@ -32,6 +48,13 @@ private val ETIQUETAS: Map<String, String> = mapOf(
     "corner" to "en curva",
     "straight_random" to "en recta (cualquiera)",
     "down_slope_random" to "en bajada (cualquiera)",
+    "up_slope_random" to "en subida (cualquiera)",
+    "up_slope_random_later_half" to "en subida de la segunda mitad (cualquiera)",
+    "last_straight_random" to "en la recta final (cualquiera)",
+    "run_at_full_speed_random" to "a plena velocidad (cualquiera)",
+    /* El carril 0 es el rail interior: las skills dicen "near the inner rail". */
+    "lane_type" to "carril",
+    "straight_front_type" to "en recta",
     "is_finalcorner" to "en la última curva",
     "is_finalcorner_laterhalf" to "en la segunda mitad de la última curva",
     "is_finalcorner_random" to "en la última curva (cualquiera)",
@@ -61,10 +84,30 @@ private val ETIQUETAS: Map<String, String> = mapOf(
     "change_order_up_end_after" to "tras remontar al final",
     "change_order_up_middle" to "al remontar",
     "blocked_side_continuetime" to "tiempo bloqueado",
+    /* El paso tapado por delante: "when the way ahead is jammed". */
+    "blocked_front" to "con el paso bloqueado delante",
+    "blocked_front_continuetime" to "tiempo con el paso bloqueado delante",
+    "is_surrounded" to "rodeado",
+    /* 掛かり (rushed): la app ya llama "tentaciones" a temptation_count. */
+    "is_temptation" to "tentado",
+    "near_infront_count" to "rivales justo delante",
+    /* Pistas sin curvas: "tracks with no corners". */
+    "corner_count" to "curvas de la pista",
     "infront_near_lane_time" to "tiempo pegado al de delante",
     "behind_near_lane_time" to "tiempo con alguien detrás",
     "near_count" to "rivales cerca",
     "compete_fight_count" to "rivales en pugna",
+    /* "Mantenerse" en un puesto: las skills dicen "for the entire first half",
+       "stayed well-positioned from the start up until the second half". El
+       número va en la propia clave, así que la frase ya lo lleva. */
+    "order_rate_in20_continue" to "te mantienes en el top 20%",
+    "order_rate_in40_continue" to "te mantienes en el top 40%",
+    "order_rate_in50_continue" to "te mantienes en el top 50%",
+    "order_rate_in80_continue" to "te mantienes en el top 80%",
+    "order_rate_out20_continue" to "te mantienes fuera del top 20%",
+    "order_rate_out40_continue" to "te mantienes fuera del top 40%",
+    "order_rate_out50_continue" to "te mantienes fuera del top 50%",
+    "order_rate_out70_continue" to "te mantienes fuera del top 70%",
     /* estado de la carrera y del corredor */
     "running_style" to "estilo de carrera",
     "distance_type" to "tipo de distancia",
@@ -82,14 +125,67 @@ private val ETIQUETAS: Map<String, String> = mapOf(
     "base_power" to "fuerza base",
     "base_wiz" to "ingenio base",
     "temptation_count" to "tentaciones",
+    "temptation_opponent_count_behind" to "rivales tentados detrás",
+    "temptation_opponent_count_infront" to "rivales tentados delante",
+    /* Rivales por estilo: nige escapada, senko líder, sashi intermedia y
+       oikomi perseguidora, igual que la tabla running_style de arriba. */
+    "running_style_count_nige_otherself" to "rivales de escapada",
+    "running_style_count_senko_otherself" to "rivales líder",
+    "running_style_count_sashi_otherself" to "rivales intermedios",
+    "running_style_count_oikomi_otherself" to "rivales perseguidores",
+    "running_style_count_same" to "rivales con tu mismo estilo",
+    "running_style_count_same_rate" to "rivales con tu mismo estilo (%)",
+    "running_style_temptation_opponent_count_nige" to "rivales de escapada tentados",
+    "running_style_temptation_opponent_count_senko" to "rivales líder tentados",
+    "running_style_temptation_opponent_count_sashi" to "rivales intermedios tentados",
+    "running_style_temptation_opponent_count_oikomi" to "rivales perseguidores tentados",
+    "running_style_equal_popularity_one" to "el favorito usa tu mismo estilo",
+    /* Contadores de skills. "param" son las verdes: la skill dice "green skills". */
+    "activate_count_start" to "skills activadas al principio",
+    "activate_count_middle" to "skills activadas en la fase media",
+    "activate_count_later_half" to "skills activadas en la segunda mitad",
+    "activate_count_end_after" to "skills activadas al final",
+    "activate_count_heal" to "skills de aguante activadas",
+    "activate_count_param_skill" to "skills verdes activadas",
+    "activate_count_all_team" to "skills activadas por el equipo",
+    "same_skill_horse_count" to "rivales con la misma skill",
+    "succession_skill_count" to "skills heredadas",
+    /* Números sueltos. */
+    "base_guts" to "coraje base",
+    "post_number" to "bracket de salida",
+    "furlong" to "furlong",
+    "grade" to "categoría de la carrera",
+    "time" to "franja horaria",
+    "random_lot" to "probabilidad (%)",
+    "random_lot_shared" to "probabilidad compartida (%)",
+    "remain_distance_viewer_id" to "metros restantes del personaje vigilado",
+    "overtake_target_no_order_up_time" to "tiempo pegado a un rival sin adelantarlo",
+    "change_order_up_finalcorner_after" to "adelantamientos tras la última curva",
+    "distance_diff_top_float" to "diferencia con el primero",
+    /* El sufijo _set1 no aparece documentado en el dato: se deja la misma frase
+       que la clave base en vez de inventarse un matiz. */
+    "behind_near_lane_time_set1" to "tiempo con alguien detrás",
     "track_id" to "hipódromo",
     "is_basis_distance" to "distancia base",
     "accumulatetime" to "tiempo acumulado",
+    /* Carreras de fuera y de tierra de grado (Kawasaki, Funabashi, Morioka, Ooi). */
+    "is_abroad" to "en el extranjero",
+    "is_dirtgrade" to "en carrera de grado de tierra",
+    /* Hipódromos de curvas cerradas y aforo. */
+    "is_tight_track" to "en pista de curvas cerradas",
+    "fan_count" to "aficionados",
+    "visiblehorse" to "rivales visibles",
     /* skills */
     "is_activate_any_skill" to "con cualquier skill activada",
     "is_activate_other_skill_detail" to "con otra skill activada",
     "is_other_character_activate_advantage_skill" to "con la skill de ventaja de otro",
     "is_used_skill_id" to "skill concreta",
+    "is_used_skill_id_with_detail_one" to "skill concreta",
+    "is_exist_skill_id" to "skill en la carrera",
+    "is_activate_heal_skill" to "con una skill de aguante usada",
+    "is_popularity_top_character_activate_advantage_skill" to "el favorito activa una skill de ventaja",
+    /* Qué personaje tiene que estar en la carrera (1002 es Silence Suzuka). */
+    "is_exist_chara_id" to "personaje en la carrera",
     "activate_count_all" to "skills activadas",
 )
 
@@ -123,6 +219,18 @@ private val VALORES: Map<String, Map<String, String>> = mapOf(
         "5" to "primavera (sakura)",
     ),
     "rotation" to mapOf("1" to "a la derecha", "2" to "a la izquierda"),
+    /* El 0 es el rail de dentro ("near the inner rail"); el 2, ir en cabeza. */
+    "lane_type" to mapOf("0" to "interior"),
+    "straight_front_type" to mapOf("2" to "en cabeza"),
+    /* `furlong` viene con base 0: el 1 es el segundo furlong (No Second
+       Thoughts pide "at the second furlong" con furlong==1). Se enseña 1-based. */
+    "furlong" to mapOf("0" to "1.º", "1" to "2.º", "2" to "3.º", "3" to "4.º"),
+    /* grade==100 es una carrera de G1 ("if it's a G1 or similarly major race"). */
+    "grade" to mapOf("100" to "G1"),
+    /* time==4 es de noche (Night Races ◎: "Increase performance at night"). */
+    "time" to mapOf("4" to "noche"),
+    /* El -1 es el "sí" de esta bandera ("when the most popular girl activates a skill"). */
+    "is_popularity_top_character_activate_advantage_skill" to mapOf("-1" to "sí"),
     /* Escala de cinco pasos, del 1 (fatal) al 5 (perfecta). */
     "motivation" to mapOf(
         "1" to "fatal",
@@ -144,6 +252,10 @@ private val ETIQUETAS_FASE: Map<String, String> = mapOf(
     "phase_laterhalf" to "segunda mitad de la fase %s",
     "phase_laterhalf_random" to "segunda mitad de la fase %s (cualquiera)",
     "phase_firstquarter_random" to "primer cuarto de la fase %s (cualquiera)",
+    /* El dato usa las dos grafías: "firsthalf/laterhalf" y "first_half/latter_half". */
+    "phase_firstquarter" to "primer cuarto de la fase %s",
+    "phase_first_half_straight_random" to "en recta de la primera mitad de la fase %s (cualquiera)",
+    "phase_latter_half_straight_random" to "en recta de la segunda mitad de la fase %s (cualquiera)",
     "phase_straight_random" to "en recta de la fase %s (cualquiera)",
     "phase_corner_random" to "en curva de la fase %s (cualquiera)",
 )

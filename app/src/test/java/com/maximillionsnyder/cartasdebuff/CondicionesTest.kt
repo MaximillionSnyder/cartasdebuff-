@@ -150,4 +150,36 @@ class CondicionesTest {
         assertEquals(listOf("hipódromo = 10008"), textos("track_id==10008"))
         assertEquals(listOf("metros restantes ≥ 600"), textos("remain_distance>=600"))
     }
+
+    /* Claves que salían en crudo y ahora se traducen. Cada texto sale de la
+       descripción oficial de una skill que usa ese valor, que va al lado: si
+       alguna vez se cambia la etiqueta, el comentario dice contra qué se
+       contrastó. El guardián de que no quede NINGUNA en crudo es
+       CondicionesDatosTest, que recorre el asset entero. */
+    @Test
+    fun lasClavesQueFaltabanTambienSeTraducen() {
+        // No Second Thoughts: "If there's no one in front of you at the second furlong"
+        assertEquals(listOf("furlong: 2.º"), textos("furlong==1"))
+        // Inner Post Proficiency: "Increase performance in brackets 1–3"
+        assertEquals(listOf("bracket de salida ≤ 3"), textos("post_number<=3"))
+        // Raise My Soul's Blade!: "if it's a G1 or similarly major race"
+        assertEquals(listOf("categoría de la carrera: G1"), textos("grade==100"))
+        // Night Races ◎: "Increase performance at night"
+        assertEquals(listOf("franja horaria: noche"), textos("time==4"))
+        // Innate Experience: "when near the inner rail on the final corner"
+        assertEquals(listOf("carril: interior"), textos("lane_type==0"))
+        // Determined Stroke: "in the top 40% for the entire first half of the race"
+        assertEquals(listOf("te mantienes en el top 40%"), textos("order_rate_in40_continue==1"))
+        // Frenzied Front Runners: "for front runners ... when they become rushed"
+        assertEquals(
+            listOf("rivales de escapada tentados ≥ 1"),
+            textos("running_style_temptation_opponent_count_nige>=1"),
+        )
+        // Fervor and Rigor: "if you've activated at least 7 green skills"
+        assertEquals(listOf("skills verdes activadas ≥ 7"), textos("activate_count_param_skill>=7"))
+        // Collaborative Graded Races: "Increase performance in collaborative graded races"
+        assertEquals(listOf("en carrera de grado de tierra"), textos("is_dirtgrade==1"))
+        // Los mismos: la condición es que NO estén tentados
+        assertEquals(listOf("no tentado"), textos("is_temptation==0"))
+    }
 }
