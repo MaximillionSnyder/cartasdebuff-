@@ -2,10 +2,10 @@ package com.maximillionsnyder.cartasdebuff
 
 import com.maximillionsnyder.cartasdebuff.domain.leerCondiciones
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonArray
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.contentOrNull
-import kotlinx.serialization.json.jsonArray
-import kotlinx.serialization.json.jsonObject
-import kotlinx.serialization.json.jsonPrimitive
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import java.io.File
@@ -23,26 +23,36 @@ class CondicionesDatosTest {
     ).firstOrNull { it.isFile }
         ?: error("no encuentro skills.json (¿desde qué directorio corre el test?)")
 
-    private fun expresionesDe(skill: Map<String, kotlinx.serialization.json.JsonElement>): List<String> {
+    /* Ojo con JsonNull: `elemento.jsonObject` LANZA si el elemento es un
+       JsonNull (y geneVersion es null en 1629 de las 1921 skills), así que
+       aquí todo va con `as?` en vez de con accesores que revientan. */
+    private fun texto(elemento: JsonObject, clave: String): String? =
+        (elemento[clave] as? JsonPrimitive)?.contentOrNull
+
+    private fun expresionesDe(skill: JsonObject): List<String> {
         val salida = mutableListOf<String>()
-        skill["conditions"]?.jsonArray?.forEach { c ->
-            c.jsonObject["condition"]?.jsonPrimitive?.contentOrNull?.let { salida.add(it) }
-            c.jsonObject["precondition"]?.jsonPrimitive?.contentOrNull?.let { salida.add(it) }
+        (skill["conditions"] as? JsonArray)?.forEach { c ->
+            val grupo = c as? JsonObject ?: return@forEach
+            texto(grupo, "condition")?.let { salida.add(it) }
+            texto(grupo, "precondition")?.let { salida.add(it) }
         }
-        skill["geneVersion"]?.jsonObject?.get("condition_groups")?.jsonArray?.forEach { c ->
-            c.jsonObject["condition"]?.jsonPrimitive?.contentOrNull?.let { salida.add(it) }
+        val gene = skill["geneVersion"] as? JsonObject
+        (gene?.get("condition_groups") as? JsonArray)?.forEach { c ->
+            val grupo = c as? JsonObject ?: return@forEach
+            texto(grupo, "condition")?.let { salida.add(it) }
         }
         return salida
     }
 
     @Test
     fun todasLasCondicionesDelDatoSalenTraducidas() {
-        val raiz = Json.parseToJsonElement(asset().readText()).jsonArray
+        val raiz = Json.parseToJsonElement(asset().readText()) as? JsonArray
+            ?: error("el asset no es una lista de skills")
         val crudos = linkedMapOf<String, String>()
         var terminos = 0
         for (elemento in raiz) {
-            val skill = elemento.jsonObject
-            val nombre = skill["name"]?.jsonObject?.get("en")?.jsonPrimitive?.contentOrNull ?: "?"
+            val skill = elemento as? JsonObject ?: continue
+            val nombre = (skill["name"] as? JsonObject)?.let { texto(it, "en") } ?: "?"
             for (expresion in expresionesDe(skill)) {
                 for (termino in leerCondiciones(expresion)) {
                     terminos++
