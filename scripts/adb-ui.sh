@@ -290,7 +290,7 @@ display_list() {
 import re, sys
 rows = []
 for line in open(sys.argv[1], encoding='utf-8', errors='replace'):
-    m = re.match(r'\s*Display id (\d+): DisplayInfo\{(.*)\}\s*$', line.strip())
+    m = re.match(r'\s*Display id (\d+): DisplayInfo\{(.*)\}(?:,.*)?\s*$', line.strip())
     if not m:
         continue
     did, body = int(m.group(1)), m.group(2)
@@ -311,7 +311,11 @@ PYPARSE
 }
 
 display_overlay() {
-  local spec=${1:-1280x720/320} d
+  # OJO: "${1-default}" (sin dos puntos) a propósito. Con "${1:-default}" una
+  # cadena VACÍA —que es como "display clear" pide limpiar— se tomaba por
+  # "sin argumento" y creaba OTRA pantalla simulada, que en algunas ROM sale
+  # dibujada encima de la pantalla física.
+  local spec=${1-1280x720/320} d
   d=$(require_dev) || exit 1
   adb -s "$d" shell "settings put global overlay_display_devices '$spec'"
   if [ -z "$spec" ]; then say 'pantallas simuladas limpiadas'; else say "pantalla simulada pedida: $spec"; fi
