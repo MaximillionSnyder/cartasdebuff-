@@ -6,7 +6,7 @@ fun etiquetaIdioma(idioma: String): String = when (idioma) {
     "en" -> "EN"
     "ja" -> "日本語"
     "ko" -> "한국어"
-    "tw" -> "中文"
+    "tw", "zh_tw" -> "中文"
     else -> idioma.uppercase()
 }
 

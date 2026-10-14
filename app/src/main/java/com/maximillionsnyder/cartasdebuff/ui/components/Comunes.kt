@@ -52,42 +52,15 @@ import com.maximillionsnyder.cartasdebuff.domain.CartaPersonaje
 import com.maximillionsnyder.cartasdebuff.domain.IDIOMAS
 import com.maximillionsnyder.cartasdebuff.domain.Skill
 import com.maximillionsnyder.cartasdebuff.domain.etiquetaIdioma
+import com.maximillionsnyder.cartasdebuff.domain.etiquetaKind
+import com.maximillionsnyder.cartasdebuff.domain.etiquetaRareza
+import com.maximillionsnyder.cartasdebuff.domain.etiquetaTipoApoyo
 import java.text.Collator
 import java.util.Locale
 
-val ETIQUETAS_TIPO: Map<String, String> = mapOf(
-    "nac" to "Sin condición",
-    "run" to "Escapada",
-    "ldr" to "Líder",
-    "btw" to "Intermedia",
-    "cha" to "Perseguidora",
-    "sho" to "Corta",
-    "mil" to "Milla",
-    "med" to "Media",
-    "lng" to "Larga",
-    "dir" to "Arena",
-    "tur" to "Césped",
-    "l_0" to "Tramo inicial",
-    "l_1" to "Tramo medio",
-    "l_2" to "Tramo final",
-    "l_3" to "Último esprint",
-    "cor" to "Curva",
-    "str" to "Recta",
-    "f_c" to "Última curva",
-    "f_s" to "Última recta",
-    "slo" to "Subida/bajada",
-    "dbf" to "Debuff",
-)
-
-fun etiquetaTipo(tipo: String): String = ETIQUETAS_TIPO[tipo] ?: tipo
-
-fun etiquetaRareza(rarity: Int?): String = when (rarity) {
-    1 -> "Normal"
-    2 -> "Rara"
-    3, 5 -> "Única"
-    4, 6 -> "Evolución"
-    else -> "?"
-}
+/* Las etiquetas de texto (tipos, kinds, apoyos, obtención) viven en
+   domain/Etiquetas.kt: son texto puro y allí se prueban. Aquí solo queda el
+   color, que sí es de Compose. */
 
 fun colorRareza(rarity: Int?): Color = when (rarity) {
     1 -> Color(0xFF9CA3AF)
@@ -95,38 +68,6 @@ fun colorRareza(rarity: Int?): Color = when (rarity) {
     3, 5 -> Color(0xFFEC4899)
     4, 6 -> Color(0xFF8B5CF6)
     else -> Color(0xFF6B7280)
-}
-
-fun etiquetaKind(kind: String): String = when (kind) {
-    "unique" -> "Única"
-    "innate" -> "Innata"
-    "awakening" -> "Despertar"
-    "evolution" -> "Evolución"
-    else -> kind
-}
-
-fun etiquetaTipoApoyo(type: String?): String = when (type) {
-    "speed" -> "Velocidad"
-    "stamina" -> "Aguante"
-    "power" -> "Fuerza"
-    "guts" -> "Coraje"
-    "intelligence" -> "Ingenio"
-    "friend" -> "Amistad"
-    "group" -> "Grupo"
-    else -> type ?: "?"
-}
-
-val TIPOS_APOYO: List<String> =
-    listOf("speed", "stamina", "power", "guts", "intelligence", "friend", "group")
-
-fun etiquetaObtencion(obtained: String?): String = when (obtained) {
-    "gacha" -> "Gacha"
-    "main_story" -> "Historia principal"
-    "story_event" -> "Evento de historia"
-    "promo" -> "Promoción"
-    "limited_quest" -> "Misión limitada"
-    "shop" -> "Tienda"
-    else -> obtained ?: "?"
 }
 
 /* Fuentes de una skill con el color de cada tipo: los mismos colores que usan

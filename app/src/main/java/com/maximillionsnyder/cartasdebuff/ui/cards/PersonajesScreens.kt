@@ -45,7 +45,7 @@ import com.maximillionsnyder.cartasdebuff.ui.components.ListaConArriba
 import com.maximillionsnyder.cartasdebuff.ui.components.PanelFiltros
 import com.maximillionsnyder.cartasdebuff.ui.components.SeccionTitulo
 import com.maximillionsnyder.cartasdebuff.ui.components.SelectorIdioma
-import com.maximillionsnyder.cartasdebuff.ui.components.etiquetaObtencion
+import com.maximillionsnyder.cartasdebuff.domain.etiquetaObtencion
 
 @Composable
 fun PersonajesScreen(

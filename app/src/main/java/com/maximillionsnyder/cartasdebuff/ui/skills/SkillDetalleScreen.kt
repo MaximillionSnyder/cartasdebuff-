@@ -62,7 +62,7 @@ import com.maximillionsnyder.cartasdebuff.ui.components.FilaPersonaje
 import com.maximillionsnyder.cartasdebuff.ui.components.ImagenRemota
 import com.maximillionsnyder.cartasdebuff.ui.components.ListaConArriba
 import com.maximillionsnyder.cartasdebuff.ui.components.SeccionTitulo
-import com.maximillionsnyder.cartasdebuff.ui.components.etiquetaTipo
+import com.maximillionsnyder.cartasdebuff.domain.etiquetaTipo
 
 @Composable
 fun SkillDetalleScreen(

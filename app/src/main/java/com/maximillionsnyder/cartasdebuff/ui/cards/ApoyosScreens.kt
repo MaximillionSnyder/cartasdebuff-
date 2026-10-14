@@ -45,10 +45,10 @@ import com.maximillionsnyder.cartasdebuff.ui.components.ListaConArriba
 import com.maximillionsnyder.cartasdebuff.ui.components.PanelFiltros
 import com.maximillionsnyder.cartasdebuff.ui.components.SeccionTitulo
 import com.maximillionsnyder.cartasdebuff.ui.components.SelectorIdioma
-import com.maximillionsnyder.cartasdebuff.ui.components.TIPOS_APOYO
+import com.maximillionsnyder.cartasdebuff.domain.TIPOS_APOYO
 import com.maximillionsnyder.cartasdebuff.ui.components.coloresTipoApoyo
-import com.maximillionsnyder.cartasdebuff.ui.components.etiquetaObtencion
-import com.maximillionsnyder.cartasdebuff.ui.components.etiquetaTipoApoyo
+import com.maximillionsnyder.cartasdebuff.domain.etiquetaObtencion
+import com.maximillionsnyder.cartasdebuff.domain.etiquetaTipoApoyo
 
 private val CHIPS_ESTRELLAS = listOf(
     Triple(0, "Todas", ColoresTodas),
