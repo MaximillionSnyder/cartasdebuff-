@@ -48,6 +48,7 @@ class EtiquetasDatosTest {
 
     private fun mapaDe(obj: JsonObject, clave: String): Map<String, String?> =
         (obj[clave] as? JsonObject)?.mapValues { (_, v) -> (v as? JsonPrimitive)?.contentOrNull }
+            ?: emptyMap()
 
     private fun sinTraducir(codigos: List<Pair<String, String>>, traducir: (String) -> String): List<String> =
         codigos.filter { (_, codigo) -> traducir(codigo) == codigo }.map { (de, codigo) -> "$codigo ($de)" }
@@ -90,8 +91,8 @@ class EtiquetasDatosTest {
     fun lasCartasDeApoyoTraducenTipoYObtencion() {
         val cartas = objetos("support-cards.json")
         assertTrue("no se leyó ninguna carta de apoyo", cartas.size > 500)
-        val tipos = cartas.mapNotNull { c -> textoDe(c, "type")?.let { textoDe(c, "supportId") to it } }
-        val obtenciones = cartas.mapNotNull { c -> textoDe(c, "obtained")?.let { textoDe(c, "supportId") to it } }
+        val tipos = cartas.mapNotNull { c -> textoDe(c, "type")?.let { (textoDe(c, "supportId") ?: "?") to it } }
+        val obtenciones = cartas.mapNotNull { c -> textoDe(c, "obtained")?.let { (textoDe(c, "supportId") ?: "?") to it } }
         assertTrue(
             "tipos de apoyo sin traducir:\n" + sinTraducir(tipos, ::etiquetaTipoApoyo).joinToString("\n"),
             sinTraducir(tipos, ::etiquetaTipoApoyo).isEmpty(),
@@ -106,7 +107,7 @@ class EtiquetasDatosTest {
     fun lasCartasDePersonajeTraducenObtencion() {
         val cartas = objetos("character-cards.json")
         assertTrue("no se leyó ninguna carta de personaje", cartas.size > 200)
-        val obtenciones = cartas.mapNotNull { c -> textoDe(c, "obtained")?.let { textoDe(c, "cardId") to it } }
+        val obtenciones = cartas.mapNotNull { c -> textoDe(c, "obtained")?.let { (textoDe(c, "cardId") ?: "?") to it } }
         assertTrue(
             "obtenciones de personaje sin traducir:\n" + sinTraducir(obtenciones, ::etiquetaObtencion).joinToString("\n"),
             sinTraducir(obtenciones, ::etiquetaObtencion).isEmpty(),
