@@ -295,6 +295,16 @@ private fun FilaCondicion(titulo: String, expresion: String) {
             return@Column
         }
         for (termino in terminos) {
+            /* El "o" que separa dos alternativas de la condición no es un
+               término: va sin punto y en su propia línea. */
+            if (termino.separador) {
+                Text(
+                    termino.texto,
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+                continue
+            }
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(6.dp),

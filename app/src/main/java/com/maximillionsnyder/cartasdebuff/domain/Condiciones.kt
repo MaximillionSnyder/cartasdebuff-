@@ -5,7 +5,13 @@ package com.maximillionsnyder.cartasdebuff.domain
    hay quien las entienda, así que se parten en términos y se traducen las claves
    conocidas. Lo que no está en la tabla se deja tal cual y se marca como no
    traducido, para que la ficha pueda enseñar también la expresión original y no
-   se pierda información. */
+   se pierda información.
+
+   Ojo con los valores: son los del juego y no significan lo mismo de una clave a
+   otra. En `distance_type` el 2 es milla y el 3 media; en `weather` el 2 es
+   nublado y el 3 lluvia; y `motivation` va de 1 (fatal) a 5 (perfecta). Cada
+   tabla de abajo está contrastada con la descripción oficial de las skills que
+   usan ese valor, que es la única fuente fiable: el número por sí solo engaña. */
 
 /* Claves que son un número (posición, metros, porcentaje…): siempre se enseña el
    valor. El resto se leen como sí/no cuando el valor es 0 o 1. */
@@ -23,17 +29,7 @@ private val ETIQUETAS: Map<String, String> = mapOf(
     /* dónde y cuándo */
     "always" to "siempre",
     "phase" to "fase",
-    "phase_random" to "fase (cualquiera)",
-    "phase_firsthalf" to "primera mitad de la fase",
-    "phase_firsthalf_random" to "primera mitad de la fase (cualquiera)",
-    "phase_laterhalf" to "segunda mitad de la fase",
-    "phase_laterhalf_random" to "segunda mitad de la fase (cualquiera)",
-    "phase_firstquarter_random" to "primer cuarto de la fase (cualquiera)",
-    "phase_straight_random" to "en recta, en cualquier fase",
-    "phase_corner_random" to "en curva, en cualquier fase",
     "corner" to "en curva",
-    "corner_random" to "en curva (cualquiera)",
-    "all_corner_random" to "en cualquier curva",
     "straight_random" to "en recta (cualquiera)",
     "down_slope_random" to "en bajada (cualquiera)",
     "is_finalcorner" to "en la última curva",
@@ -43,6 +39,7 @@ private val ETIQUETAS: Map<String, String> = mapOf(
     "is_last_straight_onetime" to "en la recta final (una vez)",
     "is_lastspurt" to "en el último esprint",
     "lastspurt" to "último esprint",
+    "all_corner_random" to "en cualquier curva",
     /* qué pasa en la carrera */
     "order" to "posición",
     "order_rate" to "puesto relativo (%)",
@@ -96,16 +93,18 @@ private val ETIQUETAS: Map<String, String> = mapOf(
     "activate_count_all" to "skills activadas",
 )
 
-/* Valores con nombre: "phase==2" se lee "fase: final". */
+/* Valores con nombre. Se leen "etiqueta: valor" cuando el operador es ==. */
 private val VALORES: Map<String, Map<String, String>> = mapOf(
-    "phase" to mapOf("0" to "inicio", "1" to "media", "2" to "final"),
+    /* 0 apertura, 1 mitad, 2 recta final, 3 último esprint. */
+    "phase" to mapOf("0" to "inicial", "1" to "media", "2" to "final", "3" to "esprint final"),
     "running_style" to mapOf(
         "1" to "escapada",
         "2" to "líder",
         "3" to "intermedia",
         "4" to "perseguidora",
     ),
-    "distance_type" to mapOf("1" to "corta", "2" to "media", "3" to "larga", "4" to "arena"),
+    /* Ojo: 1 corta, 2 milla, 3 media y 4 larga. "Arena" no es una distancia. */
+    "distance_type" to mapOf("1" to "corta", "2" to "milla", "3" to "media", "4" to "larga"),
     "ground_type" to mapOf("1" to "césped", "2" to "tierra"),
     "ground_condition" to mapOf(
         "1" to "firme",
@@ -113,29 +112,78 @@ private val VALORES: Map<String, Map<String, String>> = mapOf(
         "3" to "blanda",
         "4" to "pesada",
     ),
-    "weather" to mapOf("1" to "sol", "2" to "lluvia", "3" to "nieve", "4" to "nublado"),
-    "season" to mapOf("1" to "primavera", "2" to "verano", "3" to "otoño", "4" to "invierno"),
-    "rotation" to mapOf("1" to "a la derecha", "2" to "a la izquierda"),
-    "motivation" to mapOf(
-        "1" to "mal humor",
-        "2" to "normal",
-        "3" to "buena",
-        "4" to "perfecta",
+    /* Ojo: 1 sol, 2 nublado, 3 lluvia y 4 nieve. */
+    "weather" to mapOf("1" to "sol", "2" to "nublado", "3" to "lluvia", "4" to "nieve"),
+    /* El 5 es la temporada de sakura, que para la skill cuenta como primavera. */
+    "season" to mapOf(
+        "1" to "primavera",
+        "2" to "verano",
+        "3" to "otoño",
+        "4" to "invierno",
+        "5" to "primavera (sakura)",
     ),
+    "rotation" to mapOf("1" to "a la derecha", "2" to "a la izquierda"),
+    /* Escala de cinco pasos, del 1 (fatal) al 5 (perfecta). */
+    "motivation" to mapOf(
+        "1" to "fatal",
+        "2" to "mala",
+        "3" to "normal",
+        "4" to "buena",
+        "5" to "perfecta",
+    ),
+)
+
+/* Claves de fase: el valor es el número de fase y su nombre entra en la frase.
+   Sin esto, "phase_random==1" se leía "fase (cualquiera)" —que es justo lo
+   contrario de lo que dice, porque la fase media sí importa— y
+   "phase_laterhalf_random==0" acababa en "no segunda mitad de la fase". */
+private val ETIQUETAS_FASE: Map<String, String> = mapOf(
+    "phase_random" to "en la fase %s (cualquiera)",
+    "phase_firsthalf" to "primera mitad de la fase %s",
+    "phase_firsthalf_random" to "primera mitad de la fase %s (cualquiera)",
+    "phase_laterhalf" to "segunda mitad de la fase %s",
+    "phase_laterhalf_random" to "segunda mitad de la fase %s (cualquiera)",
+    "phase_firstquarter_random" to "primer cuarto de la fase %s (cualquiera)",
+    "phase_straight_random" to "en recta de la fase %s (cualquiera)",
+    "phase_corner_random" to "en curva de la fase %s (cualquiera)",
+)
+
+private val FASES: Map<String, String> = mapOf(
+    "0" to "inicial",
+    "1" to "media",
+    "2" to "final",
+    "3" to "esprint final",
 )
 
 private val OPERADORES = listOf("==", "!=", ">=", "<=", ">", "<")
 
-/* Un término ya legible y si se pudo traducir o quedó en crudo. */
-data class TerminoCondicion(val texto: String, val traducido: Boolean)
+/* Un término ya legible, si se pudo traducir y si es sólo el separador "o" que
+   une dos alternativas (esos no llevan punto). */
+data class TerminoCondicion(
+    val texto: String,
+    val traducido: Boolean,
+    val separador: Boolean = false,
+)
 
 /* Parte la expresión en términos legibles. Devuelve la lista vacía si no hay
-   nada que enseñar. */
+   nada que enseñar.
+
+   La expresión puede traer alternativas separadas por "@": la skill se activa
+   si se cumple CUALQUIERA de ellas. Se enseñan seguidas, con un "o" en medio,
+   en vez de mezclarlas con los "&", que sí son todos obligatorios. */
 fun leerCondiciones(expresion: String?): List<TerminoCondicion> {
     if (expresion.isNullOrBlank()) return emptyList()
-    return expresion.split('&')
-        .mapNotNull { leerTermino(it.trim()) }
-        .filter { it.texto.isNotBlank() }
+    val alternativas = expresion.split('@')
+        .map { rama -> rama.split('&').mapNotNull { leerTermino(it.trim()) }.filter { it.texto.isNotBlank() } }
+        .filter { it.isNotEmpty() }
+    if (alternativas.isEmpty()) return emptyList()
+    if (alternativas.size == 1) return alternativas.first()
+    val salida = mutableListOf<TerminoCondicion>()
+    for ((indice, rama) in alternativas.withIndex()) {
+        if (indice > 0) salida.add(TerminoCondicion("o", true, separador = true))
+        salida.addAll(rama)
+    }
+    return salida
 }
 
 private fun leerTermino(termino: String): TerminoCondicion? {
@@ -144,7 +192,29 @@ private fun leerTermino(termino: String): TerminoCondicion? {
         ?: return TerminoCondicion(termino, false)
     val clave = termino.substringBefore(operador).trim()
     val valor = termino.substringAfter(operador).trim()
+
+    ETIQUETAS_FASE[clave]?.let { plantilla ->
+        val fase = FASES[valor] ?: return TerminoCondicion(termino, false)
+        if (operador != "==" && operador != "!=") return TerminoCondicion(termino, false)
+        val texto = plantilla.replace("%s", fase)
+        return TerminoCondicion(if (operador == "==") texto else "no $texto", true)
+    }
+
+    /* "corner_random==3" es una curva concreta, la tercera, no una cualquiera. */
+    if (clave == "corner_random") {
+        val numero = valor.toIntOrNull() ?: return TerminoCondicion(termino, false)
+        if (operador != "==") return TerminoCondicion(termino, false)
+        return TerminoCondicion("en la curva $numero (cualquiera)", true)
+    }
+
     val etiqueta = ETIQUETAS[clave] ?: return TerminoCondicion(termino, false)
+
+    /* `corner` es la excepción: 0 y 1 se leen como sí/no ("no en curva"), pero
+       un número mayor es la curva enésima ("en la curva 3", "no en la curva 3"). */
+    if (clave == "corner" && (operador == "==" || operador == "!=") && valor != "0" && valor != "1") {
+        val numero = valor.toIntOrNull() ?: return TerminoCondicion(termino, false)
+        return TerminoCondicion(if (operador == "==") "en la curva $numero" else "no en la curva $numero", true)
+    }
 
     val nombreValor = VALORES[clave]?.get(valor)
     val texto = when {
