@@ -1,9 +1,11 @@
 package com.maximillionsnyder.cartasdebuff
 
+import com.maximillionsnyder.cartasdebuff.domain.FILAS_ETIQUETAS
 import com.maximillionsnyder.cartasdebuff.domain.IDIOMAS
 import com.maximillionsnyder.cartasdebuff.domain.etiquetaIdioma
 import com.maximillionsnyder.cartasdebuff.domain.etiquetaKind
 import com.maximillionsnyder.cartasdebuff.domain.etiquetaObtencion
+import com.maximillionsnyder.cartasdebuff.domain.etiquetaRareza
 import com.maximillionsnyder.cartasdebuff.domain.etiquetaTipo
 import com.maximillionsnyder.cartasdebuff.domain.etiquetaTipoApoyo
 import com.maximillionsnyder.cartasdebuff.domain.texto
@@ -18,10 +20,10 @@ import org.junit.Test
 import java.io.File
 
 /* Guardián de las etiquetas de ficha (paso 2 del repaso de descripciones): los
-   códigos que trae GameTora tienen que salir traducidos, y ninguna carta puede
-   quedarse sin nombre en ninguno de los idiomas de la app. Si un "npm run
-   fetch" trae un código nuevo (o una carta sin nombre en los cuatro idiomas),
-   esto cae en CI en vez de que lo vea el usuario. */
+   códigos que trae GameTora tienen que salir traducidos en los CUATRO idiomas de
+   la app, y ninguna carta puede quedarse sin nombre en ninguno de ellos. Si un
+   "npm run fetch" trae un código nuevo (o una carta sin nombre en los cuatro
+   idiomas), esto cae en CI en vez de que lo vea el usuario. */
 class EtiquetasDatosTest {
 
     private fun asset(nombre: String): JsonElement {
@@ -50,8 +52,30 @@ class EtiquetasDatosTest {
         (obj[clave] as? JsonObject)?.mapValues { (_, v) -> (v as? JsonPrimitive)?.contentOrNull }
             ?: emptyMap()
 
-    private fun sinTraducir(codigos: List<Pair<String, String>>, traducir: (String) -> String): List<String> =
-        codigos.filter { (_, codigo) -> traducir(codigo) == codigo }.map { (de, codigo) -> "$codigo ($de)" }
+    /* Un código está sin traducir si la función devuelve el propio código (lo que
+       hace el motor cuando no encuentra la fila) o si se queda en inglés cuando
+       se pide otro idioma (señal de una tabla a la que le falta la columna). */
+    private fun sinTraducir(codigos: List<Pair<String, String>>, traducir: (String, String) -> String): List<String> =
+        codigos.flatMap { (de, codigo) ->
+            IDIOMAS.filter { idioma ->
+                val texto = traducir(codigo, idioma)
+                texto == codigo || (idioma != "en" && texto == traducir(codigo, "en"))
+            }.map { idioma -> "$codigo ($de, $idioma)" }
+        }.distinct()
+
+    /* Toda fila de las tablas tiene que estar en los cuatro idiomas: el motor cae
+       al inglés en silencio y eso dejaría media app sin traducir. */
+    @Test
+    fun todasLasEtiquetasEstanEnLosCuatroIdiomas() {
+        val faltan = FILAS_ETIQUETAS.flatMap { (nombre, textos) ->
+            IDIOMAS.filter { textos[it].isNullOrBlank() }.map { "$nombre ($it)" }
+        }
+        assertTrue(
+            "etiquetas sin fila en algún idioma:\n" + faltan.joinToString("\n"),
+            faltan.isEmpty(),
+        )
+        assertTrue("no se leyó ninguna etiqueta", FILAS_ETIQUETAS.size > 40)
+    }
 
     @Test
     fun losCodigosDeLasSkillsSalenTraducidos() {
@@ -112,6 +136,24 @@ class EtiquetasDatosTest {
             "obtenciones de personaje sin traducir:\n" + sinTraducir(obtenciones, ::etiquetaObtencion).joinToString("\n"),
             sinTraducir(obtenciones, ::etiquetaObtencion).isEmpty(),
         )
+    }
+
+    /* Las rarezas que usan los assets (1 a 6) tienen nombre en los cuatro
+       idiomas; el "?" solo vale para una rareza que no llegue. */
+    @Test
+    fun lasRarezasDelDatoTienenNombre() {
+        val rarezas = mutableSetOf<Int>()
+        for (fichero in listOf("skills.json", "character-cards.json", "support-cards.json")) {
+            for (objeto in objetos(fichero)) {
+                textoDe(objeto, "rarity")?.toIntOrNull()?.let { rarezas += it }
+            }
+        }
+        assertTrue("no se leyó ninguna rareza", rarezas.isNotEmpty())
+        val sinNombre = rarezas.flatMap { rareza ->
+            IDIOMAS.filter { idioma -> etiquetaRareza(rareza, idioma) == "?" }
+                .map { "rareza $rareza ($it)" }
+        }
+        assertTrue("rarezas sin nombre:\n" + sinNombre.joinToString("\n"), sinNombre.isEmpty())
     }
 
     /* El nombre se enseña con respaldo (pedido → EN → JA): ninguna carta de
