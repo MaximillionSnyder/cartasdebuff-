@@ -81,9 +81,17 @@ fun colorRareza(rarity: Int?): Color = when (rarity) {
 fun ResumenFuentes(skill: Skill, modifier: Modifier = Modifier) {
     val partes = buildList {
         val f = skill.sources
-        if (f.characterCards.isNotEmpty()) add(t(TX_UI, "fuente_personajes", f.characterCards.size) to ColoresPersonaje)
+        /* Los contadores de una sola fuente van en singular en inglés ("1 card",
+           "1 hint"); las otras tres lenguas no distinguen número. */
+        if (f.characterCards.isNotEmpty()) {
+            val n = f.characterCards.size
+            add(t(TX_UI, if (n == 1) "fuente_personaje_uno" else "fuente_personajes", n) to ColoresPersonaje)
+        }
         if (f.characterEvents.isNotEmpty()) add(t(TX_UI, "fuente_eventos_personaje", f.characterEvents.size) to ColoresEventoPersonaje)
-        if (f.supportHints.isNotEmpty()) add(t(TX_UI, "fuente_hints", f.supportHints.size) to ColoresHint)
+        if (f.supportHints.isNotEmpty()) {
+            val n = f.supportHints.size
+            add(t(TX_UI, if (n == 1) "fuente_hint_uno" else "fuente_hints", n) to ColoresHint)
+        }
         if (f.supportEvents.isNotEmpty()) add(t(TX_UI, "fuente_eventos_apoyo", f.supportEvents.size) to ColoresEventoApoyo)
         if (f.scenarioEvents.isNotEmpty()) add(t(TX_UI, "fuente_escenarios", f.scenarioEvents.size) to ColoresEscenario)
     }

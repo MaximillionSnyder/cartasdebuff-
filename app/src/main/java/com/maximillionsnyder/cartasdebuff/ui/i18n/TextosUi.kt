@@ -67,6 +67,14 @@ internal val ENTRADAS_TX_UI: List<Pair<String, Map<String, String>>> = listOf(
         "ko" to "%1\$s캐릭터",
         "tw" to "%1\$s角色",
     ),
+    /* Singular en inglés: "1 cards" se veía mal y el resto de lenguas no
+       distinguen número. (Hallazgo del orquestador en las capturas.) */
+    "fuente_personaje_uno" to mapOf(
+        "en" to "%1\$s card",
+        "ja" to "%1\$sキャラ",
+        "ko" to "%1\$s캐릭터",
+        "tw" to "%1\$s角色",
+    ),
     "fuente_eventos_personaje" to mapOf(
         "en" to "%1\$s char. ev.",
         "ja" to "%1\$sキャライベ",
@@ -75,6 +83,12 @@ internal val ENTRADAS_TX_UI: List<Pair<String, Map<String, String>>> = listOf(
     ),
     "fuente_hints" to mapOf(
         "en" to "%1\$s hints",
+        "ja" to "%1\$sヒント",
+        "ko" to "%1\$s 힌트",
+        "tw" to "%1\$s提示",
+    ),
+    "fuente_hint_uno" to mapOf(
+        "en" to "%1\$s hint",
         "ja" to "%1\$sヒント",
         "ko" to "%1\$s 힌트",
         "tw" to "%1\$s提示",
