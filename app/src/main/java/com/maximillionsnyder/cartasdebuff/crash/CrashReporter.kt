@@ -4,6 +4,8 @@ import android.content.Context
 import android.os.Build
 import android.util.Log
 import com.maximillionsnyder.cartasdebuff.BuildConfig
+import com.maximillionsnyder.cartasdebuff.data.Preferencias
+import com.maximillionsnyder.cartasdebuff.ui.i18n.textoUi
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -15,7 +17,9 @@ data class ReporteCrash(val nombre: String, val fecha: Long, val contenido: Stri
 }
 
 /* Guarda los crashes no capturados en filesDir/crashes y los expone para
-   verlos/compartirlos desde Ajustes. */
+   verlos/compartirlos desde Ajustes. La cabecera va en el idioma de la app
+   porque es lo que el usuario copia o comparte; el volcado de la excepción se
+   deja tal cual, que es lo que lee quien depura. */
 object CrashReporter {
 
     private const val DIRECTORIO = "crashes"
@@ -50,7 +54,8 @@ object CrashReporter {
     }
 
     fun reporteDePrueba(context: Context) {
-        val error = IllegalStateException("Reporte de prueba generado desde Ajustes")
+        val mensaje = textoUi("crash_prueba_mensaje", Preferencias(context).idioma)
+        val error = IllegalStateException(mensaje)
         guardar(context.applicationContext, Thread.currentThread(), error)
     }
 
@@ -58,20 +63,21 @@ object CrashReporter {
         val dir = File(context.filesDir, DIRECTORIO).apply { mkdirs() }
         val fecha = System.currentTimeMillis()
         val archivo = File(dir, "crash-$fecha.txt")
-        archivo.writeText(texto(hilo, error, fecha))
+        val idioma = Preferencias(context).idioma
+        archivo.writeText(texto(hilo, error, fecha, idioma))
         dir.listFiles()
             ?.sortedByDescending { it.name }
             ?.drop(MAXIMO)
             ?.forEach { it.delete() }
     }
 
-    private fun texto(hilo: Thread, error: Throwable, fecha: Long): String = buildString {
-        appendLine("Cartas Debuff — reporte de crash")
-        appendLine("Fecha: ${formato.format(Date(fecha))}")
-        appendLine("Versión: ${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})")
-        appendLine("Android: ${Build.VERSION.RELEASE} (SDK ${Build.VERSION.SDK_INT})")
-        appendLine("Dispositivo: ${Build.MANUFACTURER} ${Build.MODEL}")
-        appendLine("Hilo: ${hilo.name}")
+    private fun texto(hilo: Thread, error: Throwable, fecha: Long, idioma: String): String = buildString {
+        appendLine(textoUi("crash_cabecera", idioma))
+        appendLine(textoUi("crash_fecha", idioma, formato.format(Date(fecha))))
+        appendLine(textoUi("crash_version", idioma, "${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})"))
+        appendLine(textoUi("crash_android", idioma, Build.VERSION.RELEASE, Build.VERSION.SDK_INT))
+        appendLine(textoUi("crash_dispositivo", idioma, "${Build.MANUFACTURER} ${Build.MODEL}"))
+        appendLine(textoUi("crash_hilo", idioma, hilo.name))
         appendLine()
         appendLine(Log.getStackTraceString(error))
     }

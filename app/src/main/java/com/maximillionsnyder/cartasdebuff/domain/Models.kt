@@ -111,12 +111,27 @@ data class CartaApoyo(
     fun titulo(idioma: String): String = title.texto(idioma).orEmpty()
 }
 
+/* Los escenarios casi siempre traen nombre; si falta, el hueco se explica en el
+   idioma elegido (hallazgo del orquestador al revisar la integración: era el
+   único texto visible en español que quedaba fuera de las tablas). */
+private val TEXTOS_MODELO = Textos(
+    mapOf(
+        "escenario_sin_nombre" to mapOf(
+            "en" to "Unnamed scenario",
+            "ja" to "名称未設定のシナリオ",
+            "ko" to "이름 없는 시나리오",
+            "tw" to "未命名劇本",
+        ),
+    ),
+)
+
 data class Escenario(
     val id: Int,
     val name: Map<String, String?>,
     val urlName: String?,
 ) {
-    fun nombre(idioma: String): String = name.texto(idioma) ?: "Escenario sin nombre"
+    fun nombre(idioma: String): String =
+        name.texto(idioma) ?: TEXTOS_MODELO["escenario_sin_nombre", idioma]
 }
 
 class Modelo(

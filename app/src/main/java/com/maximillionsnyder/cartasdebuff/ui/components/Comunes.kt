@@ -54,13 +54,18 @@ import com.maximillionsnyder.cartasdebuff.domain.Skill
 import com.maximillionsnyder.cartasdebuff.domain.etiquetaIdioma
 import com.maximillionsnyder.cartasdebuff.domain.etiquetaKind
 import com.maximillionsnyder.cartasdebuff.domain.etiquetaRareza
+import com.maximillionsnyder.cartasdebuff.domain.etiquetaTipo
 import com.maximillionsnyder.cartasdebuff.domain.etiquetaTipoApoyo
+import com.maximillionsnyder.cartasdebuff.ui.i18n.LocalIdioma
+import com.maximillionsnyder.cartasdebuff.ui.i18n.TX_UI
+import com.maximillionsnyder.cartasdebuff.ui.i18n.t
 import java.text.Collator
 import java.util.Locale
 
 /* Las etiquetas de texto (tipos, kinds, apoyos, obtención) viven en
-   domain/Etiquetas.kt: son texto puro y allí se prueban. Aquí solo queda el
-   color, que sí es de Compose. */
+   domain/Etiquetas.kt: son texto puro y allí se prueban; se les pasa el idioma
+   de los datos. Aquí queda el color, que sí es de Compose, y los textos propios
+   de la interfaz, que salen de ui/i18n/TextosUi.kt. */
 
 fun colorRareza(rarity: Int?): Color = when (rarity) {
     1 -> Color(0xFF9CA3AF)
@@ -76,15 +81,23 @@ fun colorRareza(rarity: Int?): Color = when (rarity) {
 fun ResumenFuentes(skill: Skill, modifier: Modifier = Modifier) {
     val partes = buildList {
         val f = skill.sources
-        if (f.characterCards.isNotEmpty()) add("${f.characterCards.size} pers." to ColoresPersonaje)
-        if (f.characterEvents.isNotEmpty()) add("${f.characterEvents.size} ev. pers." to ColoresEventoPersonaje)
-        if (f.supportHints.isNotEmpty()) add("${f.supportHints.size} hints" to ColoresHint)
-        if (f.supportEvents.isNotEmpty()) add("${f.supportEvents.size} ev. apoyo" to ColoresEventoApoyo)
-        if (f.scenarioEvents.isNotEmpty()) add("${f.scenarioEvents.size} esc." to ColoresEscenario)
+        /* Los contadores de una sola fuente van en singular en inglés ("1 card",
+           "1 hint"); las otras tres lenguas no distinguen número. */
+        if (f.characterCards.isNotEmpty()) {
+            val n = f.characterCards.size
+            add(t(TX_UI, if (n == 1) "fuente_personaje_uno" else "fuente_personajes", n) to ColoresPersonaje)
+        }
+        if (f.characterEvents.isNotEmpty()) add(t(TX_UI, "fuente_eventos_personaje", f.characterEvents.size) to ColoresEventoPersonaje)
+        if (f.supportHints.isNotEmpty()) {
+            val n = f.supportHints.size
+            add(t(TX_UI, if (n == 1) "fuente_hint_uno" else "fuente_hints", n) to ColoresHint)
+        }
+        if (f.supportEvents.isNotEmpty()) add(t(TX_UI, "fuente_eventos_apoyo", f.supportEvents.size) to ColoresEventoApoyo)
+        if (f.scenarioEvents.isNotEmpty()) add(t(TX_UI, "fuente_escenarios", f.scenarioEvents.size) to ColoresEscenario)
     }
     if (partes.isEmpty()) {
         Text(
-            "Sin fuentes",
+            t(TX_UI, "sin_fuentes"),
             style = MaterialTheme.typography.labelSmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = modifier,
@@ -139,7 +152,7 @@ fun SelectorIdioma(idioma: String, onCambia: (String) -> Unit) {
             Text(etiquetaIdioma(idioma), style = MaterialTheme.typography.labelLarge)
             Icon(
                 painterResource(R.drawable.ic_desplegar),
-                contentDescription = "Cambiar idioma",
+                contentDescription = t(TX_UI, "cambiar_idioma"),
                 tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.size(18.dp),
             )
@@ -171,7 +184,7 @@ fun SelectorIdioma(idioma: String, onCambia: (String) -> Unit) {
 @Composable
 fun EtiquetaRareza(rarity: Int?) {
     Text(
-        text = etiquetaRareza(rarity),
+        text = etiquetaRareza(rarity, LocalIdioma.current),
         color = Color.White,
         style = MaterialTheme.typography.labelSmall,
         modifier = Modifier
@@ -243,8 +256,12 @@ fun EstadoVacio(texto: String, detalle: String? = null, icono: ImageVector? = nu
 
 /* Estado vacío de las listas cuando nada coincide con la búsqueda o los filtros. */
 @Composable
-fun EstadoVacioBusqueda(detalle: String = "Probá con otro nombre o quitá los filtros.") {
-    EstadoVacio("Sin resultados", detalle, Icons.Filled.Search)
+fun EstadoVacioBusqueda(detalle: String? = null) {
+    EstadoVacio(
+        t(TX_UI, "sin_resultados"),
+        detalle ?: t(TX_UI, "sin_resultados_detalle"),
+        Icons.Filled.Search,
+    )
 }
 
 /* Colador en español para ordenar por nombre: "Á" va con la A y la "ñ" después
@@ -280,7 +297,7 @@ fun BarraDetalle(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         IconButton(onClick = onVolver) {
-            Icon(painterResource(R.drawable.ic_atras), contentDescription = "Volver")
+            Icon(painterResource(R.drawable.ic_atras), contentDescription = t(TX_UI, "volver"))
         }
         Text(
             titulo,
@@ -312,7 +329,7 @@ fun EtiquetaTipoApoyo(type: String?) {
     val colores = coloresTipoApoyo(type)
     val forma = RoundedCornerShape(6.dp)
     Text(
-        text = etiquetaTipoApoyo(type),
+        text = etiquetaTipoApoyo(type, LocalIdioma.current),
         color = Color.White,
         style = MaterialTheme.typography.labelSmall,
         modifier = Modifier
@@ -448,18 +465,18 @@ fun FilaSkill(
                 if (favorito) {
                     Icon(
                         painterResource(R.drawable.ic_estrella),
-                        contentDescription = "Favorita",
+                        contentDescription = t(TX_UI, "favorita"),
                         tint = Color(0xFFD4A017),
                         modifier = Modifier.size(16.dp),
                     )
                 }
                 EtiquetaRareza(skill.rarity)
                 if ("dbf" in skill.types) {
-                    Etiqueta("debuff", ColoresDebuff.first(), Color.White)
+                    Etiqueta(etiquetaTipo("dbf", idioma), ColoresDebuff.first(), Color.White)
                 }
                 if ("en" in skill.unreleased) {
                     Etiqueta(
-                        "sin EN",
+                        t(TX_UI, "sin_en"),
                         MaterialTheme.colorScheme.surfaceVariant,
                         MaterialTheme.colorScheme.onSurfaceVariant,
                     )
@@ -505,14 +522,15 @@ fun FilaPersonaje(
                 }
                 if (!kinds.isNullOrEmpty()) {
                     Text(
-                        kinds.joinToString(" · ") { etiquetaKind(it) },
+                        kinds.joinToString(" · ") { etiquetaKind(it, idioma) },
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.primary,
                     )
                 }
-                if (numeroSkills != null) {
+                val cuantas = numeroSkills
+                if (cuantas != null) {
                     Text(
-                        if (numeroSkills == 1) "1 skill" else "$numeroSkills skills",
+                        if (cuantas == 1) t(TX_UI, "skills_uno") else t(TX_UI, "skills_varios", cuantas),
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
@@ -564,9 +582,10 @@ fun FilaApoyo(
                 ) {
                     EtiquetaTipoApoyo(carta.type)
                     if (!insignia.isNullOrBlank()) Etiqueta(insignia)
-                    if (numeroSkills != null) {
+                    val cuantas = numeroSkills
+                    if (cuantas != null) {
                         Text(
-                            if (numeroSkills == 1) "1 skill" else "$numeroSkills skills",
+                            if (cuantas == 1) t(TX_UI, "skills_uno") else t(TX_UI, "skills_varios", cuantas),
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )

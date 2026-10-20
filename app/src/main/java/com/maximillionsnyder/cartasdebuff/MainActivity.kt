@@ -21,6 +21,7 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
@@ -46,6 +47,9 @@ import com.maximillionsnyder.cartasdebuff.ui.cards.ApoyoDetalleScreen
 import com.maximillionsnyder.cartasdebuff.ui.cards.ApoyosScreen
 import com.maximillionsnyder.cartasdebuff.ui.cards.PersonajeDetalleScreen
 import com.maximillionsnyder.cartasdebuff.ui.cards.PersonajesScreen
+import com.maximillionsnyder.cartasdebuff.ui.i18n.LocalIdioma
+import com.maximillionsnyder.cartasdebuff.ui.i18n.TX_UI
+import com.maximillionsnyder.cartasdebuff.ui.i18n.t
 import com.maximillionsnyder.cartasdebuff.ui.settings.AjustesScreen
 import com.maximillionsnyder.cartasdebuff.ui.skills.SkillDetalleScreen
 import com.maximillionsnyder.cartasdebuff.ui.skills.SkillsScreen
@@ -69,78 +73,82 @@ class MainActivity : ComponentActivity() {
             var favoritos by remember { mutableStateOf(prefs.favoritos) }
 
             CartasDebuffTheme(tema) {
-                val modelo by vm.modelo.collectAsState()
-                val actual = modelo
-                if (actual == null) {
-                    /* Pantalla de carga: mientras se leen los JSON de assets. */
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .background(MaterialTheme.colorScheme.background),
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        Column(
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.spacedBy(16.dp),
-                            modifier = Modifier.padding(horizontal = 40.dp),
+                /* El idioma elegido vale para toda la app: los componentes que no
+                   lo reciben por parámetro lo leen de aquí. */
+                CompositionLocalProvider(LocalIdioma provides idioma) {
+                    val modelo by vm.modelo.collectAsState()
+                    val actual = modelo
+                    if (actual == null) {
+                        /* Pantalla de carga: mientras se leen los JSON de assets. */
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .background(MaterialTheme.colorScheme.background),
+                            contentAlignment = Alignment.Center,
                         ) {
-                            Icon(
-                                painterResource(R.drawable.ic_logo),
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.primary,
-                                modifier = Modifier.size(84.dp),
-                            )
-                            Text(
-                                stringResource(R.string.app_name),
-                                style = MaterialTheme.typography.headlineSmall,
-                            )
-                            CircularProgressIndicator()
-                            Text(
-                                "Leyendo las tablas de skills, cartas y escenarios…",
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                textAlign = TextAlign.Center,
-                            )
+                            Column(
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.spacedBy(16.dp),
+                                modifier = Modifier.padding(horizontal = 40.dp),
+                            ) {
+                                Icon(
+                                    painterResource(R.drawable.ic_logo),
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.primary,
+                                    modifier = Modifier.size(84.dp),
+                                )
+                                Text(
+                                    stringResource(R.string.app_name),
+                                    style = MaterialTheme.typography.headlineSmall,
+                                )
+                                CircularProgressIndicator()
+                                Text(
+                                    t(TX_UI, "cargando_datos"),
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    textAlign = TextAlign.Center,
+                                )
+                            }
                         }
+                    } else {
+                        App(
+                            modelo = actual,
+                            idioma = idioma,
+                            onIdioma = {
+                                idioma = it
+                                prefs.idioma = it
+                            },
+                            tema = tema,
+                            onTema = {
+                                tema = it
+                                prefs.tema = it
+                            },
+                            pantallaInicial = inicio,
+                            onPantallaInicial = {
+                                inicio = it
+                                prefs.pantallaInicial = it
+                            },
+                            vista = vista,
+                            onVista = {
+                                vista = it
+                                prefs.vista = it
+                            },
+                            favoritos = favoritos,
+                            onFavorito = { id ->
+                                val clave = id.toString()
+                                favoritos = if (clave in favoritos) favoritos - clave else favoritos + clave
+                                prefs.favoritos = favoritos
+                            },
+                            onRestablecerAjustes = {
+                                prefs.restablecer()
+                                tema = prefs.tema
+                                idioma = prefs.idioma
+                                inicio = prefs.pantallaInicial
+                                vista = prefs.vista
+                                favoritos = prefs.favoritos
+                            },
+                        )
                     }
-                } else {
-                    App(
-                        modelo = actual,
-                        idioma = idioma,
-                        onIdioma = {
-                            idioma = it
-                            prefs.idioma = it
-                        },
-                        tema = tema,
-                        onTema = {
-                            tema = it
-                            prefs.tema = it
-                        },
-                        pantallaInicial = inicio,
-                        onPantallaInicial = {
-                            inicio = it
-                            prefs.pantallaInicial = it
-                        },
-                        vista = vista,
-                        onVista = {
-                            vista = it
-                            prefs.vista = it
-                        },
-                        favoritos = favoritos,
-                        onFavorito = { id ->
-                            val clave = id.toString()
-                            favoritos = if (clave in favoritos) favoritos - clave else favoritos + clave
-                            prefs.favoritos = favoritos
-                        },
-                        onRestablecerAjustes = {
-                            prefs.restablecer()
-                            tema = prefs.tema
-                            idioma = prefs.idioma
-                            inicio = prefs.pantallaInicial
-                            vista = prefs.vista
-                            favoritos = prefs.favoritos
-                        },
-                    )
                 }
             }
         }
@@ -220,25 +228,25 @@ private fun App(
                         selected = actual == Pantalla.Skills,
                         onClick = { irATab(Pantalla.Skills) },
                         icon = { Icon(painterResource(R.drawable.ic_tab_skills), contentDescription = null) },
-                        label = { Text("Skills") },
+                        label = { Text(t(TX_UI, "tab_skills")) },
                     )
                     NavigationBarItem(
                         selected = actual == Pantalla.Personajes,
                         onClick = { irATab(Pantalla.Personajes) },
                         icon = { Icon(painterResource(R.drawable.ic_tab_personajes), contentDescription = null) },
-                        label = { Text("Personajes") },
+                        label = { Text(t(TX_UI, "tab_personajes")) },
                     )
                     NavigationBarItem(
                         selected = actual == Pantalla.Apoyos,
                         onClick = { irATab(Pantalla.Apoyos) },
                         icon = { Icon(painterResource(R.drawable.ic_tab_apoyos), contentDescription = null) },
-                        label = { Text("Apoyos") },
+                        label = { Text(t(TX_UI, "tab_apoyos")) },
                     )
                     NavigationBarItem(
                         selected = actual == Pantalla.Ajustes,
                         onClick = { irATab(Pantalla.Ajustes) },
                         icon = { Icon(painterResource(R.drawable.ic_tab_ajustes), contentDescription = null) },
-                        label = { Text("Ajustes") },
+                        label = { Text(t(TX_UI, "tab_ajustes")) },
                     )
                 }
             }

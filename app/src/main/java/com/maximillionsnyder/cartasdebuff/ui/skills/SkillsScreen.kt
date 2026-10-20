@@ -20,6 +20,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.maximillionsnyder.cartasdebuff.domain.Modelo
+import com.maximillionsnyder.cartasdebuff.domain.etiquetaRareza
 import com.maximillionsnyder.cartasdebuff.ui.components.COLADOR_ES
 import com.maximillionsnyder.cartasdebuff.ui.components.CampoBusqueda
 import com.maximillionsnyder.cartasdebuff.ui.components.ChipFiltro
@@ -47,13 +48,26 @@ import com.maximillionsnyder.cartasdebuff.ui.components.FilaSkill
 import com.maximillionsnyder.cartasdebuff.ui.components.ListaConArriba
 import com.maximillionsnyder.cartasdebuff.ui.components.PanelFiltros
 import com.maximillionsnyder.cartasdebuff.ui.components.SelectorIdioma
+import com.maximillionsnyder.cartasdebuff.ui.i18n.TX_PANTALLAS
+import com.maximillionsnyder.cartasdebuff.ui.i18n.t
 
+/* Fuentes de una skill: el id filtra y la clave de texto da la etiqueta. La
+   etiqueta no se guarda aquí porque depende del idioma elegido en la app. */
 private val FUENTES = listOf(
-    Triple("char", "Personaje", ColoresPersonaje),
-    Triple("char_e", "Evento personaje", ColoresEventoPersonaje),
-    Triple("sup_hint", "Hint apoyo", ColoresHint),
-    Triple("sup_e", "Evento apoyo", ColoresEventoApoyo),
-    Triple("sce_e", "Escenario", ColoresEscenario),
+    Triple("char", "fuente_personaje", ColoresPersonaje),
+    Triple("char_e", "fuente_evento_personaje", ColoresEventoPersonaje),
+    Triple("sup_hint", "fuente_hint_apoyo", ColoresHint),
+    Triple("sup_e", "fuente_evento_apoyo", ColoresEventoApoyo),
+    Triple("sce_e", "fuente_escenario", ColoresEscenario),
+)
+
+/* Rarezas de los chips: el id es el que guarda el filtro (no cambia) y el
+   número es el que entiende el dominio para dar la etiqueta traducida. */
+private val RAREZAS = listOf(
+    Triple("normal", 1, ColoresNormal),
+    Triple("rara", 2, ColoresRara),
+    Triple("unica", 3, ColoresUnica),
+    Triple("evolucion", 4, ColoresEvolucion),
 )
 
 @Composable
@@ -127,13 +141,17 @@ fun SkillsScreen(
             modifier = Modifier.fillMaxWidth().padding(start = 16.dp, end = 8.dp, top = 8.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Text("Skills", style = MaterialTheme.typography.headlineSmall, modifier = Modifier.weight(1f))
+            Text(
+                t(TX_PANTALLAS, "titulo_skills"),
+                style = MaterialTheme.typography.headlineSmall,
+                modifier = Modifier.weight(1f),
+            )
             SelectorIdioma(idioma, onIdioma)
         }
         CampoBusqueda(
             valor = busqueda,
             onValor = { busqueda = it },
-            placeholder = "Buscar por nombre",
+            placeholder = t(TX_PANTALLAS, "buscar_por_nombre"),
             modifier = Modifier.padding(horizontal = 16.dp),
         )
         PanelFiltros(
@@ -150,50 +168,50 @@ fun SkillsScreen(
             },
         ) {
             FilaChips {
-                listOf(
-                    Triple("todas", "Todas", ColoresTodas),
-                    Triple("normal", "Normal", ColoresNormal),
-                    Triple("rara", "Rara", ColoresRara),
-                    Triple("unica", "Única", ColoresUnica),
-                    Triple("evolucion", "Evolución", ColoresEvolucion),
-                ).forEach { (id, etiqueta, colores) ->
+                ChipFiltro(
+                    texto = t(TX_PANTALLAS, "todas"),
+                    seleccionado = rarezaFiltro == "todas",
+                    colores = ColoresTodas,
+                    onClick = { rarezaFiltro = "todas" },
+                )
+                for ((id, rareza, colores) in RAREZAS) {
                     ChipFiltro(
-                        texto = etiqueta,
+                        texto = etiquetaRareza(rareza, idioma),
                         seleccionado = rarezaFiltro == id,
                         colores = colores,
                         onClick = { rarezaFiltro = if (rarezaFiltro == id) "todas" else id },
                     )
                 }
                 ChipFiltro(
-                    texto = "Debuff",
+                    texto = t(TX_PANTALLAS, "chip_debuff"),
                     seleccionado = soloDebuff,
                     colores = ColoresDebuff,
                     onClick = { soloDebuff = !soloDebuff },
                 )
                 ChipFiltro(
-                    texto = "Velocidad",
+                    texto = t(TX_PANTALLAS, "chip_velocidad"),
                     seleccionado = soloVelocidad,
                     colores = ColoresVelocidad,
                     onClick = { soloVelocidad = !soloVelocidad },
                 )
                 ChipFiltro(
-                    texto = "Aceleración",
+                    texto = t(TX_PANTALLAS, "chip_aceleracion"),
                     seleccionado = soloAceleracion,
                     colores = ColoresAceleracion,
                     onClick = { soloAceleracion = !soloAceleracion },
                 )
             }
             FilaChips {
-                for ((id, etiqueta, colores) in FUENTES) {
+                for ((id, clave, colores) in FUENTES) {
                     ChipFiltro(
-                        texto = etiqueta,
+                        texto = t(TX_PANTALLAS, clave),
                         seleccionado = id in fuentes,
                         colores = colores,
                         onClick = { fuentes = if (id in fuentes) fuentes - id else fuentes + id },
                     )
                 }
                 ChipFiltro(
-                    texto = "Ocultar sin EN",
+                    texto = t(TX_PANTALLAS, "chip_ocultar_sin_en"),
                     seleccionado = ocultarSinEn,
                     colores = ColoresOcultar,
                     onClick = { ocultarSinEn = !ocultarSinEn },
@@ -201,27 +219,29 @@ fun SkillsScreen(
             }
             FilaChips {
                 ChipFiltro(
-                    texto = "Favoritas",
+                    texto = t(TX_PANTALLAS, "chip_favoritas"),
                     seleccionado = soloFavoritos,
                     colores = ColoresFavorito,
                     onClick = { soloFavoritos = !soloFavoritos },
                 )
                 ChipFiltro(
-                    texto = "Orden A-Z",
+                    texto = t(TX_PANTALLAS, "chip_orden_az"),
                     seleccionado = alfabetico,
                     colores = ColoresOrden,
                     onClick = { alfabetico = !alfabetico },
                 )
             }
         }
-        ContadorResultados("${ordenadas.size} de ${modelo.skills.size} skills")
+        ContadorResultados(
+            t(TX_PANTALLAS, "contador_skills", "${ordenadas.size} / ${modelo.skills.size}"),
+        )
         if (ordenadas.isEmpty()) {
             /* Si el filtro que deja la lista vacía es el de favoritas, el mensaje
                genérico no ayuda: hay que explicar cómo marcar una. */
             if (soloFavoritos && favoritos.isEmpty()) {
                 EstadoVacio(
-                    "Todavía no hay favoritas",
-                    "Abrí una skill y tocá la estrella de arriba para guardarla acá.",
+                    t(TX_PANTALLAS, "sin_favoritas_titulo"),
+                    t(TX_PANTALLAS, "sin_favoritas_detalle"),
                     Icons.Filled.Star,
                 )
             } else {

@@ -45,7 +45,18 @@ import com.maximillionsnyder.cartasdebuff.ui.components.ListaConArriba
 import com.maximillionsnyder.cartasdebuff.ui.components.PanelFiltros
 import com.maximillionsnyder.cartasdebuff.ui.components.SeccionTitulo
 import com.maximillionsnyder.cartasdebuff.ui.components.SelectorIdioma
+import com.maximillionsnyder.cartasdebuff.domain.etiquetaKind
 import com.maximillionsnyder.cartasdebuff.domain.etiquetaObtencion
+import com.maximillionsnyder.cartasdebuff.ui.i18n.TX_PANTALLAS
+import com.maximillionsnyder.cartasdebuff.ui.i18n.t
+
+/* Chips de estrellas de la lista de personajes: el número filtra y la etiqueta
+   de estrellas no cambia con el idioma. */
+private val CHIPS_ESTRELLAS = listOf(
+    Triple(3, "3★", ColoresEstrella3),
+    Triple(2, "2★", ColoresEstrella2),
+    Triple(1, "1★", ColoresEstrella1),
+)
 
 @Composable
 fun PersonajesScreen(
@@ -80,13 +91,17 @@ fun PersonajesScreen(
             modifier = Modifier.fillMaxWidth().padding(start = 16.dp, end = 8.dp, top = 8.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Text("Cartas de personaje", style = MaterialTheme.typography.headlineSmall, modifier = Modifier.weight(1f))
+            Text(
+                t(TX_PANTALLAS, "titulo_personajes"),
+                style = MaterialTheme.typography.headlineSmall,
+                modifier = Modifier.weight(1f),
+            )
             SelectorIdioma(idioma, onIdioma)
         }
         CampoBusqueda(
             valor = busqueda,
             onValor = { busqueda = it },
-            placeholder = "Buscar por nombre o título",
+            placeholder = t(TX_PANTALLAS, "buscar_por_nombre_o_titulo"),
             modifier = Modifier.padding(horizontal = 16.dp),
         )
         PanelFiltros(
@@ -96,12 +111,13 @@ fun PersonajesScreen(
             onLimpiar = { estrellas = 0 },
         ) {
             FilaChips {
-                listOf(
-                    Triple(0, "Todas", ColoresTodas),
-                    Triple(3, "3★", ColoresEstrella3),
-                    Triple(2, "2★", ColoresEstrella2),
-                    Triple(1, "1★", ColoresEstrella1),
-                ).forEach { (valor, etiqueta, colores) ->
+                ChipFiltro(
+                    texto = t(TX_PANTALLAS, "todas"),
+                    seleccionado = estrellas == 0,
+                    colores = ColoresTodas,
+                    onClick = { estrellas = 0 },
+                )
+                for ((valor, etiqueta, colores) in CHIPS_ESTRELLAS) {
                     ChipFiltro(
                         texto = etiqueta,
                         seleccionado = estrellas == valor,
@@ -112,14 +128,16 @@ fun PersonajesScreen(
             }
             FilaChips {
                 ChipFiltro(
-                    texto = "Orden A-Z",
+                    texto = t(TX_PANTALLAS, "chip_orden_az"),
                     seleccionado = alfabetico,
                     colores = ColoresOrden,
                     onClick = { alfabetico = !alfabetico },
                 )
             }
         }
-        ContadorResultados("${ordenadas.size} de ${modelo.cartasPersonaje.size} cartas")
+        ContadorResultados(
+            t(TX_PANTALLAS, "contador_cartas", "${ordenadas.size} / ${modelo.cartasPersonaje.size}"),
+        )
         if (ordenadas.isEmpty()) {
             EstadoVacioBusqueda()
         } else {
@@ -152,8 +170,8 @@ fun PersonajeDetalleScreen(
     val carta = modelo.cartaPersonaje(cardId)
     if (carta == null) {
         Column(Modifier.fillMaxSize()) {
-            BarraDetalle("Carta de personaje", onVolver)
-            EstadoVacio("No se encontró la carta")
+            BarraDetalle(t(TX_PANTALLAS, "titulo_carta_personaje"), onVolver)
+            EstadoVacio(t(TX_PANTALLAS, "carta_no_encontrada"))
         }
         return
     }
@@ -168,18 +186,15 @@ fun PersonajeDetalleScreen(
             contentPadding = PaddingValues(start = 16.dp, end = 16.dp, bottom = 24.dp),
         ) {
             item { EncabezadoCartaPersonaje(carta, idioma, skills.size) }
-            val grupos = listOf(
-                "unique" to "Única",
-                "innate" to "Innata",
-                "awakening" to "Despertar",
-                "evolution" to "Evolución",
-            )
-            for ((kind, etiqueta) in grupos) {
+            val grupos = listOf("unique", "innate", "awakening", "evolution")
+            for (kind in grupos) {
                 val delGrupo = skills.filter { skill ->
                     skill.sources.characterCards.any { it.cardId == cardId && kind in it.kinds }
                 }
                 if (delGrupo.isNotEmpty()) {
-                    item(key = "titulo-$kind") { SeccionTitulo(etiqueta, delGrupo.size) }
+                    item(key = "titulo-$kind") {
+                        SeccionTitulo(etiquetaKind(kind, idioma), delGrupo.size)
+                    }
                     items(delGrupo, key = { "$kind-${it.id}" }) { skill ->
                         FilaSkill(skill, idioma) { onAbrirSkill(skill.id) }
                     }
@@ -187,13 +202,15 @@ fun PersonajeDetalleScreen(
             }
             val eventos = skills.filter { cardId in it.sources.characterEvents }
             if (eventos.isNotEmpty()) {
-                item(key = "titulo-evento") { SeccionTitulo("Evento de personaje", eventos.size) }
+                item(key = "titulo-evento") {
+                    SeccionTitulo(t(TX_PANTALLAS, "seccion_eventos_personaje"), eventos.size)
+                }
                 items(eventos, key = { "evento-${it.id}" }) { skill ->
                     FilaSkill(skill, idioma) { onAbrirSkill(skill.id) }
                 }
             }
             if (skills.isEmpty()) {
-                item { EstadoVacio("Sin skills registradas para esta carta") }
+                item { EstadoVacio(t(TX_PANTALLAS, "sin_skills_carta")) }
             }
         }
     }
@@ -221,13 +238,17 @@ private fun EncabezadoCartaPersonaje(carta: CartaPersonaje, idioma: String, nume
                 ) {
                     Estrellas(carta.rarity)
                     Text(
-                        if (numeroSkills == 1) "1 skill" else "$numeroSkills skills",
+                        if (numeroSkills == 1) {
+                            t(TX_PANTALLAS, "una_skill")
+                        } else {
+                            t(TX_PANTALLAS, "n_skills", numeroSkills.toString())
+                        },
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
                 Text(
-                    etiquetaObtencion(carta.obtained),
+                    etiquetaObtencion(carta.obtained, idioma),
                     style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
