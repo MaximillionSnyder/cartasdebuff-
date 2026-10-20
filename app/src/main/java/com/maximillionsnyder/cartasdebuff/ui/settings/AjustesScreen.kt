@@ -81,6 +81,9 @@ import com.maximillionsnyder.cartasdebuff.ui.components.TarjetaApp
 import com.maximillionsnyder.cartasdebuff.ui.components.imagenesEnCache
 import com.maximillionsnyder.cartasdebuff.ui.components.imagenesEnDisco
 import com.maximillionsnyder.cartasdebuff.ui.components.limpiarCacheImagenes
+import com.maximillionsnyder.cartasdebuff.ui.i18n.TX_UI
+import com.maximillionsnyder.cartasdebuff.ui.i18n.t
+import com.maximillionsnyder.cartasdebuff.ui.i18n.textoUi
 
 private const val URL_RELEASES = "https://github.com/MaximillionSnyder/cartasdebuff-/releases/latest"
 private const val URL_GAMETORA = "https://gametora.com/umamusume"
@@ -102,12 +105,12 @@ fun AjustesScreen(
 
     Column(Modifier.fillMaxSize()) {
         Text(
-            "Ajustes",
+            t(TX_UI, "tab_ajustes"),
             style = MaterialTheme.typography.headlineSmall,
             modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 8.dp),
         )
         Text(
-            "Personalizá la app y revisá los datos cargados.",
+            t(TX_UI, "ajustes_subtitulo"),
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 2.dp),
@@ -116,12 +119,12 @@ fun AjustesScreen(
             Tab(
                 selected = pestana == 0,
                 onClick = { pestana = 0 },
-                text = { Text("Preferencias") },
+                text = { Text(t(TX_UI, "ajustes_pestana_preferencias")) },
             )
             Tab(
                 selected = pestana == 1,
                 onClick = { pestana = 1 },
-                text = { Text("Reportes") },
+                text = { Text(t(TX_UI, "ajustes_pestana_reportes")) },
             )
         }
         when (pestana) {
@@ -137,7 +140,7 @@ fun AjustesScreen(
                 onVista = onVista,
                 onRestablecer = onRestablecer,
             )
-            else -> PestanaReportes()
+            else -> PestanaReportes(idioma)
         }
     }
 }
@@ -167,31 +170,31 @@ private fun PestanaPreferencias(
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        TarjetaSeccion("Apariencia", Icons.Filled.Settings) {
+        TarjetaSeccion(t(TX_UI, "ajustes_apariencia"), Icons.Filled.Settings) {
             FilaSegmentada(
-                titulo = "Tema",
+                titulo = t(TX_UI, "ajustes_tema"),
                 opciones = TEMAS,
                 valor = tema,
-                etiqueta = ::etiquetaTema,
+                etiqueta = { etiquetaTema(it, idioma) },
                 onValor = onTema,
             )
             HorizontalDivider(Modifier.padding(horizontal = 16.dp))
             FilaSegmentada(
-                titulo = "Listas",
+                titulo = t(TX_UI, "ajustes_listas"),
                 opciones = VISTAS,
                 valor = vista,
-                etiqueta = ::etiquetaVista,
+                etiqueta = { etiquetaVista(it, idioma) },
                 onValor = onVista,
             )
             Text(
-                "Compacta muestra más filas por pantalla, con el icono más chico.",
+                t(TX_UI, "ajustes_listas_desc"),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 12.dp),
             )
             HorizontalDivider(Modifier.padding(horizontal = 16.dp))
             FilaDesplegable(
-                titulo = "Idioma de los datos",
+                titulo = t(TX_UI, "ajustes_idioma_datos"),
                 valor = idioma,
                 opciones = IDIOMAS,
                 etiqueta = ::etiquetaIdioma,
@@ -199,37 +202,37 @@ private fun PestanaPreferencias(
             )
         }
 
-        TarjetaSeccion("Inicio", Icons.Filled.Home) {
+        TarjetaSeccion(t(TX_UI, "ajustes_inicio"), Icons.Filled.Home) {
             FilaDesplegable(
-                titulo = "Pantalla inicial",
+                titulo = t(TX_UI, "ajustes_pantalla_inicial"),
                 valor = pantallaInicial,
                 opciones = PANTALLAS_INICIO,
-                etiqueta = ::etiquetaPantallaInicio,
+                etiqueta = { etiquetaPantallaInicio(it, idioma) },
                 onValor = onPantallaInicial,
             )
             Text(
-                "Se aplica la próxima vez que abras la app.",
+                t(TX_UI, "ajustes_pantalla_inicial_desc"),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 12.dp),
             )
         }
 
-        TarjetaSeccion("Datos", Icons.Filled.Star) {
-            FilaDato("Skills", modelo.skills.size.toString())
-            FilaDato("Cartas de personaje", modelo.cartasPersonaje.size.toString())
-            FilaDato("Cartas de apoyo", modelo.cartasApoyo.size.toString())
-            FilaDato("Escenarios", modelo.escenarios.size.toString())
+        TarjetaSeccion(t(TX_UI, "ajustes_datos"), Icons.Filled.Star) {
+            FilaDato(t(TX_UI, "tab_skills"), modelo.skills.size.toString())
+            FilaDato(t(TX_UI, "datos_cartas_personaje"), modelo.cartasPersonaje.size.toString())
+            FilaDato(t(TX_UI, "datos_cartas_apoyo"), modelo.cartasApoyo.size.toString())
+            FilaDato(t(TX_UI, "datos_escenarios"), modelo.escenarios.size.toString())
             HorizontalDivider(Modifier.padding(horizontal = 16.dp))
             FilaAccion(
-                titulo = "Fuente de datos",
-                subtitulo = "Tablas datamined de GameTora",
+                titulo = t(TX_UI, "ajustes_fuente_datos"),
+                subtitulo = t(TX_UI, "ajustes_fuente_datos_desc"),
                 icono = Icons.Filled.Search,
-            ) { abrirEnlace(context, URL_GAMETORA) }
+            ) { abrirEnlace(context, URL_GAMETORA, idioma) }
             HorizontalDivider(Modifier.padding(horizontal = 16.dp))
             FilaAccion(
-                titulo = "Caché de imágenes",
-                subtitulo = "$cache en memoria · $enDisco en disco",
+                titulo = t(TX_UI, "ajustes_cache"),
+                subtitulo = t(TX_UI, "ajustes_cache_desc", cache, enDisco),
                 icono = Icons.Filled.Delete,
             ) {
                 val borradas = limpiarCacheImagenes(context)
@@ -237,26 +240,30 @@ private fun PestanaPreferencias(
                 enDisco = imagenesEnDisco(context)
                 Toast.makeText(
                     context,
-                    if (borradas == 1) "1 imagen borrada" else "$borradas imágenes borradas",
+                    if (borradas == 1) {
+                        textoUi("cache_borrada_una", idioma)
+                    } else {
+                        textoUi("cache_borradas_varias", idioma, borradas)
+                    },
                     Toast.LENGTH_SHORT,
                 ).show()
             }
         }
 
-        TarjetaSeccion("Acerca de", Icons.Filled.Info) {
-            FilaDato("Versión", "${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})")
+        TarjetaSeccion(t(TX_UI, "ajustes_acerca"), Icons.Filled.Info) {
+            FilaDato(t(TX_UI, "ajustes_version"), "${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})")
             HorizontalDivider(Modifier.padding(horizontal = 16.dp))
             FilaAccion(
-                titulo = "Compartir app",
-                subtitulo = "Enviar el enlace de descarga",
+                titulo = t(TX_UI, "ajustes_compartir_app"),
+                subtitulo = t(TX_UI, "ajustes_compartir_app_desc"),
                 icono = Icons.Filled.Share,
-            ) { compartirApp(context) }
+            ) { compartirApp(context, idioma) }
             HorizontalDivider(Modifier.padding(horizontal = 16.dp))
             FilaAccion(
-                titulo = "Buscar actualizaciones",
-                subtitulo = "Última versión publicada en GitHub",
+                titulo = t(TX_UI, "ajustes_buscar_actualizaciones"),
+                subtitulo = t(TX_UI, "ajustes_buscar_actualizaciones_desc"),
                 icono = Icons.Filled.Refresh,
-            ) { abrirEnlace(context, URL_RELEASES) }
+            ) { abrirEnlace(context, URL_RELEASES, idioma) }
         }
 
         OutlinedButton(
@@ -265,10 +272,10 @@ private fun PestanaPreferencias(
             shape = RoundedCornerShape(16.dp),
             colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.error),
         ) {
-            Text("Restablecer ajustes")
+            Text(t(TX_UI, "ajustes_restablecer"))
         }
         Text(
-            "Vuelve al tema del sistema, los datos en inglés, las listas cómodas y la pantalla inicial Skills.",
+            t(TX_UI, "ajustes_restablecer_desc"),
             style = MaterialTheme.typography.labelSmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.padding(horizontal = 4.dp),
@@ -278,26 +285,26 @@ private fun PestanaPreferencias(
     if (confirmarRestablecer) {
         AlertDialog(
             onDismissRequest = { confirmarRestablecer = false },
-            title = { Text("¿Restablecer ajustes?") },
-            text = { Text("Se borrarán tus preferencias de tema, idioma, listas y pantalla inicial.") },
+            title = { Text(t(TX_UI, "ajustes_restablecer_pregunta")) },
+            text = { Text(t(TX_UI, "ajustes_restablecer_detalle")) },
             confirmButton = {
                 TextButton(
                     onClick = {
                         onRestablecer()
                         confirmarRestablecer = false
-                        Toast.makeText(context, "Ajustes restablecidos", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, textoUi("ajustes_restablecidos", idioma), Toast.LENGTH_SHORT).show()
                     },
-                ) { Text("Restablecer") }
+                ) { Text(t(TX_UI, "ajustes_restablecer_confirmar")) }
             },
             dismissButton = {
-                TextButton(onClick = { confirmarRestablecer = false }) { Text("Cancelar") }
+                TextButton(onClick = { confirmarRestablecer = false }) { Text(t(TX_UI, "cancelar")) }
             },
         )
     }
 }
 
 @Composable
-private fun PestanaReportes() {
+private fun PestanaReportes(idioma: String) {
     val context = LocalContext.current
     var reportes by remember { mutableStateOf(CrashReporter.listar(context)) }
     var abierto by remember { mutableStateOf<ReporteCrash?>(null) }
@@ -308,40 +315,40 @@ private fun PestanaReportes() {
 
     Column(Modifier.fillMaxSize().padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
-            OutlinedButton(onClick = { refrescar() }) { Text("Actualizar") }
+            OutlinedButton(onClick = { refrescar() }) { Text(t(TX_UI, "reportes_actualizar")) }
             OutlinedButton(
                 onClick = {
                     CrashReporter.reporteDePrueba(context)
                     refrescar()
                 },
-            ) { Text("Reporte de prueba") }
+            ) { Text(t(TX_UI, "reportes_prueba")) }
             if (reportes.isNotEmpty()) {
                 TextButton(
                     onClick = {
                         CrashReporter.borrarTodo(context)
                         refrescar()
                     },
-                ) { Text("Borrar todos") }
+                ) { Text(t(TX_UI, "reportes_borrar_todos")) }
             }
         }
         Text(
-            "${reportes.size} reporte(s) guardado(s)",
+            t(TX_UI, "reportes_contador", reportes.size),
             style = MaterialTheme.typography.labelMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
         if (reportes.isEmpty()) {
-            EstadoVacio("No hay crashes registrados. Si la app se cierra sola, el detalle aparecerá acá.")
+            EstadoVacio(t(TX_UI, "reportes_vacio"))
         } else {
             LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 items(reportes, key = { it.nombre }) { reporte ->
-                    TarjetaReporte(reporte) { abierto = reporte }
+                    TarjetaReporte(reporte, idioma) { abierto = reporte }
                 }
             }
         }
     }
 
     abierto?.let { reporte ->
-        DialogoReporte(reporte, onCerrar = { abierto = null })
+        DialogoReporte(reporte, idioma, onCerrar = { abierto = null })
     }
 }
 
@@ -501,11 +508,11 @@ private fun FilaDesplegable(
 }
 
 @Composable
-private fun TarjetaReporte(reporte: ReporteCrash, onAbrir: () -> Unit) {
+private fun TarjetaReporte(reporte: ReporteCrash, idioma: String, onAbrir: () -> Unit) {
     val resumen = reporte.contenido
         .lineSequence()
         .firstOrNull { it.contains("Exception") || it.contains("Error") }
-        ?: "Sin detalle"
+        ?: textoUi("reportes_sin_detalle", idioma)
 
     TarjetaApp(onClick = onAbrir, modifier = Modifier.fillMaxWidth()) {
         Row(
@@ -530,7 +537,7 @@ private fun TarjetaReporte(reporte: ReporteCrash, onAbrir: () -> Unit) {
                     color = MaterialTheme.colorScheme.error,
                 )
                 Text(
-                    "Tocar para ver el detalle completo",
+                    t(TX_UI, "reportes_tocar_detalle"),
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -540,11 +547,11 @@ private fun TarjetaReporte(reporte: ReporteCrash, onAbrir: () -> Unit) {
 }
 
 @Composable
-private fun DialogoReporte(reporte: ReporteCrash, onCerrar: () -> Unit) {
+private fun DialogoReporte(reporte: ReporteCrash, idioma: String, onCerrar: () -> Unit) {
     val context = LocalContext.current
     AlertDialog(
         onDismissRequest = onCerrar,
-        title = { Text("Crash ${reporte.titulo}") },
+        title = { Text(t(TX_UI, "reportes_dialogo_titulo", reporte.titulo)) },
         text = {
             Box(
                 Modifier
@@ -561,42 +568,49 @@ private fun DialogoReporte(reporte: ReporteCrash, onCerrar: () -> Unit) {
             }
         },
         confirmButton = {
-            TextButton(onClick = { compartir(context, reporte.contenido) }) { Text("Compartir") }
+            TextButton(onClick = { compartir(context, reporte.contenido, idioma) }) {
+                Text(t(TX_UI, "compartir"))
+            }
         },
         dismissButton = {
             Row {
                 TextButton(
                     onClick = {
                         val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-                        clipboard.setPrimaryClip(ClipData.newPlainText("Reporte de crash", reporte.contenido))
+                        val etiqueta = textoUi("reportes_portapapeles", idioma)
+                        clipboard.setPrimaryClip(ClipData.newPlainText(etiqueta, reporte.contenido))
                     },
-                ) { Text("Copiar") }
-                TextButton(onClick = onCerrar) { Text("Cerrar") }
+                ) { Text(t(TX_UI, "copiar")) }
+                TextButton(onClick = onCerrar) { Text(t(TX_UI, "cerrar")) }
             }
         },
     )
 }
 
-private fun abrirEnlace(context: Context, url: String) {
+private fun abrirEnlace(context: Context, url: String, idioma: String) {
     val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
     runCatching { context.startActivity(intent) }
-        .onFailure { Toast.makeText(context, "No se pudo abrir el enlace", Toast.LENGTH_SHORT).show() }
+        .onFailure {
+            Toast.makeText(context, textoUi("enlace_no_abierto", idioma), Toast.LENGTH_SHORT).show()
+        }
 }
 
-private fun compartirApp(context: Context) {
+private fun compartirApp(context: Context, idioma: String) {
     val intent = Intent(Intent.ACTION_SEND).apply {
         type = "text/plain"
         putExtra(Intent.EXTRA_SUBJECT, "Cartas Debuff")
-        putExtra(Intent.EXTRA_TEXT, "Cartas Debuff, visor de skills y cartas de Uma Musume:\n$URL_RELEASES")
+        putExtra(Intent.EXTRA_TEXT, textoUi("compartir_app_texto", idioma, URL_RELEASES))
     }
-    context.startActivity(Intent.createChooser(intent, "Compartir app"))
+    val titulo = textoUi("ajustes_compartir_app", idioma)
+    context.startActivity(Intent.createChooser(intent, titulo))
 }
 
-private fun compartir(context: Context, texto: String) {
+private fun compartir(context: Context, texto: String, idioma: String) {
     val intent = Intent(Intent.ACTION_SEND).apply {
         type = "text/plain"
-        putExtra(Intent.EXTRA_SUBJECT, "Reporte de crash — Cartas Debuff")
+        putExtra(Intent.EXTRA_SUBJECT, textoUi("compartir_reporte_asunto", idioma))
         putExtra(Intent.EXTRA_TEXT, texto)
     }
-    context.startActivity(Intent.createChooser(intent, "Compartir reporte"))
+    val titulo = textoUi("compartir_reporte", idioma)
+    context.startActivity(Intent.createChooser(intent, titulo))
 }
