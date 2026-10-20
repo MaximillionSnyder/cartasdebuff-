@@ -69,7 +69,10 @@ fun PersonajesScreen(
     var busqueda by rememberSaveable { mutableStateOf("") }
     var estrellas by rememberSaveable { mutableStateOf(0) }
     var alfabetico by rememberSaveable { mutableStateOf(false) }
-    var filtrosAbiertos by rememberSaveable { mutableStateOf(true) }
+    /* Los filtros arrancan plegados: la lista tiene más sitio de entrada y quien
+       los use abre el panel con un toque. El estado se recuerda mientras se
+       navega, así que al volver de una ficha sigue como lo dejó el usuario. */
+    var filtrosAbiertos by rememberSaveable { mutableStateOf(false) }
 
     val consulta = busqueda.trim()
     val filtradas = modelo.cartasPersonaje.filter { carta ->
