@@ -49,6 +49,8 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.maximillionsnyder.cartasdebuff.R
+import com.maximillionsnyder.cartasdebuff.ui.i18n.TX_UI
+import com.maximillionsnyder.cartasdebuff.ui.i18n.t
 import kotlinx.coroutines.launch
 
 /* Formas compartidas de la zona de búsqueda y filtros. */
@@ -83,7 +85,7 @@ fun CampoBusqueda(
                 IconButton(onClick = { onValor("") }) {
                     Icon(
                         painterResource(R.drawable.ic_cerrar),
-                        contentDescription = "Borrar búsqueda",
+                        contentDescription = t(TX_UI, "borrar_busqueda"),
                         tint = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.size(18.dp),
                     )
@@ -144,7 +146,7 @@ fun PanelFiltros(
                 modifier = Modifier.size(20.dp),
             )
             Spacer(Modifier.width(8.dp))
-            Text("Filtros", style = MaterialTheme.typography.titleSmall)
+            Text(t(TX_UI, "filtros_titulo"), style = MaterialTheme.typography.titleSmall)
             if (activos > 0) {
                 Spacer(Modifier.width(8.dp))
                 ContadorFiltros(activos)
@@ -155,12 +157,12 @@ fun PanelFiltros(
                     onClick = onLimpiar,
                     contentPadding = PaddingValues(horizontal = 10.dp, vertical = 4.dp),
                 ) {
-                    Text("Limpiar", style = MaterialTheme.typography.labelLarge)
+                    Text(t(TX_UI, "filtro_limpiar"), style = MaterialTheme.typography.labelLarge)
                 }
             }
             Icon(
                 painterResource(R.drawable.ic_desplegar),
-                contentDescription = if (abierto) "Ocultar filtros" else "Mostrar filtros",
+                contentDescription = if (abierto) t(TX_UI, "filtros_ocultar") else t(TX_UI, "filtros_mostrar"),
                 tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier
                     .size(22.dp)
@@ -187,7 +189,7 @@ fun PanelFiltros(
 @Composable
 fun ContadorFiltros(activos: Int) {
     Text(
-        if (activos == 1) "1 activo" else "$activos activos",
+        if (activos == 1) t(TX_UI, "activos_uno") else t(TX_UI, "activos_varios", activos),
         style = MaterialTheme.typography.labelSmall,
         color = MaterialTheme.colorScheme.onPrimaryContainer,
         modifier = Modifier
@@ -225,7 +227,7 @@ fun BotonVolverArriba(
             containerColor = MaterialTheme.colorScheme.primaryContainer,
             contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
         ) {
-            Icon(painterResource(R.drawable.ic_arriba), contentDescription = "Volver arriba")
+            Icon(painterResource(R.drawable.ic_arriba), contentDescription = t(TX_UI, "volver_arriba"))
         }
     }
 }
