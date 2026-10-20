@@ -63,6 +63,8 @@ import com.maximillionsnyder.cartasdebuff.ui.components.ImagenRemota
 import com.maximillionsnyder.cartasdebuff.ui.components.ListaConArriba
 import com.maximillionsnyder.cartasdebuff.ui.components.SeccionTitulo
 import com.maximillionsnyder.cartasdebuff.domain.etiquetaTipo
+import com.maximillionsnyder.cartasdebuff.ui.i18n.TX_PANTALLAS
+import com.maximillionsnyder.cartasdebuff.ui.i18n.t
 
 @Composable
 fun SkillDetalleScreen(
@@ -78,8 +80,8 @@ fun SkillDetalleScreen(
     val skill = modelo.skill(skillId)
     if (skill == null) {
         Column(Modifier.fillMaxSize()) {
-            BarraDetalle("Skill", onVolver)
-            EstadoVacio("No se encontró la skill")
+            BarraDetalle(t(TX_PANTALLAS, "titulo_skill"), onVolver)
+            EstadoVacio(t(TX_PANTALLAS, "skill_no_encontrada"))
         }
         return
     }
@@ -89,7 +91,11 @@ fun SkillDetalleScreen(
             IconButton(onClick = { onFavorito(skill.id) }) {
                 Icon(
                     painterResource(if (favorito) R.drawable.ic_estrella else R.drawable.ic_estrella_borde),
-                    contentDescription = if (favorito) "Quitar de favoritas" else "Marcar como favorita",
+                    contentDescription = if (favorito) {
+                        t(TX_PANTALLAS, "quitar_favorita")
+                    } else {
+                        t(TX_PANTALLAS, "marcar_favorita")
+                    },
                     tint = if (favorito) Color(0xFFD4A017) else MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
@@ -106,83 +112,87 @@ fun SkillDetalleScreen(
                         modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
                         horizontalArrangement = Arrangement.spacedBy(6.dp),
                     ) {
-                        for (tipo in skill.types) Etiqueta(etiquetaTipo(tipo))
+                        for (tipo in skill.types) Etiqueta(etiquetaTipo(tipo, idioma))
                     }
                 }
             }
             val fuentes = skill.sources
             if (fuentes.characterCards.isNotEmpty()) {
-                item { SeccionTitulo("Cartas de personaje", fuentes.characterCards.size) }
+                item { SeccionTitulo(t(TX_PANTALLAS, "titulo_personajes"), fuentes.characterCards.size) }
                 items(fuentes.characterCards, key = { "carta-${it.cardId}" }) { fuente ->
                     val carta = modelo.cartaPersonaje(fuente.cardId)
                     if (carta != null) {
                         FilaPersonaje(carta, idioma, fuente.kinds) { onAbrirPersonaje(fuente.cardId) }
                     } else {
-                        FilaReferencia("Carta de personaje sin datos")
+                        FilaReferencia(t(TX_PANTALLAS, "carta_personaje_sin_datos"))
                     }
                 }
             }
-            item { SeccionTitulo("Descripciones") }
+            item { SeccionTitulo(t(TX_PANTALLAS, "seccion_descripciones")) }
             item { TarjetaDescripciones(skill, idioma) }
             if (skill.conditions.isNotEmpty()) {
-                item { SeccionTitulo("Condiciones", skill.conditions.size) }
+                item { SeccionTitulo(t(TX_PANTALLAS, "seccion_condiciones"), skill.conditions.size) }
                 items(skill.conditions.size) { indice ->
                     TarjetaCondicion(
                         skill.conditions[indice].precondition,
                         skill.conditions[indice].condition,
                         skill.conditions[indice].baseTime,
                         skill.conditions[indice].effects,
+                        idioma,
                     )
                 }
             }
             val gen = skill.geneVersion
             if (gen != null && (gen.name.texto(idioma) != null || gen.desc.texto(idioma) != null)) {
-                item { SeccionTitulo("Versión gen") }
+                item { SeccionTitulo(t(TX_PANTALLAS, "seccion_version_gen")) }
                 item { TarjetaGen(gen, idioma) }
             }
             val evolucion = skill.evolution
             if (evolucion.preEvo != null || evolucion.evo.isNotEmpty()) {
-                item { SeccionTitulo("Evolución") }
+                item { SeccionTitulo(t(TX_PANTALLAS, "seccion_evolucion")) }
                 item { TarjetaEvolucion(evolucion.preEvo, evolucion.evo, modelo, idioma) }
             }
 
             if (fuentes.characterEvents.isNotEmpty()) {
-                item { SeccionTitulo("Eventos de personaje", fuentes.characterEvents.size) }
+                item { SeccionTitulo(t(TX_PANTALLAS, "seccion_eventos_personaje"), fuentes.characterEvents.size) }
                 items(fuentes.characterEvents, key = { "evento-$it" }) { cardId ->
                     val carta = modelo.cartaPersonaje(cardId)
                     if (carta != null) {
                         FilaPersonaje(carta, idioma, null) { onAbrirPersonaje(cardId) }
                     } else {
-                        FilaReferencia("Carta de personaje sin datos")
+                        FilaReferencia(t(TX_PANTALLAS, "carta_personaje_sin_datos"))
                     }
                 }
             }
             if (fuentes.supportHints.isNotEmpty()) {
-                item { SeccionTitulo("Hints de cartas de apoyo", fuentes.supportHints.size) }
+                item { SeccionTitulo(t(TX_PANTALLAS, "seccion_hints_apoyo"), fuentes.supportHints.size) }
                 items(fuentes.supportHints, key = { "hint-$it" }) { supportId ->
                     val carta = modelo.cartaApoyo(supportId)
                     if (carta != null) {
-                        FilaApoyo(carta, idioma, "Hint") { onAbrirApoyo(supportId) }
+                        FilaApoyo(carta, idioma, t(TX_PANTALLAS, "insignia_hint")) { onAbrirApoyo(supportId) }
                     } else {
-                        FilaReferencia("Carta de apoyo sin datos")
+                        FilaReferencia(t(TX_PANTALLAS, "carta_apoyo_sin_datos"))
                     }
                 }
             }
             if (fuentes.supportEvents.isNotEmpty()) {
-                item { SeccionTitulo("Eventos de cartas de apoyo", fuentes.supportEvents.size) }
+                item { SeccionTitulo(t(TX_PANTALLAS, "seccion_eventos_apoyo"), fuentes.supportEvents.size) }
                 items(fuentes.supportEvents, key = { "evento-apoyo-$it" }) { supportId ->
                     val carta = modelo.cartaApoyo(supportId)
                     if (carta != null) {
-                        FilaApoyo(carta, idioma, "Evento") { onAbrirApoyo(supportId) }
+                        FilaApoyo(carta, idioma, t(TX_PANTALLAS, "insignia_evento")) { onAbrirApoyo(supportId) }
                     } else {
-                        FilaReferencia("Carta de apoyo sin datos")
+                        FilaReferencia(t(TX_PANTALLAS, "carta_apoyo_sin_datos"))
                     }
                 }
             }
             if (fuentes.scenarioEvents.isNotEmpty()) {
-                item { SeccionTitulo("Eventos de escenario", fuentes.scenarioEvents.size) }
+                item { SeccionTitulo(t(TX_PANTALLAS, "seccion_eventos_escenario"), fuentes.scenarioEvents.size) }
                 items(fuentes.scenarioEvents, key = { "escenario-$it" }) { escenarioId ->
-                    FilaReferencia(modelo.escenario(escenarioId)?.nombre(idioma) ?: "Escenario sin datos")
+                    FilaReferencia(
+                        modelo.escenario(escenarioId)?.nombre(idioma)
+                            ?: t(TX_PANTALLAS, "escenario_sin_datos"),
+                    )
                 }
             }
         }
@@ -204,7 +214,11 @@ private fun EncabezadoSkill(skill: Skill, idioma: String) {
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
                     EtiquetaRareza(skill.rarity)
                     if (skill.cost != null) {
-                        Text("Coste ${skill.cost}", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text(
+                            t(TX_PANTALLAS, "coste", skill.cost.toString()),
+                            style = MaterialTheme.typography.labelMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
                     }
                 }
                 if (skill.unreleased.isNotEmpty()) {
@@ -213,7 +227,7 @@ private fun EncabezadoSkill(skill: Skill, idioma: String) {
                     Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                         for (id in skill.unreleased) {
                             Etiqueta(
-                                "sin ${etiquetaIdioma(id)}",
+                                t(TX_PANTALLAS, "sin_idioma", etiquetaIdioma(id)),
                                 MaterialTheme.colorScheme.surfaceVariant,
                                 MaterialTheme.colorScheme.onSurfaceVariant,
                             )
@@ -246,9 +260,13 @@ private fun TarjetaDescripciones(skill: Skill, idioma: String) {
             TextButton(onClick = { expandido = !expandido }) {
                 Text(
                     if (expandido) {
-                        "Ocultar otros idiomas"
+                        t(TX_PANTALLAS, "ocultar_otros_idiomas")
                     } else {
-                        "Ver más idiomas (" + otros.joinToString(" · ") { etiquetaIdioma(it) } + ")"
+                        t(
+                            TX_PANTALLAS,
+                            "ver_mas_idiomas",
+                            otros.joinToString(" · ") { etiquetaIdioma(it) },
+                        )
                     },
                 )
             }
@@ -264,7 +282,7 @@ private fun BloqueIdioma(skill: Skill, id: String) {
         Text(skill.nombre(id), style = MaterialTheme.typography.titleSmall)
         if (descripcion.isBlank()) {
             Text(
-                "Sin descripción en ${etiquetaIdioma(id)}.",
+                t(TX_PANTALLAS, "sin_descripcion_idioma", etiquetaIdioma(id)),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
@@ -280,12 +298,12 @@ private fun BloqueIdioma(skill: Skill, id: String) {
 
 /* La condición va tal cual viene de GameTora: primero la expresión original
    ("is_last_straight==1"), que es el dato exacto con el que se contrasta, y
-   debajo su lectura en español, un punto por término ("en la recta final").
-   Si alguna clave no está en la tabla, la lectura se queda corta pero el
-   original sigue ahí, así que no se pierde nada. */
+   debajo su lectura en el idioma de la app, un punto por término ("en la recta
+   final"). Si alguna clave no está en la tabla, la lectura se queda corta pero
+   el original sigue ahí, así que no se pierde nada. */
 @Composable
-private fun FilaCondicion(titulo: String, expresion: String) {
-    val terminos = leerCondiciones(expresion)
+private fun FilaCondicion(titulo: String, expresion: String, idioma: String) {
+    val terminos = leerCondiciones(expresion, idioma)
     Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
         Text(
             titulo,
@@ -346,7 +364,7 @@ private fun FichaEfecto(efecto: Efecto) {
             color = colores.last(),
         )
         Text(
-            "tipo ${efecto.type}",
+            t(TX_PANTALLAS, "tipo_efecto", efecto.type.toString()),
             style = MaterialTheme.typography.labelSmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
@@ -359,21 +377,26 @@ private fun TarjetaCondicion(
     condition: String?,
     baseTime: Long?,
     efectos: List<Efecto>,
+    idioma: String,
 ) {
     TarjetaApp(modifier = Modifier.fillMaxWidth()) {
         Column(Modifier.fillMaxWidth().padding(12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-            if (precondition != null) FilaCondicion("Requisito", precondition)
-            if (condition != null) FilaCondicion("Condición", condition)
+            if (precondition != null) {
+                FilaCondicion(t(TX_PANTALLAS, "requisito"), precondition, idioma)
+            }
+            if (condition != null) {
+                FilaCondicion(t(TX_PANTALLAS, "condicion"), condition, idioma)
+            }
             if (baseTime != null && baseTime > 0) {
                 Text(
-                    "Duración base: ${duracionEnSegundos(baseTime)}",
+                    t(TX_PANTALLAS, "duracion_base", duracionEnSegundos(baseTime, idioma)),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
             if (efectos.isNotEmpty()) {
                 Text(
-                    "Efectos",
+                    t(TX_PANTALLAS, "efectos"),
                     style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -392,7 +415,10 @@ private fun TarjetaCondicion(
 private fun TarjetaGen(gen: VersionGen, idioma: String) {
     TarjetaApp(modifier = Modifier.fillMaxWidth()) {
         Column(Modifier.fillMaxWidth().padding(12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-            Text(gen.name.texto(idioma) ?: "Versión gen", style = MaterialTheme.typography.titleSmall)
+            Text(
+                gen.name.texto(idioma) ?: t(TX_PANTALLAS, "seccion_version_gen"),
+                style = MaterialTheme.typography.titleSmall,
+            )
             Text(
                 gen.desc.texto(idioma).orEmpty().ifBlank { "—" },
                 style = MaterialTheme.typography.bodySmall,
@@ -400,7 +426,11 @@ private fun TarjetaGen(gen: VersionGen, idioma: String) {
             )
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 if (gen.cost != null) {
-                    Text("Coste ${gen.cost}", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text(
+                        t(TX_PANTALLAS, "coste", gen.cost.toString()),
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
                 }
             }
         }
@@ -409,14 +439,25 @@ private fun TarjetaGen(gen: VersionGen, idioma: String) {
 
 @Composable
 private fun TarjetaEvolucion(preEvo: EvoOrigen?, evos: List<EvoOrigen>, modelo: Modelo, idioma: String) {
+    /* La tabla se puede leer fuera de un @Composable, así que el nombre de
+       reserva se resuelve aquí y los ayudantes de abajo siguen siendo puros. */
+    val sinDatos = TX_PANTALLAS["skill_sin_datos", idioma]
     TarjetaApp(modifier = Modifier.fillMaxWidth()) {
         Column(Modifier.fillMaxWidth().padding(12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
             if (preEvo != null) {
-                Text("Evoluciona desde: ${nombreSkill(preEvo.old, modelo, idioma)}", style = MaterialTheme.typography.bodySmall)
+                Text(
+                    t(
+                        TX_PANTALLAS,
+                        "evoluciona_desde",
+                        nombreSkill(preEvo.old, modelo, idioma, sinDatos),
+                    ),
+                    style = MaterialTheme.typography.bodySmall,
+                )
                 Text(origen(preEvo, modelo, idioma), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
             for (evo in evos) {
-                Text("→ ${evo.evos.joinToString(", ") { nombreSkill(it, modelo, idioma) }}", style = MaterialTheme.typography.bodySmall)
+                val nombres = evo.evos.joinToString(", ") { nombreSkill(it, modelo, idioma, sinDatos) }
+                Text("→ $nombres", style = MaterialTheme.typography.bodySmall)
                 Text(origen(evo, modelo, idioma), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
         }
@@ -424,15 +465,27 @@ private fun TarjetaEvolucion(preEvo: EvoOrigen?, evos: List<EvoOrigen>, modelo: 
 }
 
 /* Las referencias a otras skills vienen por ID; se muestran por nombre. */
-private fun nombreSkill(id: Int?, modelo: Modelo, idioma: String): String {
+private fun nombreSkill(id: Int?, modelo: Modelo, idioma: String, sinDatos: String): String {
     if (id == null) return "—"
-    return modelo.skill(id)?.nombre(idioma) ?: "Skill sin datos"
+    return modelo.skill(id)?.nombre(idioma) ?: sinDatos
 }
 
-private fun origen(evo: EvoOrigen, modelo: Modelo, idioma: String): String = when {
-    evo.cardId != null -> "Carta: ${modelo.cartaPersonaje(evo.cardId)?.nombre(idioma) ?: "sin datos"}"
-    evo.scenarioId != null -> "Escenario: ${modelo.escenario(evo.scenarioId)?.nombre(idioma) ?: "sin datos"}"
-    else -> "—"
+@Composable
+private fun origen(evo: EvoOrigen, modelo: Modelo, idioma: String): String {
+    val sinDatos = TX_PANTALLAS["sin_datos", idioma]
+    return when {
+        evo.cardId != null -> t(
+            TX_PANTALLAS,
+            "origen_carta",
+            modelo.cartaPersonaje(evo.cardId)?.nombre(idioma) ?: sinDatos,
+        )
+        evo.scenarioId != null -> t(
+            TX_PANTALLAS,
+            "origen_escenario",
+            modelo.escenario(evo.scenarioId)?.nombre(idioma) ?: sinDatos,
+        )
+        else -> "—"
+    }
 }
 
 @Composable

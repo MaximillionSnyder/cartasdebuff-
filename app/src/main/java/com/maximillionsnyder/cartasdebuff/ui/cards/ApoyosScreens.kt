@@ -49,9 +49,11 @@ import com.maximillionsnyder.cartasdebuff.domain.TIPOS_APOYO
 import com.maximillionsnyder.cartasdebuff.ui.components.coloresTipoApoyo
 import com.maximillionsnyder.cartasdebuff.domain.etiquetaObtencion
 import com.maximillionsnyder.cartasdebuff.domain.etiquetaTipoApoyo
+import com.maximillionsnyder.cartasdebuff.ui.i18n.TX_PANTALLAS
+import com.maximillionsnyder.cartasdebuff.ui.i18n.t
 
+/* Chips de estrellas: el número filtra y la etiqueta no cambia con el idioma. */
 private val CHIPS_ESTRELLAS = listOf(
-    Triple(0, "Todas", ColoresTodas),
     Triple(3, "3★", ColoresEstrella3),
     Triple(2, "2★", ColoresEstrella2),
     Triple(1, "1★", ColoresEstrella1),
@@ -88,13 +90,17 @@ fun ApoyosScreen(
             modifier = Modifier.fillMaxWidth().padding(start = 16.dp, end = 8.dp, top = 8.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Text("Cartas de apoyo", style = MaterialTheme.typography.headlineSmall, modifier = Modifier.weight(1f))
+            Text(
+                t(TX_PANTALLAS, "titulo_apoyos"),
+                style = MaterialTheme.typography.headlineSmall,
+                modifier = Modifier.weight(1f),
+            )
             SelectorIdioma(idioma, onIdioma)
         }
         CampoBusqueda(
             valor = busqueda,
             onValor = { busqueda = it },
-            placeholder = "Buscar por nombre o título",
+            placeholder = t(TX_PANTALLAS, "buscar_por_nombre_o_titulo"),
             modifier = Modifier.padding(horizontal = 16.dp),
         )
         PanelFiltros(
@@ -111,14 +117,14 @@ fun ApoyosScreen(
         ) {
             FilaChips {
                 ChipFiltro(
-                    texto = "Todas",
+                    texto = t(TX_PANTALLAS, "todas"),
                     seleccionado = tipoFiltro == "todos",
                     colores = ColoresTodas,
                     onClick = { tipoFiltro = "todos" },
                 )
                 for (tipo in TIPOS_APOYO) {
                     ChipFiltro(
-                        texto = etiquetaTipoApoyo(tipo),
+                        texto = etiquetaTipoApoyo(tipo, idioma),
                         seleccionado = tipoFiltro == tipo,
                         colores = coloresTipoApoyo(tipo),
                         onClick = { tipoFiltro = if (tipoFiltro == tipo) "todos" else tipo },
@@ -135,7 +141,7 @@ fun ApoyosScreen(
                     )
                 }
                 ChipFiltro(
-                    texto = "Sin gacha",
+                    texto = t(TX_PANTALLAS, "chip_sin_gacha"),
                     seleccionado = sinGacha,
                     colores = ColoresGacha,
                     onClick = { sinGacha = !sinGacha },
@@ -148,7 +154,9 @@ fun ApoyosScreen(
                 )
             }
         }
-        ContadorResultados("${filtradas.size} de ${modelo.cartasApoyo.size} cartas")
+        ContadorResultados(
+            t(TX_PANTALLAS, "contador_cartas", "${filtradas.size} / ${modelo.cartasApoyo.size}"),
+        )
         if (filtradas.isEmpty()) {
             EstadoVacioBusqueda()
         } else {
@@ -179,8 +187,8 @@ fun ApoyoDetalleScreen(
     val carta = modelo.cartaApoyo(supportId)
     if (carta == null) {
         Column(Modifier.fillMaxSize()) {
-            BarraDetalle("Carta de apoyo", onVolver)
-            EstadoVacio("No se encontró la carta")
+            BarraDetalle(t(TX_PANTALLAS, "titulo_carta_apoyo"), onVolver)
+            EstadoVacio(t(TX_PANTALLAS, "carta_no_encontrada"))
         }
         return
     }
@@ -198,19 +206,23 @@ fun ApoyoDetalleScreen(
         ) {
             item { EncabezadoCartaApoyo(carta, idioma, skills.size) }
             if (hints.isNotEmpty()) {
-                item(key = "titulo-hints") { SeccionTitulo("Skills por hint", hints.size) }
+                item(key = "titulo-hints") {
+                    SeccionTitulo(t(TX_PANTALLAS, "seccion_skills_hint"), hints.size)
+                }
                 items(hints, key = { "hint-${it.id}" }) { skill ->
                     FilaSkill(skill, idioma) { onAbrirSkill(skill.id) }
                 }
             }
             if (eventos.isNotEmpty()) {
-                item(key = "titulo-eventos") { SeccionTitulo("Skills por evento", eventos.size) }
+                item(key = "titulo-eventos") {
+                    SeccionTitulo(t(TX_PANTALLAS, "seccion_skills_evento"), eventos.size)
+                }
                 items(eventos, key = { "evento-${it.id}" }) { skill ->
                     FilaSkill(skill, idioma) { onAbrirSkill(skill.id) }
                 }
             }
             if (skills.isEmpty()) {
-                item { EstadoVacio("Sin skills registradas para esta carta") }
+                item { EstadoVacio(t(TX_PANTALLAS, "sin_skills_carta")) }
             }
         }
     }
@@ -239,13 +251,17 @@ private fun EncabezadoCartaApoyo(carta: CartaApoyo, idioma: String, numeroSkills
                     Estrellas(carta.rarity)
                     EtiquetaTipoApoyo(carta.type)
                     Text(
-                        if (numeroSkills == 1) "1 skill" else "$numeroSkills skills",
+                        if (numeroSkills == 1) {
+                            t(TX_PANTALLAS, "una_skill")
+                        } else {
+                            t(TX_PANTALLAS, "n_skills", numeroSkills.toString())
+                        },
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
                 Text(
-                    etiquetaObtencion(carta.obtained),
+                    etiquetaObtencion(carta.obtained, idioma),
                     style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
