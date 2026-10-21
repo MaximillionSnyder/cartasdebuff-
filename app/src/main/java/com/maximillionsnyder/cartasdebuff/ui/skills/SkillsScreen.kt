@@ -88,7 +88,10 @@ fun SkillsScreen(
     var fuentes by rememberSaveable { mutableStateOf(listOf<String>()) }
     var alfabetico by rememberSaveable { mutableStateOf(false) }
     var soloFavoritos by rememberSaveable { mutableStateOf(false) }
-    var filtrosAbiertos by rememberSaveable { mutableStateOf(true) }
+    /* Los filtros arrancan plegados: la lista tiene más sitio de entrada y quien
+       los use abre el panel con un toque. El estado se recuerda mientras se
+       navega, así que al volver de una ficha sigue como lo dejó el usuario. */
+    var filtrosAbiertos by rememberSaveable { mutableStateOf(false) }
 
     val consulta = busqueda.trim()
     val filtradas = modelo.skills.filter { skill ->
